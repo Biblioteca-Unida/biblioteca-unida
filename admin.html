@@ -27,9 +27,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS (Excel Multi-Hoja) CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Cropper.js (Ajuste/Recorte de Imágenes) CDN -->
+    <!-- ExcelJS & FileSaver (Motor Profesional con Estilos, Colores y Bordes) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <!-- Cropper.js CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <!-- Google Fonts -->
@@ -60,7 +61,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE RECORTE / AJUSTE TIPO CELULAR (CROPPER.JS) -->
+    <!-- MODAL DE RECORTE / AJUSTE TIPO CELULAR -->
     <div id="modal-cropper" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden p-4">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -111,7 +112,7 @@
                         <i class="fas fa-flask-vial w-5 text-center"></i> Simuladores
                     </button>
                     <button onclick="navegarPestana('tab-sync')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <i class="fas fa-database w-5 text-center"></i> Base de Datos & Excel
+                        <i class="fas fa-file-excel w-5 text-center"></i> Reporte Anual & Base
                     </button>
                 </nav>
             </div>
@@ -132,14 +133,14 @@
             <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between shrink-0">
                 <div>
                     <h2 id="topbar-titulo" class="text-base font-bold text-slate-800 dark:text-white">Panel de Administración de Libros</h2>
-                    <p class="text-xs text-slate-400">Gestión de acervo bibliográfico y simuladores UNIDA</p>
+                    <p class="text-xs text-slate-400">Control directo de biblioteca digital UNIDA</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <button onclick="actualizarCatalogoGlobal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
                         <i class="fas fa-rotate"></i> Actualizar Catálogo
                     </button>
-                    <button onclick="exportarInventarioExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                        <i class="fas fa-file-excel"></i> Informe Anual Excel
+                    <button onclick="exportarInformeAnualExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                        <i class="fas fa-file-excel"></i> Descargar Excel Pro
                     </button>
                 </div>
             </header>
@@ -171,7 +172,7 @@
                             <div>
                                 <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Simuladores</span>
                                 <h3 id="kpi-simuladores" class="text-3xl font-extrabold text-[#e67e22] mt-1">0</h3>
-                                <span class="text-[11px] text-amber-500 font-medium"><i class="fas fa-flask"></i> Registrados</span>
+                                <span class="text-[11px] text-amber-500 font-medium"><i class="fas fa-flask"></i> Operativos</span>
                             </div>
                             <div class="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-[#e67e22] rounded-xl flex items-center justify-center text-xl"><i class="fas fa-laptop-medical"></i></div>
                         </div>
@@ -256,6 +257,10 @@
                                                 <option value="Educación">Educación</option>
                                                 <option value="Talento Humano">Talento Humano</option>
                                                 <option value="Banca y Finanzas">Banca y Finanzas</option>
+                                                <option value="Adm. de Empresas/Pública">Adm. de Empresas/Pública</option>
+                                                <option value="Adm. Gestión Emprendedora">Adm. Gestión Emprendedora</option>
+                                                <option value="Marketing Digital">Marketing Digital</option>
+                                                <option value="Sistemas">Sistemas</option>
                                             </optgroup>
                                         </select>
                                     </div>
@@ -267,12 +272,12 @@
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Título del Libro *</label>
-                                    <input type="text" id="inp-titulo" oninput="actualizarPreview()" placeholder="Ej: Álgebra Lineal" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <input type="text" id="inp-titulo" oninput="actualizarPreview()" placeholder="Ej: Arquitectura de Computadoras" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Autor(es) *</label>
-                                    <input type="text" id="inp-autor" oninput="actualizarPreview()" placeholder="Ej: Stanley I. Grossman" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <input type="text" id="inp-autor" oninput="actualizarPreview()" placeholder="Ej: David Patricio López Carrillo" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                                 </div>
 
                                 <div>
@@ -410,12 +415,12 @@
                         </div>
                         <div>
                             <h3 class="text-base font-bold text-slate-800 dark:text-white">Exportación de Catálogo y Reporte Anual</h3>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Genera un libro de cálculo formal con hoja resumen general y hojas dedicadas por facultad para auditorías e informes anuales.</p>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Genera un libro de cálculo formal con estilos ejecutivos, paleta UNIDA, bordes estructurados y hojas individuales por facultad.</p>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                            <button onclick="exportarInventarioExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
-                                <i class="fas fa-file-excel"></i> Reporte Excel
+                            <button onclick="exportarInformeAnualExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                                <i class="fas fa-file-excel"></i> Reporte Excel Pro
                             </button>
                             <button onclick="descargarJS()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
                                 <i class="fas fa-code"></i> catalogo.js
@@ -488,7 +493,7 @@
             return 'FEADYS';
         }
 
-        // LÓGICA DE RECORTE (CROPPER.JS)
+        // RECORTE CROPPER.JS
         function iniciarCropper(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -511,7 +516,6 @@
 
         function aplicarRecorte() {
             if (cropper) {
-                // Compresión optimizada en tamaño estándar de portada (330x480px)
                 const canvas = cropper.getCroppedCanvas({ width: 330, height: 480 });
                 const base64 = canvas.toDataURL('image/jpeg', 0.85);
                 document.getElementById('portada-final').value = base64;
@@ -554,18 +558,6 @@
         function actualizarCatalogoGlobal() {
             cargarDatos();
             alert('¡Catálogo sincronizado exitosamente! Se actualizaron las métricas y los ' + libros.length + ' libros.');
-        }
-
-        function forzarCargaSemilla() {
-            localStorage.removeItem(STORAGE_KEY);
-            if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
-                libros = catalogoLibros;
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(libros));
-                actualizarTodo();
-                alert('¡Memoria reseteada con éxito! Se cargaron ' + libros.length + ' libros originales desde catalogo.js.');
-            } else {
-                alert('No se encontró catalogo.js.');
-            }
         }
 
         function guardarDatos() {
@@ -746,7 +738,6 @@
             document.getElementById('kpi-simuladores').textContent = simuladores.length;
         }
 
-        // TABLA Y KPIS
         function actualizarTodo() {
             renderKPIs();
             renderTabla();
@@ -798,7 +789,7 @@
             });
         }
 
-        // GRÁFICOS INTERACTIVOS Y POR COLORES (CHART.JS)
+        // GRÁFICOS INTERACTIVOS (CHART.JS)
         let chart1, chart2;
         function renderGraficos() {
             const recuento = {};
@@ -843,13 +834,12 @@
                 });
             }
 
-            // Conteo con colores diferenciados por facultad
             const fac = {
-                "Facultad de Salud": { total: 0, color: "#e11d48" },          // Rosa / Rojo médico
-                "Facultad de Gestión": { total: 0, color: "#2563eb" },        // Azul Corporativo
-                "Facultad de Ingeniería": { total: 0, color: "#d97706" },     // Ámbar / Naranja Ingeniería
-                "Facultad de C. Jurídicas y Sociales": { total: 0, color: "#7c3aed" }, // Violeta Jurídico
-                "FEADYS": { total: 0, color: "#059669" }                      // Verde Esmeralda
+                "Facultad de Salud": { total: 0, color: "#e11d48" },
+                "Facultad de Gestión": { total: 0, color: "#2563eb" },
+                "Facultad de Ingeniería": { total: 0, color: "#d97706" },
+                "Facultad de C. Jurídicas y Sociales": { total: 0, color: "#7c3aed" },
+                "FEADYS": { total: 0, color: "#059669" }
             };
 
             libros.forEach(l => {
@@ -881,20 +871,19 @@
             }
         }
 
-        // EXPORTACIÓN A EXCEL MULTI-HOJA PERSONALIZADO
-        function exportarInventarioExcel() {
-            const wb = XLSX.utils.book_new();
+        // MOTOR PROFESIONAL DE EXCEL (EXCELJS CON ESTILOS, BORDES Y COLORES CORPORATIVOS)
+        async function exportarInformeAnualExcel() {
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = "Biblioteca Central UNIDA";
+            workbook.lastModifiedBy = "Dirección de Biblioteca";
+            workbook.created = new Date();
 
-            // 1. HOJA RESUMEN ANUAL
-            const resumenData = [
-                ["UNIVERSIDAD DE LA INTEGRACIÓN DE LAS AMÉRICAS (UNIDA)"],
-                ["BIBLIOTECA CENTRAL “EMB. JOÃO BAENA SOARES”"],
-                ["INFORME Y AUDITORÍA ANUAL DE INVENTARIO BIBLIOGRÁFICO"],
-                ["Fecha de Emisión:", new Date().toLocaleDateString()],
-                [],
-                ["RESUMEN EJECUTIVO POR FACULTAD"],
-                ["Facultad", "Cantidad de Libros", "Porcentaje del Acervo"]
-            ];
+            const borderThin = {
+                top: { style: 'thin', color: { argb: 'D3D3D3' } },
+                left: { style: 'thin', color: { argb: 'D3D3D3' } },
+                bottom: { style: 'thin', color: { argb: 'D3D3D3' } },
+                right: { style: 'thin', color: { argb: 'D3D3D3' } }
+            };
 
             const facultadesLista = [
                 "Facultad de Salud",
@@ -904,44 +893,163 @@
                 "FEADYS"
             ];
 
-            const totalesPorFacultad = {};
-            facultadesLista.forEach(f => totalesPorFacultad[f] = 0);
-            libros.forEach(l => {
-                const facName = obtenerFacultad(l.carrera);
-                totalesPorFacultad[facName] = (totalesPorFacultad[facName] || 0) + 1;
+            // 1. HOJA DE RESUMEN EJECUTIVO
+            const wsResumen = workbook.addWorksheet("Resumen Ejecutivo", {
+                views: [{ showGridLines: true }]
             });
 
-            facultadesLista.forEach(f => {
-                const cant = totalesPorFacultad[f] || 0;
-                const pct = libros.length > 0 ? ((cant / libros.length) * 100).toFixed(2) + "%" : "0%";
-                resumenData.push([f, cant, pct]);
+            wsResumen.columns = [
+                { width: 5 },  // A
+                { width: 38 }, // B
+                { width: 22 }, // C
+                { width: 22 }, // D
+                { width: 15 }  // E
+            ];
+
+            // Encabezado Institucional
+            wsResumen.mergeCells('B2:D2');
+            const title1 = wsResumen.getCell('B2');
+            title1.value = "UNIVERSIDAD DE LA INTEGRACIÓN DE LAS AMÉRICAS (UNIDA)";
+            title1.font = { name: 'Segoe UI', size: 13, bold: true, color: { argb: 'FFFFFF' } };
+            title1.alignment = { horizontal: 'center', vertical: 'middle' };
+            title1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1E3C6E' } };
+
+            wsResumen.mergeCells('B3:D3');
+            const title2 = wsResumen.getCell('B3');
+            title2.value = 'BIBLIOTECA CENTRAL “EMB. JOÃO BAENA SOARES”';
+            title2.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFF' } };
+            title2.alignment = { horizontal: 'center', vertical: 'middle' };
+            title2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '2980B9' } };
+
+            wsResumen.mergeCells('B4:D4');
+            const title3 = wsResumen.getCell('B4');
+            title3.value = "INFORME ANUAL Y AUDITORÍA DE INVENTARIO BIBLIOGRÁFICO " + new Date().getFullYear();
+            title3.font = { name: 'Segoe UI', size: 9, italic: true, color: { argb: '333333' } };
+            title3.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Tarjetas KPI
+            wsResumen.getCell('B6').value = "TOTAL MATERIALES";
+            wsResumen.getCell('B6').font = { size: 8, bold: true, color: { argb: '7F8C8D' } };
+            wsResumen.getCell('B7').value = libros.length;
+            wsResumen.getCell('B7').font = { size: 18, bold: true, color: { argb: '1E3C6E' } };
+            wsResumen.getCell('B7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F0F4F8' } };
+
+            wsResumen.getCell('C6').value = "CARRERAS ACTIVAS";
+            wsResumen.getCell('C6').font = { size: 8, bold: true, color: { argb: '7F8C8D' } };
+            wsResumen.getCell('C7').value = [...new Set(libros.map(l => l.carrera))].length;
+            wsResumen.getCell('C7').font = { size: 18, bold: true, color: { argb: '2980B9' } };
+            wsResumen.getCell('C7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F0F4F8' } };
+
+            wsResumen.getCell('D6').value = "SIMULADORES / LABS";
+            wsResumen.getCell('D6').font = { size: 8, bold: true, color: { argb: '7F8C8D' } };
+            wsResumen.getCell('D7').value = simuladores.length;
+            wsResumen.getCell('D7').font = { size: 18, bold: true, color: { argb: 'E67E22' } };
+            wsResumen.getCell('D7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F0F4F8' } };
+
+            // Tabla de Resumen por Facultad
+            const headerRow = wsResumen.getRow(9);
+            headerRow.values = ['', 'FACULTAD ACADÉMICA', 'CANTIDAD DE LIBROS', 'PARTICIPACIÓN (%)'];
+            headerRow.eachCell((cell, colNum) => {
+                if (colNum > 1) {
+                    cell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFF' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1E3C6E' } };
+                    cell.alignment = { horizontal: colNum === 2 ? 'left' : 'center', vertical: 'middle' };
+                }
             });
 
-            resumenData.push([]);
-            resumenData.push(["TOTAL GENERAL DE LIBROS REGISTRADOS", libros.length, "100%"]);
-            resumenData.push(["TOTAL DE SIMULADORES / LABS ACTIVOS", simuladores.length, "-"]);
-
-            const wsResumen = XLSX.utils.aoa_to_sheet(resumenData);
-            wsResumen['!cols'] = [{ wch: 40 }, { wch: 25 }, { wch: 25 }];
-            XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen General");
-
-            // 2. HOJAS INDIVIDUALES POR FACULTAD CON LA ESTRUCTURA EXACTA SOLICITADA
+            let currentRow = 10;
             facultadesLista.forEach(facNombre => {
-                const librosFac = libros.filter(l => obtenerFacultad(l.carrera) === facNombre);
-                const sheetData = [
-                    [`INVENTARIO OFICIAL - ${facNombre.toUpperCase()}`],
-                    [`Total de Materiales en esta Facultad: ${librosFac.length}`],
-                    []
+                const count = libros.filter(l => obtenerFacultad(l.carrera) === facNombre).length;
+                const pct = libros.length > 0 ? (count / libros.length) : 0;
+                
+                const row = wsResumen.getRow(currentRow);
+                row.values = ['', facNombre, count, pct];
+                
+                row.getCell(2).font = { name: 'Segoe UI', size: 9, bold: true };
+                row.getCell(3).font = { name: 'Segoe UI', size: 9 };
+                row.getCell(3).alignment = { horizontal: 'center' };
+                row.getCell(4).font = { name: 'Segoe UI', size: 9 };
+                row.getCell(4).numFmt = '0.00%';
+                row.getCell(4).alignment = { horizontal: 'center' };
+
+                row.eachCell((cell, colNum) => {
+                    if (colNum > 1) {
+                        cell.border = borderThin;
+                        if (currentRow % 2 === 0) {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'F9FAFB' } };
+                        }
+                    }
+                });
+                currentRow++;
+            });
+
+            // Fila Total
+            const totalRow = wsResumen.getRow(currentRow);
+            totalRow.values = ['', 'TOTAL GENERAL ACERVO BIBLIOGRÁFICO', libros.length, 1.0];
+            totalRow.eachCell((cell, colNum) => {
+                if (colNum > 1) {
+                    cell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: '1E3C6E' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'EAEEF3' } };
+                    cell.border = { top: { style: 'medium' }, bottom: { style: 'double' } };
+                    if (colNum === 3) cell.alignment = { horizontal: 'center' };
+                    if (colNum === 4) {
+                        cell.numFmt = '0.00%';
+                        cell.alignment = { horizontal: 'center' };
+                    }
+                }
+            });
+
+            // 2. HOJAS INDIVIDUALES POR CADA FACULTAD
+            facultadesLista.forEach(facNombre => {
+                const tabTitle = facNombre.replace('Facultad de ', '').substring(0, 31);
+                const ws = workbook.addWorksheet(tabTitle, { views: [{ showGridLines: true }] });
+
+                ws.columns = [
+                    { width: 6 },  // N°
+                    { width: 55 }, // Título
+                    { width: 35 }, // Autor
+                    { width: 18 }, // Edición
+                    { width: 45 }  // Enlace Drive
                 ];
 
-                // Agrupar por Carrera
-                const carrerasEnFac = [...new Set(librosFac.map(l => l.carrera))];
+                // Header de Facultad
+                ws.mergeCells('A1:E1');
+                const h1 = ws.getCell('A1');
+                h1.value = `INVENTARIO OFICIAL - ${facNombre.toUpperCase()}`;
+                h1.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FFFFFF' } };
+                h1.alignment = { horizontal: 'center', vertical: 'middle' };
+                h1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1E3C6E' } };
+                ws.getRow(1).height = 25;
 
-                carrerasEnFac.forEach(carreraNombre => {
-                    sheetData.push([`CARRERA: ${carreraNombre.toUpperCase()}`]);
-                    sheetData.push(["N°", "Título del Libro", "Autor(es)", "Edición / Tomo", "Enlace Digital (Drive)"]);
+                const librosFac = libros.filter(l => obtenerFacultad(l.carrera) === facNombre);
+                const carrerasFac = [...new Set(librosFac.map(l => l.carrera))];
+                let rowPointer = 3;
 
-                    const librosCarrera = librosFac.filter(l => l.carrera === carreraNombre);
+                carrerasFac.forEach(carr => {
+                    // Header de Carrera
+                    ws.mergeCells(`A${rowPointer}:E${rowPointer}`);
+                    const carrCell = ws.getCell(`A${rowPointer}`);
+                    carrCell.value = `CARRERA: ${carr.toUpperCase()}`;
+                    carrCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFF' } };
+                    carrCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '2980B9' } };
+                    carrCell.alignment = { vertical: 'middle', indent: 1 };
+                    ws.getRow(rowPointer).height = 20;
+                    rowPointer++;
+
+                    // Cabeceras de Columnas
+                    const tableHeader = ws.getRow(rowPointer);
+                    tableHeader.values = ['N°', 'TÍTULO DEL MATERIAL', 'AUTOR(ES)', 'EDICIÓN / TOMO', 'ENLACE DIGITAL (DRIVE)'];
+                    tableHeader.eachCell(cell => {
+                        cell.font = { name: 'Segoe UI', size: 8, bold: true, color: { argb: '1E3C6E' } };
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E5EDF5' } };
+                        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                        cell.border = borderThin;
+                    });
+                    ws.getRow(rowPointer).height = 18;
+                    rowPointer++;
+
+                    // Libros de la carrera
+                    const librosCarrera = librosFac.filter(l => l.carrera === carr);
                     librosCarrera.forEach((libro, idx) => {
                         let tituloLimpio = libro.titulo;
                         let edicionLimpia = "No especificada";
@@ -952,28 +1060,49 @@
                             edicionLimpia = parts[1].replace('</span>', '').trim();
                         }
 
-                        sheetData.push([
-                            idx + 1,
-                            tituloLimpio,
-                            libro.autor,
-                            edicionLimpia,
-                            libro.link
-                        ]);
+                        const dataRow = ws.getRow(rowPointer);
+                        dataRow.values = [idx + 1, tituloLimpio, libro.autor, edicionLimpia, libro.link];
+                        
+                        dataRow.getCell(1).alignment = { horizontal: 'center' };
+                        dataRow.getCell(2).font = { name: 'Segoe UI', size: 8, bold: true };
+                        dataRow.getCell(3).font = { name: 'Segoe UI', size: 8 };
+                        dataRow.getCell(4).alignment = { horizontal: 'center' };
+                        dataRow.getCell(4).font = { name: 'Segoe UI', size: 8 };
+                        dataRow.getCell(5).font = { name: 'Segoe UI', size: 8, color: { argb: '2980B9' }, underline: true };
+
+                        dataRow.eachCell(cell => {
+                            cell.border = borderThin;
+                            cell.alignment = { vertical: 'middle', ...cell.alignment };
+                        });
+
+                        ws.getRow(rowPointer).height = 18;
+                        rowPointer++;
                     });
-                    sheetData.push([]); // Espacio entre carreras
+
+                    // Subtotal por carrera
+                    const subtotalRow = ws.getRow(rowPointer);
+                    subtotalRow.values = ['', `Subtotal ${carr}:`, '', '', `${librosCarrera.length} libros`];
+                    subtotalRow.getCell(2).font = { name: 'Segoe UI', size: 8, bold: true, italic: true };
+                    subtotalRow.getCell(5).font = { name: 'Segoe UI', size: 8, bold: true };
+                    subtotalRow.getCell(5).alignment = { horizontal: 'center' };
+                    rowPointer += 2; // Espacio
                 });
 
-                sheetData.push(["--- FIN DEL REGISTRO DE LA FACULTAD ---", "", "", `TOTAL: ${librosFac.length} LIBROS`]);
-
-                const wsFac = XLSX.utils.aoa_to_sheet(sheetData);
-                wsFac['!cols'] = [{ wch: 6 }, { wch: 55 }, { wch: 35 }, { wch: 20 }, { wch: 45 }];
-                
-                // Nombre corto para pestaña de Excel (máximo 31 caracteres permitidos por Excel)
-                const tabNombre = facNombre.replace('Facultad de ', '').substring(0, 30);
-                XLSX.utils.book_append_sheet(wb, wsFac, tabNombre);
+                // Cierre de Facultad
+                const endRow = ws.getRow(rowPointer);
+                endRow.values = ['TOTAL ACERVO EN ESTA FACULTAD:', '', '', '', `${librosFac.length} LIBROS`];
+                endRow.eachCell((cell, colNum) => {
+                    cell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: '1E3C6E' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'EAEEF3' } };
+                    cell.border = { top: { style: 'medium' }, bottom: { style: 'double' } };
+                });
+                endRow.getCell(5).alignment = { horizontal: 'center' };
             });
 
-            XLSX.writeFile(wb, `Inventario_Anual_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`);
+            // Generar y descargar archivo binario XLSX con estilos reales
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            saveAs(blob, `Informe_Anual_Inventario_UNIDA_${new Date().getFullYear()}.xlsx`);
         }
 
         function descargarJSON() {
