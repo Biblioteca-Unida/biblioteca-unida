@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Administrativo - Biblioteca UNIDA</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,8 +23,16 @@
             }
         }
     </script>
+    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (Excel Multi-Hoja) CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Cropper.js (Ajuste/Recorte de Imágenes) CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -35,7 +44,7 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-full flex antialiased">
 
-    <!-- MODAL DE ACCESO PIN -->
+    <!-- MODAL PIN DE ACCESO -->
     <div id="auth-lock" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center">
             <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
@@ -51,7 +60,31 @@
         </div>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- MODAL DE RECORTE / AJUSTE TIPO CELULAR (CROPPER.JS) -->
+    <div id="modal-cropper" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-crop-simple text-[#2980b9]"></i> Ajustar y Encuadrar Portada
+                </h3>
+                <button type="button" onclick="cancelarRecorte()" class="text-slate-400 hover:text-slate-600 text-sm">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="max-h-[350px] w-full overflow-hidden rounded-xl bg-slate-950 flex items-center justify-center">
+                <img id="cropper-image" src="" class="max-w-full block">
+            </div>
+            <div class="flex items-center justify-between gap-3 pt-2">
+                <span class="text-[11px] text-slate-400"><i class="fas fa-up-down-left-right mr-1"></i> Arrastra y haz zoom para encuadrar</span>
+                <div class="flex gap-2">
+                    <button type="button" onclick="cancelarRecorte()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition">Cancelar</button>
+                    <button type="button" onclick="aplicarRecorte()" class="px-5 py-2 rounded-xl bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold transition shadow-md">Aplicar Portada</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL DEL DASHBOARD -->
     <div id="dashboard-app" class="flex-1 flex overflow-hidden hidden">
         
         <!-- SIDEBAR -->
@@ -63,7 +96,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-sm text-slate-900 dark:text-white leading-tight">ADMIN BIBLIO</h1>
-                        <span class="text-[11px] font-semibold text-emerald-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Carga Local Activa</span>
+                        <span class="text-[11px] font-semibold text-emerald-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Activo</span>
                     </div>
                 </div>
 
@@ -74,8 +107,11 @@
                     <button onclick="navegarPestana('tab-libros')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
                         <i class="fas fa-book-medical w-5 text-center"></i> Carga & Catálogo
                     </button>
+                    <button onclick="navegarPestana('tab-simuladores')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                        <i class="fas fa-flask-vial w-5 text-center"></i> Simuladores
+                    </button>
                     <button onclick="navegarPestana('tab-sync')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <i class="fas fa-database w-5 text-center"></i> Base de Datos
+                        <i class="fas fa-database w-5 text-center"></i> Base de Datos & Excel
                     </button>
                 </nav>
             </div>
@@ -96,14 +132,14 @@
             <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between shrink-0">
                 <div>
                     <h2 id="topbar-titulo" class="text-base font-bold text-slate-800 dark:text-white">Panel de Administración de Libros</h2>
-                    <p class="text-xs text-slate-400">Gestión de portadas locales y catálogo UNIDA</p>
+                    <p class="text-xs text-slate-400">Gestión de acervo bibliográfico y simuladores UNIDA</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="forzarCargaSemilla()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                        <i class="fas fa-rotate"></i> Restaurar 187 Libros
+                    <button onclick="actualizarCatalogoGlobal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                        <i class="fas fa-rotate"></i> Actualizar Catálogo
                     </button>
-                    <button onclick="descargarJS()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                        <i class="fas fa-cloud-arrow-down"></i> Exportar catalogo.js
+                    <button onclick="exportarInventarioExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                        <i class="fas fa-file-excel"></i> Informe Anual Excel
                     </button>
                 </div>
             </header>
@@ -134,25 +170,28 @@
                         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
                             <div>
                                 <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Simuladores</span>
-                                <h3 class="text-3xl font-extrabold text-[#e67e22] mt-1">3</h3>
-                                <span class="text-[11px] text-amber-500 font-medium"><i class="fas fa-flask"></i> Operativos</span>
+                                <h3 id="kpi-simuladores" class="text-3xl font-extrabold text-[#e67e22] mt-1">0</h3>
+                                <span class="text-[11px] text-amber-500 font-medium"><i class="fas fa-flask"></i> Registrados</span>
                             </div>
                             <div class="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-[#e67e22] rounded-xl flex items-center justify-center text-xl"><i class="fas fa-laptop-medical"></i></div>
                         </div>
 
                         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
                             <div>
-                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Portadas</span>
-                                <h3 class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">Local</h3>
-                                <span class="text-[11px] text-slate-400">Carga Directa</span>
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Almacenamiento</span>
+                                <h3 class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">Drive</h3>
+                                <span class="text-[11px] text-slate-400">100% En la nube</span>
                             </div>
-                            <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-image"></i></div>
+                            <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl flex items-center justify-center text-xl"><i class="fab fa-google-drive"></i></div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">Libros por Carrera</h4>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider">Libros por Carrera</h4>
+                                <span id="chart-carrera-detalle" class="text-xs font-semibold text-[#1e3c6e] dark:text-blue-400">Haz clic en un segmento</span>
+                            </div>
                             <div class="h-64 flex items-center justify-center">
                                 <canvas id="chartCarreras"></canvas>
                             </div>
@@ -166,13 +205,13 @@
                     </div>
                 </section>
 
-                <!-- PESTAÑA 2: CARGA Y GESTIÓN CON SUBIDA LOCAL -->
+                <!-- PESTAÑA 2: CARGA Y GESTIÓN CON RECORTE -->
                 <section id="tab-libros" class="tab-content space-y-8 hidden">
                     <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <div class="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800 mb-6">
                             <div>
                                 <h3 id="form-titulo" class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Cargar Material al Catálogo</h3>
-                                <p class="text-xs text-slate-400">Sube la portada desde tu computadora sin depender de enlaces externos.</p>
+                                <p class="text-xs text-slate-400">Sube la portada y ajústala de forma táctil e interactiva.</p>
                             </div>
                             <button type="button" onclick="limpiarFormulario()" class="text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                                 <i class="fas fa-rotate-left mr-1"></i> Limpiar Campos
@@ -182,7 +221,7 @@
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                             <form id="form-libro" onsubmit="guardarLibro(event)" class="lg:col-span-7 space-y-4">
                                 <input type="hidden" id="edit-id" value="-1">
-                                <input type="hidden" id="portada-base64" value="">
+                                <input type="hidden" id="portada-final" value="">
                                 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
@@ -209,10 +248,14 @@
                                                 <option value="Comercio Internacional">Comercio Internacional</option>
                                                 <option value="Relaciones Internacionales">Relaciones Internacionales</option>
                                             </optgroup>
-                                            <optgroup label="Ciencias Jurídicas y FEADYS">
+                                            <optgroup label="Ciencias Jurídicas y Sociales">
                                                 <option value="Derecho">Derecho</option>
                                                 <option value="Ciencias Políticas">Ciencias Políticas</option>
+                                            </optgroup>
+                                            <optgroup label="FEADYS">
                                                 <option value="Educación">Educación</option>
+                                                <option value="Talento Humano">Talento Humano</option>
+                                                <option value="Banca y Finanzas">Banca y Finanzas</option>
                                             </optgroup>
                                         </select>
                                     </div>
@@ -224,12 +267,12 @@
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Título del Libro *</label>
-                                    <input type="text" id="inp-titulo" oninput="actualizarPreview()" placeholder="Ej: Arquitectura de Computadoras" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <input type="text" id="inp-titulo" oninput="actualizarPreview()" placeholder="Ej: Álgebra Lineal" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                                 </div>
 
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Autor(es) *</label>
-                                    <input type="text" id="inp-autor" oninput="actualizarPreview()" placeholder="Ej: David Patricio López Carrillo" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <input type="text" id="inp-autor" oninput="actualizarPreview()" placeholder="Ej: Stanley I. Grossman" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                                 </div>
 
                                 <div>
@@ -237,18 +280,17 @@
                                     <input type="url" id="inp-link" oninput="actualizarPreview()" placeholder="https://drive.google.com/file/d/..." required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none">
                                 </div>
 
-                                <!-- SELECTOR DE ARCHIVO LOCAL -->
+                                <!-- SUBIDA CON RECORTE TÁCTIL -->
                                 <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
                                     <div class="flex items-center justify-between">
                                         <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                                            <i class="fas fa-upload text-blue-600"></i> Subir Portada desde tu Computadora *
+                                            <i class="fas fa-crop-simple text-[#2980b9]"></i> Subir y Ajustar Portada Local
                                         </label>
                                         <button type="button" onclick="asignarPortadaTematica(true)" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline">
                                             Usar temática por defecto
                                         </button>
                                     </div>
-                                    <input type="file" id="inp-file" accept="image/*" onchange="procesarArchivoImagen(this)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#1e3c6e] file:text-white hover:file:bg-[#2980b9] cursor-pointer">
-                                    <p class="text-[10px] text-slate-400">Formatos permitidos: JPG, PNG, WEBP. La imagen se incrusta directo al catálogo sin enlaces caídos.</p>
+                                    <input type="file" id="inp-file" accept="image/*" onchange="iniciarCropper(this)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#1e3c6e] file:text-white hover:file:bg-[#2980b9] cursor-pointer">
                                 </div>
 
                                 <button type="submit" id="btn-submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md">
@@ -274,9 +316,9 @@
                                     </div>
                                 </div>
 
-                                <div class="text-[11px] text-slate-500 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 p-3 rounded-xl mt-4">
-                                    <p class="font-semibold text-emerald-800 dark:text-emerald-300"><i class="fas fa-check-circle mr-1"></i> Imagen Local Integrada</p>
-                                    La imagen cargada se almacena en memoria segura y quedará visible inmediatamente para los alumnos.
+                                <div class="text-[11px] text-slate-500 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 p-3 rounded-xl mt-4">
+                                    <p class="font-semibold text-blue-800 dark:text-blue-300"><i class="fas fa-compress mr-1"></i> Optimización Automática</p>
+                                    La imagen se recorta y se comprime automáticamente para garantizar una carga veloz en cualquier conexión.
                                 </div>
                             </div>
                         </div>
@@ -287,7 +329,7 @@
                         <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <h4 class="text-sm font-bold text-slate-800 dark:text-white">Inventario de Libros</h4>
-                                <p class="text-xs text-slate-400">Listado completo con imágenes locales y enlaces</p>
+                                <p class="text-xs text-slate-400">Listado completo con imágenes y enlaces</p>
                             </div>
                             <div class="flex items-center gap-3">
                                 <input type="text" id="buscador-tabla" oninput="filtrarTabla()" placeholder="Buscar título o autor..." class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none focus:ring-2 focus:ring-blue-500 w-56">
@@ -314,20 +356,72 @@
                     </div>
                 </section>
 
-                <!-- PESTAÑA 3: DESCARGA BASE -->
-                <section id="tab-sync" class="tab-content space-y-6 hidden">
-                    <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center max-w-xl mx-auto space-y-4">
-                        <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
-                            <i class="fas fa-file-code"></i>
+                <!-- PESTAÑA 3: GESTIÓN DE SIMULADORES -->
+                <section id="tab-simuladores" class="tab-content space-y-8 hidden">
+                    <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div class="pb-6 border-b border-slate-100 dark:border-slate-800 mb-6">
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Registrar Simulador / Laboratorio Web</h3>
+                            <p class="text-xs text-slate-400">Vincula plataformas interactivas o laboratorios externos organizados por facultad.</p>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 dark:text-white">Descargar Base con Portadas Integradas</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">Descarga el archivo <code>catalogo.js</code> actualizado para subirlo a tu repositorio de GitHub.</p>
-                        <div class="flex flex-col sm:flex-row justify-center gap-3 pt-2">
-                            <button onclick="descargarJS()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md inline-flex items-center justify-center gap-2">
-                                <i class="fas fa-code"></i> Descargar catalogo.js
+
+                        <form id="form-simulador" onsubmit="guardarSimulador(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Facultad Correspondiente *</label>
+                                <select id="sim-facultad" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <option value="Facultad de Salud">Facultad de Salud</option>
+                                    <option value="Facultad de Gestión">Facultad de Gestión</option>
+                                    <option value="Facultad de Ingeniería">Facultad de Ingeniería</option>
+                                    <option value="Facultad de C. JURÍDICAS Y SOCIALES">Facultad de C. Jurídicas y Sociales</option>
+                                    <option value="FEADYS">FEADYS</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Nombre del Simulador / Laboratorio *</label>
+                                <input type="text" id="sim-nombre" placeholder="Ej: Simulador de Anatomía 3D" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Plataforma / Autor *</label>
+                                <input type="text" id="sim-autor" placeholder="Ej: BioDigital Human o Cisco" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Enlace Web de Acceso *</label>
+                                <input type="url" id="sim-link" placeholder="https://..." required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div class="md:col-span-2 pt-2">
+                                <button type="submit" class="w-full bg-[#e67e22] hover:bg-[#d35400] text-white text-xs font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md">
+                                    <i class="fas fa-laptop-code"></i> Agregar Simulador
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- LISTADO DE SIMULADORES ACTIVOS -->
+                    <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                        <h4 class="text-sm font-bold text-slate-800 dark:text-white">Simuladores Activos por Facultad</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="lista-simuladores"></div>
+                    </div>
+                </section>
+
+                <!-- PESTAÑA 4: BASE DE DATOS & EXCEL -->
+                <section id="tab-sync" class="tab-content space-y-6 hidden">
+                    <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center max-w-2xl mx-auto space-y-6">
+                        <div class="w-16 h-16 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 dark:text-white">Exportación de Catálogo y Reporte Anual</h3>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Genera un libro de cálculo formal con hoja resumen general y hojas dedicadas por facultad para auditorías e informes anuales.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                            <button onclick="exportarInventarioExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                                <i class="fas fa-file-excel"></i> Reporte Excel
                             </button>
-                            <button onclick="descargarJSON()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md inline-flex items-center justify-center gap-2">
-                                <i class="fas fa-download"></i> Descargar catalogo.json
+                            <button onclick="descargarJS()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                                <i class="fas fa-code"></i> catalogo.js
+                            </button>
+                            <button onclick="descargarJSON()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                                <i class="fas fa-file-code"></i> catalogo.json
                             </button>
                         </div>
                     </div>
@@ -343,34 +437,101 @@
     <script>
         const ADMIN_PIN = "2026";
         const STORAGE_KEY = "unida_catalogo_global";
+        const STORAGE_SIM_KEY = "unida_simuladores_global";
 
         const PORTADAS_PRESET = {
             "Medicina": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
             "Nutrición": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=300&q=80",
+            "Enfermería": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
+            "Kinesiología y Fisioterapia": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
             "Ingeniería en Informática": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80",
             "Ingeniería en Sistemas": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80",
+            "Ingeniería Industrial": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80",
+            "Ingeniería Electrónica": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80",
             "Marketing y Gestión Comercial": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
             "Psicología Organizacional": "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=300&q=80",
             "Ingeniería Comercial": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
-            "Relaciones Internacionales": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80"
+            "Administración de Empresas": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+            "Contaduría Pública": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+            "Comercio Internacional": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+            "Relaciones Internacionales": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+            "Derecho": "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=300&q=80",
+            "Ciencias Políticas": "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=300&q=80",
+            "Educación": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80"
         };
 
-        let libros = [];
+        const SIMULADORES_DEFAULT = [
+            { facultad: "Facultad de Salud", titulo: "Simulador de Anatomía Humana 3D", autor: "BioDigital Human", link: "https://human.biodigital.com" },
+            { facultad: "Facultad de Gestión", titulo: "Simulador de Mercados y Bolsa", autor: "Plataforma Financiera", link: "https://www.investopedia.com/simulator/" },
+            { facultad: "Facultad de Ingeniería", titulo: "Simulador de Redes Cisco Packet Tracer", autor: "Laboratorio Informático", link: "https://www.netacad.com" }
+        ];
 
-        function procesarArchivoImagen(input) {
+        let libros = [];
+        let simuladores = [];
+        let cropper = null;
+
+        function normalizarUrlImagen(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            return url;
+        }
+
+        function obtenerFacultad(carrera) {
+            carrera = (carrera || '').trim();
+            if (['Medicina', 'Nutrición', 'Enfermería', 'Kinesiología y Fisioterapia'].includes(carrera)) return 'Facultad de Salud';
+            if (['Ingeniería en Informática', 'Ingeniería en Sistemas', 'Ingeniería Industrial', 'Ingeniería Electrónica'].includes(carrera)) return 'Facultad de Ingeniería';
+            if (['Marketing y Gestión Comercial', 'Psicología Organizacional', 'Administración de Empresas', 'Relaciones Internacionales', 'Comercio Internacional', 'Contaduría Pública', 'Ingeniería Comercial'].includes(carrera)) return 'Facultad de Gestión';
+            if (['Derecho', 'Ciencias Políticas'].includes(carrera)) return 'Facultad de C. Jurídicas y Sociales';
+            return 'FEADYS';
+        }
+
+        // LÓGICA DE RECORTE (CROPPER.JS)
+        function iniciarCropper(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('portada-base64').value = e.target.result;
-                    actualizarPreview();
+                    const img = document.getElementById('cropper-image');
+                    img.src = e.target.result;
+                    document.getElementById('modal-cropper').classList.remove('hidden');
+
+                    if (cropper) cropper.destroy();
+                    cropper = new Cropper(img, {
+                        aspectRatio: 11 / 16,
+                        viewMode: 2,
+                        autoCropArea: 1,
+                        responsive: true
+                    });
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
+        function aplicarRecorte() {
+            if (cropper) {
+                // Compresión optimizada en tamaño estándar de portada (330x480px)
+                const canvas = cropper.getCroppedCanvas({ width: 330, height: 480 });
+                const base64 = canvas.toDataURL('image/jpeg', 0.85);
+                document.getElementById('portada-final').value = base64;
+                actualizarPreview();
+                cancelarRecorte();
+            }
+        }
+
+        function cancelarRecorte() {
+            document.getElementById('modal-cropper').classList.add('hidden');
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+
+        // CARGA Y ACTUALIZACIÓN
         function cargarDatos() {
             const localData = localStorage.getItem(STORAGE_KEY);
-            if (localData && JSON.parse(localData).length > 20) {
+            if (localData) {
                 libros = JSON.parse(localData);
             } else if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
                 libros = catalogoLibros;
@@ -378,7 +539,21 @@
             } else {
                 libros = [];
             }
+
+            const localSim = localStorage.getItem(STORAGE_SIM_KEY);
+            if (localSim) {
+                simuladores = JSON.parse(localSim);
+            } else {
+                simuladores = SIMULADORES_DEFAULT;
+                localStorage.setItem(STORAGE_SIM_KEY, JSON.stringify(simuladores));
+            }
+
             actualizarTodo();
+        }
+
+        function actualizarCatalogoGlobal() {
+            cargarDatos();
+            alert('¡Catálogo sincronizado exitosamente! Se actualizaron las métricas y los ' + libros.length + ' libros.');
         }
 
         function forzarCargaSemilla() {
@@ -387,14 +562,15 @@
                 libros = catalogoLibros;
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(libros));
                 actualizarTodo();
-                alert('¡Memoria reseteada con éxito! Se cargaron ' + libros.length + ' libros desde catalogo.js.');
+                alert('¡Memoria reseteada con éxito! Se cargaron ' + libros.length + ' libros originales desde catalogo.js.');
             } else {
-                alert('Error: Asegúrate de tener el archivo catalogo.js en la misma carpeta.');
+                alert('No se encontró catalogo.js.');
             }
         }
 
         function guardarDatos() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(libros));
+            localStorage.setItem(STORAGE_SIM_KEY, JSON.stringify(simuladores));
             actualizarTodo();
         }
 
@@ -428,9 +604,9 @@
 
         function asignarPortadaTematica(forzar = false) {
             const carrera = document.getElementById('inp-carrera').value;
-            const inputBase64 = document.getElementById('portada-base64');
-            if (!inputBase64.value || forzar) {
-                inputBase64.value = PORTADAS_PRESET[carrera] || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80";
+            const inputFinal = document.getElementById('portada-final');
+            if (!inputFinal.value || forzar) {
+                inputFinal.value = PORTADAS_PRESET[carrera] || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80";
                 document.getElementById('inp-file').value = '';
                 actualizarPreview();
             }
@@ -441,7 +617,7 @@
             let titulo = document.getElementById('inp-titulo').value || 'TÍTULO DEL LIBRO';
             const edicion = document.getElementById('inp-edicion').value;
             const autor = document.getElementById('inp-autor').value || 'Nombre del Autor';
-            const imagen = document.getElementById('portada-base64').value || PORTADAS_PRESET[carrera];
+            const imagen = document.getElementById('portada-final').value || PORTADAS_PRESET[carrera];
             const link = document.getElementById('inp-link').value || '#';
 
             if (edicion.trim()) {
@@ -451,7 +627,7 @@
             document.getElementById('prev-carrera').textContent = carrera;
             document.getElementById('prev-titulo').innerHTML = titulo;
             document.getElementById('prev-autor').textContent = autor;
-            document.getElementById('prev-img').src = imagen;
+            document.getElementById('prev-img').src = normalizarUrlImagen(imagen);
             document.getElementById('prev-link').href = link;
         }
 
@@ -462,7 +638,7 @@
             let titulo = document.getElementById('inp-titulo').value.trim();
             const edicion = document.getElementById('inp-edicion').value.trim();
             const autor = document.getElementById('inp-autor').value.trim();
-            const imagen = document.getElementById('portada-base64').value || PORTADAS_PRESET[carrera];
+            const imagen = normalizarUrlImagen(document.getElementById('portada-final').value || PORTADAS_PRESET[carrera]);
             const link = document.getElementById('inp-link').value.trim();
 
             let tituloFinal = titulo;
@@ -480,7 +656,7 @@
 
             guardarDatos();
             limpiarFormulario();
-            alert('¡Libro y portada guardados exitosamente!');
+            alert('¡Libro y portada guardados con éxito!');
         }
 
         function editarLibro(i) {
@@ -498,7 +674,7 @@
             }
 
             document.getElementById('inp-autor').value = item.autor;
-            document.getElementById('portada-base64').value = item.imagen;
+            document.getElementById('portada-final').value = item.imagen;
             document.getElementById('inp-link').value = item.link;
 
             document.getElementById('form-titulo').textContent = 'Modificando Registro #' + (i + 1);
@@ -518,16 +694,64 @@
         function limpiarFormulario() {
             document.getElementById('edit-id').value = -1;
             document.getElementById('form-libro').reset();
-            document.getElementById('portada-base64').value = '';
+            document.getElementById('portada-final').value = '';
             document.getElementById('form-titulo').textContent = 'Cargar Material al Catálogo';
             document.getElementById('btn-submit').innerHTML = '<i class="fas fa-plus"></i> Guardar Libro en Catálogo';
             asignarPortadaTematica(true);
         }
 
+        // SIMULADORES
+        function guardarSimulador(e) {
+            e.preventDefault();
+            const facultad = document.getElementById('sim-facultad').value;
+            const titulo = document.getElementById('sim-nombre').value.trim();
+            const autor = document.getElementById('sim-autor').value.trim();
+            const link = document.getElementById('sim-link').value.trim();
+
+            simuladores.push({ facultad, titulo, autor, link });
+            guardarDatos();
+            document.getElementById('form-simulador').reset();
+            alert('¡Simulador agregado con éxito!');
+        }
+
+        function eliminarSimulador(i) {
+            if (confirm('¿Eliminar este simulador?')) {
+                simuladores.splice(i, 1);
+                guardarDatos();
+            }
+        }
+
+        function renderSimuladores() {
+            const cont = document.getElementById('lista-simuladores');
+            cont.innerHTML = '';
+            simuladores.forEach((s, i) => {
+                cont.innerHTML += `
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-[10px] font-bold text-[#e67e22] uppercase tracking-wider">${s.facultad}</span>
+                            <h5 class="text-xs font-bold text-slate-800 dark:text-white mt-1">${s.titulo}</h5>
+                            <p class="text-[11px] text-slate-500">${s.autor}</p>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-700">
+                            <a href="${s.link}" target="_blank" class="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1">
+                                <i class="fas fa-arrow-up-right-from-square"></i> Probar
+                            </a>
+                            <button onclick="eliminarSimulador(${i})" class="text-xs text-rose-500 hover:text-rose-600 font-medium">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('kpi-simuladores').textContent = simuladores.length;
+        }
+
+        // TABLA Y KPIS
         function actualizarTodo() {
             renderKPIs();
             renderTabla();
             renderGraficos();
+            renderSimuladores();
         }
 
         function renderKPIs() {
@@ -574,10 +798,13 @@
             });
         }
 
+        // GRÁFICOS INTERACTIVOS Y POR COLORES (CHART.JS)
         let chart1, chart2;
         function renderGraficos() {
             const recuento = {};
             libros.forEach(l => recuento[l.carrera] = (recuento[l.carrera] || 0) + 1);
+
+            const coloresPalette = ['#1e3c6e', '#2980b9', '#e67e22', '#10b981', '#6366f1', '#ec4899', '#f59e0b', '#14b8a6', '#8b5cf6', '#06b6d4', '#84cc16'];
 
             if (chart1) chart1.destroy();
             const ctx1 = document.getElementById('chartCarreras');
@@ -586,18 +813,49 @@
                     type: 'doughnut',
                     data: {
                         labels: Object.keys(recuento),
-                        datasets: [{ data: Object.values(recuento), backgroundColor: ['#1e3c6e', '#2980b9', '#e67e22', '#10b981', '#6366f1', '#ec4899', '#f59e0b'] }]
+                        datasets: [{
+                            data: Object.values(recuento),
+                            backgroundColor: coloresPalette,
+                            borderWidth: 2,
+                            hoverOffset: 12
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9 } } } } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        onClick: (e, elements) => {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                const label = Object.keys(recuento)[index];
+                                const count = Object.values(recuento)[index];
+                                document.getElementById('chart-carrera-detalle').textContent = `${label}: ${count} libros (${((count / libros.length) * 100).toFixed(1)}%)`;
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9 } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: (item) => ` ${item.label}: ${item.raw} libros (${((item.raw / libros.length) * 100).toFixed(1)}%)`
+                                }
+                            }
+                        }
+                    }
                 });
             }
 
-            const fac = { "Salud": 0, "Ingeniería": 0, "Gestión": 0, "Otras": 0 };
+            // Conteo con colores diferenciados por facultad
+            const fac = {
+                "Facultad de Salud": { total: 0, color: "#e11d48" },          // Rosa / Rojo médico
+                "Facultad de Gestión": { total: 0, color: "#2563eb" },        // Azul Corporativo
+                "Facultad de Ingeniería": { total: 0, color: "#d97706" },     // Ámbar / Naranja Ingeniería
+                "Facultad de C. Jurídicas y Sociales": { total: 0, color: "#7c3aed" }, // Violeta Jurídico
+                "FEADYS": { total: 0, color: "#059669" }                      // Verde Esmeralda
+            };
+
             libros.forEach(l => {
-                if (['Medicina', 'Nutrición', 'Enfermería', 'Kinesiología y Fisioterapia'].includes(l.carrera)) fac["Salud"]++;
-                else if (l.carrera.includes('Ingeniería')) fac["Ingeniería"]++;
-                else if (['Marketing y Gestión Comercial', 'Psicología Organizacional', 'Administración de Empresas', 'Relaciones Internacionales', 'Comercio Internacional', 'Contaduría Pública'].includes(l.carrera)) fac["Gestión"]++;
-                else fac["Otras"]++;
+                const facultadNombre = obtenerFacultad(l.carrera);
+                if (fac[facultadNombre]) fac[facultadNombre].total++;
+                else fac["FEADYS"].total++;
             });
 
             if (chart2) chart2.destroy();
@@ -606,12 +864,116 @@
                 chart2 = new Chart(ctx2, {
                     type: 'bar',
                     data: {
-                        labels: Object.keys(fac),
-                        datasets: [{ data: Object.values(fac), backgroundColor: '#2980b9', borderRadius: 6 }]
+                        labels: ['Salud', 'Gestión', 'Ingeniería', 'Jurídicas', 'FEADYS'],
+                        datasets: [{
+                            data: Object.values(fac).map(f => f.total),
+                            backgroundColor: Object.values(fac).map(f => f.color),
+                            borderRadius: 8
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
                 });
             }
+        }
+
+        // EXPORTACIÓN A EXCEL MULTI-HOJA PERSONALIZADO
+        function exportarInventarioExcel() {
+            const wb = XLSX.utils.book_new();
+
+            // 1. HOJA RESUMEN ANUAL
+            const resumenData = [
+                ["UNIVERSIDAD DE LA INTEGRACIÓN DE LAS AMÉRICAS (UNIDA)"],
+                ["BIBLIOTECA CENTRAL “EMB. JOÃO BAENA SOARES”"],
+                ["INFORME Y AUDITORÍA ANUAL DE INVENTARIO BIBLIOGRÁFICO"],
+                ["Fecha de Emisión:", new Date().toLocaleDateString()],
+                [],
+                ["RESUMEN EJECUTIVO POR FACULTAD"],
+                ["Facultad", "Cantidad de Libros", "Porcentaje del Acervo"]
+            ];
+
+            const facultadesLista = [
+                "Facultad de Salud",
+                "Facultad de Gestión",
+                "Facultad de Ingeniería",
+                "Facultad de C. Jurídicas y Sociales",
+                "FEADYS"
+            ];
+
+            const totalesPorFacultad = {};
+            facultadesLista.forEach(f => totalesPorFacultad[f] = 0);
+            libros.forEach(l => {
+                const facName = obtenerFacultad(l.carrera);
+                totalesPorFacultad[facName] = (totalesPorFacultad[facName] || 0) + 1;
+            });
+
+            facultadesLista.forEach(f => {
+                const cant = totalesPorFacultad[f] || 0;
+                const pct = libros.length > 0 ? ((cant / libros.length) * 100).toFixed(2) + "%" : "0%";
+                resumenData.push([f, cant, pct]);
+            });
+
+            resumenData.push([]);
+            resumenData.push(["TOTAL GENERAL DE LIBROS REGISTRADOS", libros.length, "100%"]);
+            resumenData.push(["TOTAL DE SIMULADORES / LABS ACTIVOS", simuladores.length, "-"]);
+
+            const wsResumen = XLSX.utils.aoa_to_sheet(resumenData);
+            wsResumen['!cols'] = [{ wch: 40 }, { wch: 25 }, { wch: 25 }];
+            XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen General");
+
+            // 2. HOJAS INDIVIDUALES POR FACULTAD CON LA ESTRUCTURA EXACTA SOLICITADA
+            facultadesLista.forEach(facNombre => {
+                const librosFac = libros.filter(l => obtenerFacultad(l.carrera) === facNombre);
+                const sheetData = [
+                    [`INVENTARIO OFICIAL - ${facNombre.toUpperCase()}`],
+                    [`Total de Materiales en esta Facultad: ${librosFac.length}`],
+                    []
+                ];
+
+                // Agrupar por Carrera
+                const carrerasEnFac = [...new Set(librosFac.map(l => l.carrera))];
+
+                carrerasEnFac.forEach(carreraNombre => {
+                    sheetData.push([`CARRERA: ${carreraNombre.toUpperCase()}`]);
+                    sheetData.push(["N°", "Título del Libro", "Autor(es)", "Edición / Tomo", "Enlace Digital (Drive)"]);
+
+                    const librosCarrera = librosFac.filter(l => l.carrera === carreraNombre);
+                    librosCarrera.forEach((libro, idx) => {
+                        let tituloLimpio = libro.titulo;
+                        let edicionLimpia = "No especificada";
+
+                        if (libro.titulo.includes('<span class="libro-edicion">')) {
+                            const parts = libro.titulo.split('<span class="libro-edicion">');
+                            tituloLimpio = parts[0].trim();
+                            edicionLimpia = parts[1].replace('</span>', '').trim();
+                        }
+
+                        sheetData.push([
+                            idx + 1,
+                            tituloLimpio,
+                            libro.autor,
+                            edicionLimpia,
+                            libro.link
+                        ]);
+                    });
+                    sheetData.push([]); // Espacio entre carreras
+                });
+
+                sheetData.push(["--- FIN DEL REGISTRO DE LA FACULTAD ---", "", "", `TOTAL: ${librosFac.length} LIBROS`]);
+
+                const wsFac = XLSX.utils.aoa_to_sheet(sheetData);
+                wsFac['!cols'] = [{ wch: 6 }, { wch: 55 }, { wch: 35 }, { wch: 20 }, { wch: 45 }];
+                
+                // Nombre corto para pestaña de Excel (máximo 31 caracteres permitidos por Excel)
+                const tabNombre = facNombre.replace('Facultad de ', '').substring(0, 30);
+                XLSX.utils.book_append_sheet(wb, wsFac, tabNombre);
+            });
+
+            XLSX.writeFile(wb, `Inventario_Anual_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`);
         }
 
         function descargarJSON() {
