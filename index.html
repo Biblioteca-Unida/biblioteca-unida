@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data:;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+
     <title>Biblioteca Central - UNIDA</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -306,21 +309,34 @@
 <script src="catalogo.js"></script>
 
 <script>
-    async function inicializarCatalogo() {
-        const localData = localStorage.getItem('unida_catalogo_global');
-        if (localData) {
-            window.catalogoLibros = JSON.parse(localData);
-        } else if (typeof catalogoLibros === 'undefined') {
-            try {
-                const res = await fetch('catalogo.json');
-                if (res.ok) {
-                    window.catalogoLibros = await res.json();
-                    localStorage.setItem('unida_catalogo_global', JSON.stringify(window.catalogoLibros));
-                }
-            } catch (e) {
-                window.catalogoLibros = [];
+    function normalizarUrlImagen(url) {
+        if (!url) return '';
+        if (url.includes('drive.google.com')) {
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
             }
         }
+        return url;
+    }
+
+    function obtenerColeccionLibros() {
+        const localData = localStorage.getItem('unida_catalogo_global');
+        if (localData) {
+            try {
+                const parsed = JSON.parse(localData);
+                if (Array.isArray(parsed) && parsed.length > 20) {
+                    return parsed;
+                }
+            } catch(e) {}
+        }
+        if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros) && catalogoLibros.length > 0) {
+            return catalogoLibros;
+        }
+        if (window.catalogoLibros && Array.isArray(window.catalogoLibros) && window.catalogoLibros.length > 0) {
+            return window.catalogoLibros;
+        }
+        return [];
     }
 
     function showSection(sectionId) {
@@ -351,16 +367,21 @@
         const mensajeVacio = document.getElementById('mensaje-vacio');
         contenedor.innerHTML = '';
 
-        textoBusqueda = textoBusqueda.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        textoBusqueda = (textoBusqueda || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-        let librosFiltrados = window.catalogoLibros || [];
+        let librosDisponibles = obtenerColeccionLibros();
 
         if (carreraFiltrada) {
-            librosFiltrados = librosFiltrados.filter(libro => libro.carrera === carreraFiltrada);
+            librosDisponibles = librosDisponibles.filter(libro => {
+                const carreraLibro = (libro.carrera || '').trim();
+                return carreraLibro === carreraFiltrada.trim() || 
+                       (carreraFiltrada.includes('Informática') && carreraLibro.includes('Informática')) ||
+                       (carreraFiltrada.includes('Sistemas') && (carreraLibro.includes('Sistemas') || carreraLibro.includes('Informática')));
+            });
         }
 
         if (textoBusqueda) {
-            librosFiltrados = librosFiltrados.filter(libro => {
+            librosDisponibles = librosDisponibles.filter(libro => {
                 const titulo = (libro.titulo || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 const autor = (libro.autor || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 if (filtroTipo === 'autor') return autor.includes(textoBusqueda);
@@ -369,16 +390,19 @@
             });
         }
 
-        if (librosFiltrados.length === 0) {
+        if (librosDisponibles.length === 0) {
             mensajeVacio.style.display = 'block';
         } else {
             mensajeVacio.style.display = 'none';
-            librosFiltrados.forEach(libro => {
+            librosDisponibles.forEach(libro => {
+                const urlImg = normalizarUrlImagen(libro.imagen);
                 const card = document.createElement('div');
                 card.className = 'libro-card';
                 card.innerHTML = `
                     <div class="libro-cover">
-                        <img src="${libro.imagen}" alt="Portada" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="${urlImg}" alt="Portada" 
+                             style="width:100%; height:100%; object-fit:cover;"
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80';">
                     </div>
                     <div class="libro-info">
                         <h3 class="libro-title">${libro.titulo}</h3>
@@ -413,9 +437,7 @@
         showSection('simuladores');
     }
 
-    inicializarCatalogo().then(() => {
-        showSection('dashboard');
-    });
+    showSection('dashboard');
 </script>
 </body>
 </html>
