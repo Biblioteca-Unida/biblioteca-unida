@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Administrativo - Biblioteca UNIDA</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,8 +23,11 @@
             }
         }
     </script>
+    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -35,18 +39,18 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-full flex antialiased">
 
-    <!-- MODAL DE ACCESO PIN -->
+    <!-- MODAL PIN DE ACCESO -->
     <div id="auth-lock" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center">
             <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
-                <i class="fas fa-user-shield"></i>
+                <i class="fas fa-shield-halved"></i>
             </div>
             <h2 class="text-xl font-bold text-slate-800 dark:text-white">Panel de Carga UNIDA</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">Ingresa el PIN de acceso autorizado</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">Ingresa el PIN de seguridad autorizado</p>
             <form onsubmit="validarAcceso(event)">
                 <input type="password" id="auth-pin" maxlength="6" placeholder="****" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center tracking-widest text-xl font-bold outline-none focus:ring-2 focus:ring-blue-500 mb-4 text-slate-800 dark:text-white">
                 <p id="auth-error" class="text-rose-500 text-xs font-semibold hidden mb-3">PIN incorrecto.</p>
-                <button type="submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white font-medium py-3 rounded-xl transition duration-200 shadow-md">Entrar al Sistema</button>
+                <button type="submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white font-medium py-3 rounded-xl transition duration-200 shadow-md">Ingresar al Panel</button>
             </form>
         </div>
     </div>
@@ -63,7 +67,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-sm text-slate-900 dark:text-white leading-tight">ADMIN BIBLIO</h1>
-                        <span class="text-[11px] font-semibold text-emerald-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sincronizado</span>
+                        <span class="text-[11px] font-semibold text-emerald-500 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Activo</span>
                     </div>
                 </div>
 
@@ -100,10 +104,10 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <button onclick="forzarCargaSemilla()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                        <i class="fas fa-rotate"></i> Recargar 187 Libros
+                        <i class="fas fa-rotate"></i> Restaurar 187 Libros
                     </button>
                     <button onclick="descargarJSON()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                        <i class="fas fa-cloud-arrow-down"></i> Guardar catalogo.json
+                        <i class="fas fa-cloud-arrow-down"></i> Descargar JSON
                     </button>
                 </div>
             </header>
@@ -126,7 +130,7 @@
                             <div>
                                 <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Carreras Activas</span>
                                 <h3 id="kpi-carreras" class="text-3xl font-extrabold text-[#2980b9] mt-1">0</h3>
-                                <span class="text-[11px] text-slate-400">Con acervo registrado</span>
+                                <span class="text-[11px] text-slate-400">Con material cargado</span>
                             </div>
                             <div class="w-12 h-12 bg-sky-50 dark:bg-sky-900/30 text-[#2980b9] rounded-xl flex items-center justify-center text-xl"><i class="fas fa-graduation-cap"></i></div>
                         </div>
@@ -135,7 +139,7 @@
                             <div>
                                 <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Simuladores</span>
                                 <h3 class="text-3xl font-extrabold text-[#e67e22] mt-1">3</h3>
-                                <span class="text-[11px] text-amber-500 font-medium"><i class="fas fa-flask"></i> Activos</span>
+                                <span class="text-[11px] text-amber-500 font-medium"><i class="fas fa-flask"></i> Operativos</span>
                             </div>
                             <div class="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-[#e67e22] rounded-xl flex items-center justify-center text-xl"><i class="fas fa-laptop-medical"></i></div>
                         </div>
@@ -172,7 +176,7 @@
                         <div class="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800 mb-6">
                             <div>
                                 <h3 id="form-titulo" class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Cargar Material al Catálogo</h3>
-                                <p class="text-xs text-slate-400">Los cambios se guardan localmente de forma instantánea.</p>
+                                <p class="text-xs text-slate-400">Auto-conversión de Drive y previsualización de doble check.</p>
                             </div>
                             <button type="button" onclick="limpiarFormulario()" class="text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                                 <i class="fas fa-rotate-left mr-1"></i> Limpiar Campos
@@ -254,7 +258,7 @@
                                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-4"><i class="fas fa-eye mr-1"></i> Doble Check: Vista Alumno</span>
                                     
                                     <div class="bg-white dark:bg-slate-900 border-2 border-[#1e3c6e] rounded-xl p-4 shadow-sm flex gap-4 items-center">
-                                        <img id="prev-img" src="" class="w-20 h-28 object-cover rounded shadow shrink-0 bg-slate-200">
+                                        <img id="prev-img" src="" class="w-20 h-28 object-cover rounded shadow shrink-0 bg-slate-200" onerror="this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80'">
                                         <div class="min-w-0 flex-1">
                                             <span id="prev-carrera" class="text-[10px] font-bold text-[#2980b9] uppercase">Carrera</span>
                                             <h4 id="prev-titulo" class="text-xs font-bold text-slate-900 dark:text-white truncate uppercase mt-0.5">Título del Libro</h4>
@@ -268,7 +272,7 @@
 
                                 <div class="text-[11px] text-slate-500 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 p-3 rounded-xl mt-4">
                                     <p class="font-semibold text-blue-800 dark:text-blue-300"><i class="fas fa-check-double mr-1"></i> Verificación Activa</p>
-                                    Al guardar, la lista se actualizará y estará disponible en toda la plataforma.
+                                    El enlace de portada se convertirá automáticamente a formato compatible.
                                 </div>
                             </div>
                         </div>
@@ -312,7 +316,7 @@
                             <i class="fas fa-file-code"></i>
                         </div>
                         <h3 class="text-base font-bold text-slate-800 dark:text-white">Descargar Base de Datos</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">Descarga el archivo físico actualizado para colocarlo en tu carpeta de proyecto o actualizar Netlify.</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">Descarga el archivo físico actualizado para colocarlo en tu repositorio de GitHub.</p>
                         <div class="flex flex-col sm:flex-row justify-center gap-3 pt-2">
                             <button onclick="descargarJSON()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md inline-flex items-center justify-center gap-2">
                                 <i class="fas fa-download"></i> Descargar catalogo.json
@@ -346,6 +350,17 @@
             "Relaciones Internacionales": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80"
         };
 
+        function normalizarUrlImagen(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+                }
+            }
+            return url;
+        }
+
         let libros = [];
 
         function cargarDatos() {
@@ -362,13 +377,14 @@
         }
 
         function forzarCargaSemilla() {
+            localStorage.removeItem(STORAGE_KEY);
             if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
                 libros = catalogoLibros;
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(libros));
                 actualizarTodo();
-                alert('¡Se han restaurado los ' + libros.length + ' libros originales desde catalogo.js!');
+                alert('¡Memoria reseteada con éxito! Se cargaron ' + libros.length + ' libros desde catalogo.js.');
             } else {
-                alert('No se encontró el archivo catalogo.js en la carpeta.');
+                alert('Error: Asegúrate de tener el archivo catalogo.js en la misma carpeta.');
             }
         }
 
@@ -419,7 +435,8 @@
             let titulo = document.getElementById('inp-titulo').value || 'TÍTULO DEL LIBRO';
             const edicion = document.getElementById('inp-edicion').value;
             const autor = document.getElementById('inp-autor').value || 'Nombre del Autor';
-            const imagen = document.getElementById('inp-imagen').value;
+            const imagenRaw = document.getElementById('inp-imagen').value;
+            const imagen = normalizarUrlImagen(imagenRaw);
             const link = document.getElementById('inp-link').value || '#';
 
             if (edicion.trim()) {
@@ -440,7 +457,7 @@
             let titulo = document.getElementById('inp-titulo').value.trim();
             const edicion = document.getElementById('inp-edicion').value.trim();
             const autor = document.getElementById('inp-autor').value.trim();
-            const imagen = document.getElementById('inp-imagen').value.trim();
+            const imagen = normalizarUrlImagen(document.getElementById('inp-imagen').value.trim());
             const link = document.getElementById('inp-link').value.trim();
 
             let tituloFinal = titulo;
@@ -535,7 +552,7 @@
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                             <td class="p-4 flex items-center gap-3">
-                                <img src="${l.imagen}" class="w-8 h-11 object-cover rounded shadow-sm bg-slate-200">
+                                <img src="${normalizarUrlImagen(l.imagen)}" class="w-8 h-11 object-cover rounded shadow-sm bg-slate-200" onerror="this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80'">
                                 <span class="font-bold text-slate-800 dark:text-white">${l.titulo}</span>
                             </td>
                             <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-[#1e3c6e] dark:bg-blue-900/40 dark:text-blue-300">${l.carrera}</span></td>
