@@ -306,7 +306,7 @@
     </div>
   </div>
 
-  <!-- MODAL CONFIGURACION GITHUB -->
+  <!-- MODAL CONFIGURACION GITHUB CON AVISOS MEJORADOS -->
   <div id="modal-gh" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden">
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200 dark:border-slate-800">
       <div class="bg-[#15294a] px-6 py-4 flex items-center justify-between">
@@ -323,7 +323,7 @@
           <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none">
         </div>
         <div class="pt-2 flex justify-end gap-2">
-          <button onclick="cerrarConfigGH()" class="px-4 py-2 text-xs font-semibold text-slate-500">Cancelar</button>
+          <button onclick="cerrarConfigGH()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
           <button onclick="guardarConfigGH()" class="bg-[#2980b9] hover:bg-[#1e3c6e] text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-md">Guardar y Sincronizar</button>
         </div>
       </div>
@@ -337,7 +337,6 @@
     let simuladores = [];
     let ghSha = null;
 
-    // Mapa Estricto de Facultades para el Excel
     const MAPA_FACULTADES = {
       "Medicina": "Salud", "Nutrición": "Salud", "Enfermería": "Salud", "Kinesiología y Fisioterapia": "Salud",
       "Ingeniería en Informática": "Ingeniería", "Ingeniería en Sistemas": "Ingeniería", "Ingeniería Industrial": "Ingeniería", "Ingeniería Electrónica": "Ingeniería",
@@ -389,7 +388,7 @@
       document.getElementById('dark-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
     }
 
-    // --- GITHUB API INTEGRATION ---
+    // --- GITHUB API INTEGRATION CON REPORTE DE ERRORES ---
     function abrirConfigGH() {
       const saved = JSON.parse(localStorage.getItem('unida_gh_config') || '{}');
       document.getElementById('gh-repo').value = saved.repo || '';
@@ -425,7 +424,11 @@
         const url = `https://api.github.com/repos/${config.repo}/contents/catalogo.js?ref=main`;
         const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${config.token}`, 'Accept': 'application/vnd.github.v3+json' } });
         
-        if (!resp.ok) throw new Error("Fallo la conexión con GitHub");
+        // Si hay error en la petición HTTP, sacamos el mensaje exacto de GitHub
+        if (!resp.ok) {
+           const errDetails = await resp.json();
+           throw new Error(errDetails.message || `HTTP ${resp.status}`);
+        }
         
         const data = await resp.json();
         ghSha = data.sha;
@@ -433,10 +436,9 @@
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Conectado`;
         badge.className = "text-[11px] font-semibold text-emerald-500 flex items-center gap-1 truncate";
 
-        // Decodificar Base64 a string JS
+        // Decodificación segura
         const contentStr = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
         
-        // Extraer Arrays usando Regex seguros
         const matchLibros = contentStr.match(/const\s+catalogoLibros\s*=\s*(\[[\s\S]*?\]);/);
         const matchSim = contentStr.match(/const\s+simuladoresGlobales\s*=\s*(\[[\s\S]*?\]);/);
 
@@ -452,8 +454,15 @@
         console.error(e);
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Error Sync`;
         badge.className = "text-[11px] font-semibold text-amber-500 flex items-center gap-1 truncate";
+        document.getElementById('kpi-git-sha').textContent = "Fallido";
         fallbackLocal();
-        if (alertar) alert("Error al sincronizar. Revisa tu Token y el nombre del Repositorio.");
+        
+        // Diagnóstico personalizado para el usuario
+        let msjUsuario = "Revisa tu Token y el nombre del Repositorio.";
+        if (e.message.includes("Bad credentials")) msjUsuario = "El Token es incorrecto o expiró.";
+        if (e.message.includes("Not Found")) msjUsuario = "No se encontró el repositorio (revisa mayúsculas/minúsculas) o el archivo catalogo.js.";
+        
+        if (alertar) alert(`ERROR DE CONEXIÓN CON GITHUB\nMotivo: ${e.message}\n\nSolución: ${msjUsuario}`);
       } finally {
         spinner.classList.add('hidden');
       }
@@ -476,7 +485,6 @@
 
         const url = `https://api.github.com/repos/${config.repo}/contents/catalogo.js`;
         
-        // Obtener el SHA fresco por si alguien más editó
         const reqSha = await fetch(`${url}?ref=main`, { headers: { 'Authorization': `Bearer ${config.token}` } });
         if (reqSha.ok) { const d = await reqSha.json(); ghSha = d.sha; }
 
@@ -486,7 +494,10 @@
           body: JSON.stringify({ message: mensaje, content: base64Content, sha: ghSha, branch: 'main' })
         });
 
-        if (!putResp.ok) throw new Error("Error al hacer el push");
+        if (!putResp.ok) {
+           const errDetails = await putResp.json();
+           throw new Error(errDetails.message || "Error al hacer el push");
+        }
         
         const data = await putResp.json();
         ghSha = data.content.sha;
@@ -494,7 +505,7 @@
         alert(`Guardado en GitHub exitoso.\nCommit: ${mensaje}`);
 
       } catch (error) {
-        alert("Fallo el envío a GitHub. Se guardó copia local. " + error.message);
+        alert("Fallo el envío a GitHub. Se guardó copia local.\nError: " + error.message);
       } finally {
         spinner.classList.add('hidden');
         actualizarTodoUI();
@@ -506,7 +517,6 @@
     }
 
     function fallbackLocal() {
-      // Método de respaldo si GitHub falla o no hay internet
       if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) libros = [...catalogoLibros];
       if (typeof simuladoresGlobales !== 'undefined' && Array.isArray(simuladoresGlobales)) simuladores = [...simuladoresGlobales];
       else simuladores = [{ facultad: "Facultad de Salud", titulo: "Simulador Anatomía 3D", autor: "BioDigital Human", link: "https://human.biodigital.com/" }];
@@ -516,10 +526,8 @@
     // --- EXCEL MULTI-HOJA AVANZADO (SheetJS) ---
     function generarExcelInventario() {
       if(libros.length === 0) return alert("No hay libros para exportar");
-      
       const wb = XLSX.utils.book_new();
 
-      // 1. Agrupar datos
       const librosPorFacultad = {};
       const conteoPorFacultad = {};
       
@@ -531,7 +539,6 @@
         librosPorFacultad[fac][l.carrera].push(l);
       });
 
-      // 2. Crear Hoja 1: Resumen Dashboard
       const wsResumenData = [
         ["INVENTARIO ANUAL DE BIBLIOTECA - UNIDA"],
         ["Generado el:", new Date().toLocaleDateString()],
@@ -546,14 +553,11 @@
       wsResumenData.push(["TOTAL ACERVO DIGITAL", libros.length]);
       
       const wsResumen = XLSX.utils.aoa_to_sheet(wsResumenData);
-      
-      // Anchos de columna Hoja Resumen
       wsResumen['!cols'] = [{wch: 40}, {wch: 35}];
       XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen Global");
 
-      // 3. Crear Hojas Detalladas por Facultad
       for(const [facultadRaw, carrerasObj] of Object.entries(librosPorFacultad)) {
-        const facNombreLimpio = facultadRaw.replace(/_/g, ' ').substring(0, 31); // Max 31 char Excel sheet
+        const facNombreLimpio = facultadRaw.replace(/_/g, ' ').substring(0, 31);
         const sheetData = [];
         
         sheetData.push([`INVENTARIO DETALLADO: ${facNombreLimpio.toUpperCase()}`]);
@@ -565,7 +569,6 @@
           sheetData.push(["Nº", "Título del Material", "Autor / Editorial", "Edición / Tomo", "Enlace de Descarga Drive"]);
           
           lista.forEach((l, idx) => {
-            // Extraer edición limpia si existe en HTML
             let tituloStr = l.titulo;
             let edicionStr = "-";
             if(tituloStr.includes('<span')) {
@@ -575,19 +578,16 @@
               if(span) { edicionStr = span.textContent.trim(); span.remove(); }
               tituloStr = div.textContent.trim();
             }
-
             sheetData.push([idx + 1, tituloStr, l.autor, edicionStr, l.link]);
           });
-          sheetData.push([]); // Espacio entre carreras
+          sheetData.push([]);
         }
         
         const ws = XLSX.utils.aoa_to_sheet(sheetData);
-        // Anchos de columna estéticos
         ws['!cols'] = [{wch: 5}, {wch: 50}, {wch: 35}, {wch: 20}, {wch: 50}];
         XLSX.utils.book_append_sheet(wb, ws, facNombreLimpio);
       }
 
-      // Descarga del Archivo Excel Binario
       XLSX.writeFile(wb, `Inventario_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`);
     }
 
