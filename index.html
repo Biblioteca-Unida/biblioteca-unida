@@ -1,638 +1,499 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-100">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data:;">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data:;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
 
-  <title>Biblioteca Central - UNIDA</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- FontAwesome CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Biblioteca Central - UNIDA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f0f2f5; color: #333; overflow-x: hidden; }
+        header { background-color: #ffffff; padding: 1.5rem 3rem; text-align: center; border-bottom: 5px solid #2980b9; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 15px rgba(0,0,0,0.1); position: relative; }
+        .logo-unida { width: auto; height: 55px; object-fit: contain; cursor: pointer; }
+        .logo-biblioteca { width: auto; height: 110px; object-fit: contain; }
+        .header-text { flex-grow: 1; text-align: center; padding: 0 20px; }
+        header h1 { margin: 0; color: #1a1a1a; font-size: 2.2rem; font-family: "Cooper Black", serif; text-transform: uppercase; line-height: 1.1; white-space: nowrap; }
+        header .biblioteca-text { color: #2980b9; font-size: 2rem; margin: 8px 0; font-family: "Cooper Black", serif; text-transform: uppercase; }
+        header .nombre-honorifico { color: #444; font-size: 1.6rem; margin: 0; font-family: "Cooper Black", serif; text-transform: uppercase; }
+        .header-admin-btn { position: absolute; top: 15px; right: 25px; background: #1e3c6e; color: white; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; cursor: pointer; border: none; display: flex; align-items: center; gap: 6px; transition: background 0.3s; }
+        .header-admin-btn:hover { background: #2980b9; }
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Poppins', 'sans-serif'],
-          },
-          colors: {
-            unida: {
-              navy: '#1e3c6e',
-              blue: '#2980b9',
-              light: '#f0f2f5',
-              dark: '#15294a'
-            }
-          }
-        }
-      }
-    }
-  </script>
+        nav { background: #1e3c6e; color: white; padding: 14px 0; text-align: center; position: sticky; top: 0; z-index: 1000; }
+        nav a { color: white; text-decoration: none; margin: 0 20px; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; transition: color 0.3s; letter-spacing: 1px; }
+        nav a:hover { color: #3498db; }
+        .container { max-width: 1500px; margin: 3rem auto; padding: 0 2rem; }
+        #dashboard-section { animation: fadeIn 0.5s ease; position: relative; }
+        .hero-library { text-align: center; padding: 100px 20px; background: linear-gradient(rgba(30, 60, 110, 0.85), rgba(30, 60, 110, 0.85)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; background-attachment: fixed; color: white; border-radius: 0 0 50px 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .hero-library h2 { font-family: "Cooper Black", serif; font-size: 3.8rem; margin: 0; text-transform: uppercase; }
+        .hero-library p { font-size: 1.2rem; max-width: 800px; margin: 20px auto 0; font-weight: 300; line-height: 1.6; opacity: 0.95; }
+        .quick-actions-minimal { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-top: -60px; }
+        .minimal-card { background: #ffffff; padding: 45px 30px; border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); cursor: pointer; border-bottom: 6px solid #2980b9; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-decoration: none; color: inherit; display: block; }
+        @media (min-width: 769px) { .minimal-card:hover { transform: translateY(-15px); background-color: #2980b9; color: white; } .minimal-card:hover h3, .minimal-card:hover p { color: white; } }
+        .minimal-card h3 { font-family: "Cooper Black", serif; color: #1e3c6e; font-size: 1.8rem; margin: 0; text-transform: uppercase; transition: color 0.3s; }
+        .minimal-card p { font-size: 0.95rem; margin-top: 15px; line-height: 1.6; color: #555; transition: color 0.3s; }
+        .social-sidebar { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
+        .social-sidebar a { width: 55px; height: 55px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; text-decoration: none; box-shadow: 0 5px 20px rgba(0,0,0,0.15); transition: 0.3s; }
+        .social-sidebar a.ig { color: #E1306C; } .social-sidebar a.wa { color: #25D366; } .social-sidebar a.fb { color: #1877F2; } .social-sidebar a.ml { color: #D44638; }
+        #facultades-digital-section, #facultades-impresa-section, #descarga-section, #catalogo-section, #simuladores-section { display: none; animation: fadeIn 0.5s ease; }
+        .facultades-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
+        .facultad-card { position: relative; height: 440px; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; transition: transform 0.4s ease; }
+        .facultad-card img { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; transition: 0.6s; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 60, 110, 0.85); z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 25px; box-sizing: border-box; transition: 0.4s; }
+        .facultad-card h2 { color: white; z-index: 3; font-family: "Cooper Black", serif; font-size: 2.2rem; text-transform: uppercase; margin: 0; transition: 0.4s; }
+        .carreras-list { opacity: 0; transform: translateY(20px); transition: 0.4s; color: white; z-index: 3; margin-top: 15px; list-style: none; padding: 0; font-size: 0.95rem; font-weight: 300; text-align: center; width: 100%; }
+        .carreras-list li { margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 3px; cursor: pointer; transition: color 0.3s, transform 0.2s; }
+        .carreras-list li:hover { color: #3498db; transform: scale(1.05); font-weight: 600; border-bottom-color: #3498db; }
+        .btn-simulador { background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-family: 'Poppins', sans-serif; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.3s; margin-top: 20px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; z-index: 3; opacity: 0; transform: translateY(20px); }
+        .btn-simulador:hover { background: #d35400; transform: scale(1.05); }
+        .facultad-card:hover img { transform: scale(1.1); }
+        .facultad-card:hover .overlay { background: rgba(41, 128, 185, 0.9); }
+        .facultad-card:hover .carreras-list, .facultad-card:hover .btn-simulador { opacity: 1; transform: translateY(0); }
+        .catalogo-header { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px; }
+        .catalogo-titulo-contenedor { display: flex; align-items: center; gap: 15px; flex-grow: 1; }
+        .catalogo-header h2 { font-family: "Cooper Black", serif; color: #1e3c6e; font-size: 2rem; margin: 0; text-transform: uppercase; }
+        .btn-volver { background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; font-family: 'Poppins', sans-serif; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-volver:hover { background: #c0392b; }
+        .search-controls { display: flex; gap: 15px; flex-grow: 1; max-width: 600px; }
+        .search-bar { flex-grow: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; outline: none; transition: 0.3s; }
+        .search-bar:focus { border-color: #2980b9; box-shadow: 0 0 5px rgba(41, 128, 185, 0.3); }
+        .filter-select { padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; outline: none; background: white; cursor: pointer; }
+        .libros-list { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-height: 300px; }
+        .libros-grid-container { display: flex; flex-direction: column; gap: 20px; }
+        .libro-card { display: flex; align-items: center; background: #ffffff; border: 2px solid #1e3c6e; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; }
+        .libro-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .libro-cover { width: 110px; height: 160px; object-fit: cover; border-radius: 8px; margin-right: 25px; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: #e0e5ec; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
+        .simulador-cover { background-color: #2c3e50; color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .libro-info { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .libro-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.4rem; color: #1a1a1a; margin: 0 0 5px 0; text-transform: uppercase; }
+        .libro-edicion { font-size: 0.6em; color: #7f8c8d; font-weight: 600; vertical-align: middle; margin-left: 8px; }
+        .libro-author { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; color: #1e3c6e; margin: 0 0 10px 0; }
+        .libro-action { margin-left: 20px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; min-width: 220px; }
+        .btn-drive-download { background: #1e3c6e; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: background 0.3s, transform 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: pointer; text-transform: uppercase; width: 100%; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-drive-download:hover { background: #2980b9; transform: translateY(-2px); }
+        .btn-drive-download.btn-simular { background: #e67e22; }
+        .btn-drive-download.btn-simular:hover { background: #d35400; }
+        .download-box { background: white; padding: 50px; border-radius: 20px; text-align: center; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .btn-download { background: #1e3c6e; color: white; padding: 18px 40px; border-radius: 12px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 25px; transition: 0.3s; }
+        
+        /* Modal de Acceso PIN */
+        .pin-modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .pin-modal-card { background: white; border-radius: 16px; width: 90%; max-width: 360px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); text-align: center; }
+        .pin-modal-card h3 { margin: 0 0 8px 0; color: #1e3c6e; font-size: 1.4rem; font-family: "Cooper Black", serif; }
+        .pin-modal-card p { margin: 0 0 20px 0; font-size: 0.85rem; color: #64748b; }
+        .pin-input { width: 80%; padding: 12px; font-size: 1.4rem; letter-spacing: 6px; text-align: center; border: 2px solid #cbd5e1; border-radius: 8px; outline: none; margin-bottom: 15px; font-family: monospace; }
+        .pin-input:focus { border-color: #2980b9; }
+        .pin-modal-actions { display: flex; gap: 10px; justify-content: center; }
+        .pin-btn-confirm { background: #1e3c6e; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
+        .pin-btn-confirm:hover { background: #2980b9; }
+        .pin-btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
 
-  <style>
-    .cooper-title {
-      font-family: "Cooper Black", serif, 'Poppins';
-    }
-    .card-zoom:hover img {
-      transform: scale(1.08);
-    }
-    .card-zoom:hover .overlay-info {
-      background-color: rgba(41, 128, 185, 0.92);
-    }
-    .card-zoom:hover .carreras-reveal,
-    .card-zoom:hover .btn-reveal {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-      animation: fadeIn 0.35s ease-out forwards;
-    }
-  </style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
 </head>
-<body class="h-full flex flex-col font-sans text-slate-800 bg-[#f0f2f5] overflow-x-hidden">
+<body>
 
-  <!-- Header Superior Institucional -->
-  <header class="bg-white border-b-4 border-[#2980b9] px-6 sm:px-12 py-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-md z-20">
-    <img src="https://www.unida.edu.py/v4/wp-content/uploads/2024/01/UNIDA-LOGO-1.png" alt="Logo UNIDA" class="h-12 w-auto object-contain cursor-pointer transition hover:opacity-90" onclick="irAtras()">
+<header>
+    <img src="https://www.unida.edu.py/v4/wp-content/uploads/2024/01/UNIDA-LOGO-1.png" alt="Logo UNIDA" class="logo-unida" onclick="irAtras()">
+    <div class="header-text">
+        <h1>Universidad de la Integración de las Américas</h1>
+        <p class="biblioteca-text">Biblioteca Central</p>
+        <p class="nombre-honorifico">“EMB. JOÃO BAENA SOARES”</p>
+    </div>
+    <img src="https://i.ibb.co/JWCnzbyM/logo-biblioteca.png" alt="Logo Biblioteca" class="logo-biblioteca">
+    <button class="header-admin-btn" onclick="solicitarPinAdmin()"><i class="fas fa-lock"></i> Acceso Admin</button>
+</header>
+
+<nav>
+    <a onclick="showSection('dashboard')">Inicio</a>
+    <a onclick="showSection('facultades-digital')">Biblioteca Digital</a>
+    <a onclick="showSection('facultades-impresa')">Biblioteca Impresa</a>
+    <a onclick="showSection('descarga')">Descargas</a>
+</nav>
+
+<div id="dashboard-section">
+    <section class="hero-library">
+        <h2>Bienvenidos a la Biblioteca</h2>
+        <p>Tu portal al conocimiento y la investigación académica en la UNIDA. Explora nuestros recursos digitales y físicos diseñados para potenciar tu formación profesional.</p>
+    </section>
     
-    <div class="text-center">
-      <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight cooper-title uppercase leading-none">
-        Universidad de la Integración de las Américas
-      </h1>
-      <p class="text-lg sm:text-xl font-bold text-[#2980b9] cooper-title uppercase my-1">
-        Biblioteca Central
-      </p>
-      <p class="text-sm font-semibold text-slate-600 cooper-title tracking-wider">
-        “EMB. JOÃO BAENA SOARES”
-      </p>
+    <div class="container">
+        <div class="quick-actions-minimal">
+            <a href="https://www.unida.edu.py/bibliotecas/" target="_blank" class="minimal-card">
+                <h3>Biblioteca Virtual</h3>
+                <p>Portal de investigación con acceso remoto a bases de datos multidisciplinarias, revistas especializadas y audiolibros sin costo para el autoaprendizaje científico.</p>
+            </a>
+            <div class="minimal-card" onclick="showSection('facultades-digital')">
+                <h3>Biblioteca Digital</h3>
+                <p>Amplia variedad de recursos y servicios digitales asequibles de manera inclusiva, facilitando la formación académica continua en cualquier momento y lugar.</p>
+            </div>
+            <div class="minimal-card" onclick="showSection('facultades-impresa')">
+                <h3>Biblioteca Impresa</h3>
+                <p>Espacio colaborativo que fomenta el estudio presencial y la participación cultural, ofreciendo información de alta calidad abierta a toda la comunidad educativa.</p>
+            </div>
+        </div>
     </div>
 
-    <div class="flex items-center gap-3">
-      <img src="https://i.ibb.co/JWCnzbyM/logo-biblioteca.png" alt="Logo Biblioteca" class="h-16 w-auto object-contain hidden sm:block">
-      <a href="admin.html" class="inline-flex items-center gap-2 bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow-sm" title="Ingresar al Panel de Gestión">
-        <i class="fas fa-gear"></i>
-        <span class="hidden lg:inline">Admin</span>
-      </a>
+    <div class="social-sidebar">
+        <a href="https://www.instagram.com/bibliotecaunida/" target="_blank" class="ig" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://wa.me/595972377689" target="_blank" class="wa" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://www.facebook.com/bibliotecaunida" target="_blank" class="fb" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="mailto:bibliotecacentral@unida.edu.py" class="ml" title="Enviar Correo"><i class="fas fa-envelope"></i></a>
     </div>
-  </header>
+</div>
 
-  <!-- Barra de Navegación Sticky -->
-  <nav class="bg-[#1e3c6e] text-white py-3 sticky top-0 z-30 shadow-lg px-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-center flex-wrap gap-4 sm:gap-8 text-xs sm:text-sm font-semibold uppercase tracking-wider">
-      <button onclick="showSection('dashboard')" class="hover:text-sky-400 transition cursor-pointer flex items-center gap-1.5 focus:outline-none">
-        <i class="fas fa-house text-xs"></i> Inicio
-      </button>
-      <button onclick="showSection('facultades-digital')" class="hover:text-sky-400 transition cursor-pointer flex items-center gap-1.5 focus:outline-none">
-        <i class="fas fa-laptop-file text-xs"></i> Biblioteca Digital
-      </button>
-      <button onclick="showSection('facultades-impresa')" class="hover:text-sky-400 transition cursor-pointer flex items-center gap-1.5 focus:outline-none">
-        <i class="fas fa-book text-xs"></i> Biblioteca Impresa
-      </button>
-      <button onclick="showSection('descarga')" class="hover:text-sky-400 transition cursor-pointer flex items-center gap-1.5 focus:outline-none">
-        <i class="fas fa-download text-xs"></i> Descargas
-      </button>
+<div id="facultades-digital-section" class="container">
+    <div class="facultades-grid">
+        <div class="facultad-card">
+            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/enfermeria_unida-ql44yi55fcezki8uwy991c9ar3btk20dbmt7sg6ztc.webp" alt="Facultad de Salud">
+            <div class="overlay">
+                <h2>Facultad de Salud</h2>
+                <ul class="carreras-list">
+                    <li onclick="abrirCatalogo('Enfermería')">Enfermería</li>
+                    <li onclick="abrirCatalogo('Kinesiología y Fisioterapia')">Kinesiología y Fisioterapia</li>
+                    <li onclick="abrirCatalogo('Medicina')">Medicina</li>
+                    <li onclick="abrirCatalogo('Nutrición')">Nutrición</li>
+                </ul>
+                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Salud')"><i class="fas fa-laptop-medical"></i> Ver Simuladores</button>
+            </div>
+        </div>
+        <div class="facultad-card">
+            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/economia-ql474wuhitr21icq2cdwj1yin6v2n4ab3pwbydxqs0.webp" alt="Facultad de Gestión">
+            <div class="overlay">
+                <h2>Facultad de Gestión</h2>
+                <ul class="carreras-list">
+                    <li onclick="abrirCatalogo('Administración de Empresas')">Administración de Empresas</li>
+                    <li onclick="abrirCatalogo('Comercio Internacional')">Comercio Internacional</li>
+                    <li onclick="abrirCatalogo('Contaduría Pública')">Contaduría Pública</li>
+                    <li onclick="abrirCatalogo('Ingeniería Comercial')">Ingeniería Comercial</li>
+                    <li onclick="abrirCatalogo('Marketing y Gestión Comercial')">Marketing y Gestión Comercial</li>
+                    <li onclick="abrirCatalogo('Relaciones Internacionales')">Relaciones Internacionales</li>
+                    <li onclick="abrirCatalogo('Psicología Organizacional')">Psicología Organizacional</li>
+                </ul>
+                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Gestión')"><i class="fas fa-chart-line"></i> Ver Simuladores</button>
+            </div>
+        </div>
+        <div class="facultad-card">
+            <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80" alt="Facultad de Ingeniería">
+            <div class="overlay">
+                <h2>Facultad de Ingeniería</h2>
+                <ul class="carreras-list">
+                    <li onclick="abrirCatalogo('Ingeniería Electrónica')">Ingeniería Electrónica</li>
+                    <li onclick="abrirCatalogo('Ingeniería Industrial')">Ingeniería Industrial</li>
+                    <li onclick="abrirCatalogo('Ingeniería en Sistemas')">Ingeniería en Sistemas</li>
+                    <li onclick="abrirCatalogo('Ingeniería en Informática')">Ingeniería en Informática</li>
+                </ul>
+                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Ingeniería')"><i class="fas fa-cogs"></i> Ver Simuladores</button>
+            </div>
+        </div>
+        <div class="facultad-card">
+            <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=80" alt="C. Jurídicas">
+            <div class="overlay">
+                <h2>Facultad de C. JURÍDICAS Y SOCIALES</h2>
+                <ul class="carreras-list">
+                    <li onclick="abrirCatalogo('Derecho')">Derecho</li>
+                    <li onclick="abrirCatalogo('Ciencias Políticas')">Ciencias Políticas</li>
+                </ul>
+                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de C. JURÍDICAS Y SOCIALES')"><i class="fas fa-balance-scale"></i> Ver Simuladores</button>
+            </div>
+        </div>
+        <div class="facultad-card">
+            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/st_403991497-qfymca815zkjkmjzj5zfgkhhp3a2fdpawj6koah7m8.png" alt="FEADYS">
+            <div class="overlay">
+                <h2>FEADYS</h2>
+                <ul class="carreras-list" style="font-size: 0.75rem;">
+                    <li onclick="abrirCatalogo('Adm. de Empresas/Pública')">Adm. de Empresas/Pública</li>
+                    <li onclick="abrirCatalogo('Adm. Gestión Emprendedora')">Adm. Gestión Emprendedora</li>
+                    <li onclick="abrirCatalogo('Talento Humano')">Talento Humano</li>
+                    <li onclick="abrirCatalogo('Banca y Finanzas')">Banca y Finanzas</li>
+                    <li onclick="abrirCatalogo('Educación')">Educación</li>
+                    <li onclick="abrirCatalogo('Marketing Digital')">Marketing Digital</li>
+                    <li onclick="abrirCatalogo('Sistemas')">Sistemas</li>
+                </ul>
+                <button class="btn-simulador" onclick="abrirSimuladores('FEADYS')"><i class="fas fa-globe"></i> Ver Simuladores</button>
+            </div>
+        </div>
     </div>
-  </nav>
+</div>
 
-  <!-- Contenido Principal Dinámico -->
-  <main class="flex-1">
-    
-    <!-- 1. Sección Dashboard / Inicio -->
-    <section id="dashboard-section" class="animate-fade-in">
-      <div class="text-center py-20 px-6 text-white relative shadow-inner" 
-           style="background: linear-gradient(rgba(30, 60, 110, 0.88), rgba(30, 60, 110, 0.88)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80') center/cover fixed; border-radius: 0 0 45px 45px;">
-        <h2 class="text-3xl sm:text-5xl font-black uppercase cooper-title tracking-wide">Bienvenidos a la Biblioteca</h2>
-        <p class="text-sm sm:text-base max-w-2xl mx-auto mt-4 font-light leading-relaxed text-slate-200">
-          Tu portal al conocimiento y la investigación académica en la UNIDA. Explora nuestros recursos digitales y físicos diseñados para potenciar tu formación profesional.
-        </p>
-      </div>
+<div id="catalogo-section" class="container">
+    <div class="catalogo-header">
+        <div class="catalogo-titulo-contenedor">
+            <button class="btn-volver" onclick="irAtras()"><i class="fas fa-arrow-left"></i> Volver</button>
+            <h2 id="catalogo-titulo">Catálogo</h2>
+        </div>
+        <div class="search-controls">
+            <select id="filtro-libros" class="filter-select">
+                <option value="todos">Buscar por...</option>
+                <option value="autor">Autor</option>
+                <option value="tema">Tema (Título)</option>
+            </select>
+            <input type="text" id="buscador-libros" class="search-bar" placeholder="Escribe aquí para buscar (sin importar acentos)...">
+        </div>
+    </div>
 
-      <div class="max-w-6xl mx-auto px-6 -mt-12 pb-16">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <a href="https://www.unida.edu.py/bibliotecas/" target="_blank" 
-             class="bg-white p-8 rounded-2xl shadow-xl border-b-4 border-[#2980b9] hover:-translate-y-2 hover:bg-[#2980b9] hover:text-white transition-all duration-300 group cursor-pointer text-center flex flex-col justify-between">
-            <div>
-              <div class="w-14 h-14 mx-auto rounded-full bg-blue-50 text-[#1e3c6e] group-hover:bg-white/20 group-hover:text-white flex items-center justify-center text-2xl transition mb-4">
-                <i class="fas fa-globe"></i>
-              </div>
-              <h3 class="text-xl font-bold uppercase text-[#1e3c6e] group-hover:text-white transition">Biblioteca Virtual</h3>
-              <p class="text-xs sm:text-sm text-slate-600 group-hover:text-slate-100 mt-3 leading-relaxed transition">
-                Portal de investigación con acceso remoto a bases de datos multidisciplinarias, revistas especializadas y audiolibros sin costo.
-              </p>
+    <div class="libros-list">
+        <div id="mensaje-vacio" style="text-align: center; padding: 40px 20px; display: none;">
+            <i class="fas fa-book-open" style="font-size: 50px; color: #ccc; margin-bottom: 15px;"></i>
+            <h3 style="color: #666; font-family: 'Poppins', sans-serif;">La biblioteca digital de esta carrera está en construcción</h3>
+            <p style="color: #999;">Próximamente se agregará el catálogo de libros y materiales de estudio correspondientes.</p>
+        </div>
+        <div class="libros-grid-container" id="contenedor-libros"></div>
+    </div>
+</div>
+
+<div id="simuladores-section" class="container">
+    <div class="catalogo-header">
+        <div class="catalogo-titulo-contenedor">
+            <button class="btn-volver" onclick="irAtras()"><i class="fas fa-arrow-left"></i> Volver</button>
+            <h2 id="simuladores-titulo">Simuladores</h2>
+        </div>
+    </div>
+    <div class="libros-list">
+        <div class="libros-grid-container" id="contenedor-simuladores">
+            <div class="libro-card simulador-card" data-facultad="Facultad de Salud">
+                <div class="libro-cover simulador-cover"><i class="fas fa-microscope"></i></div>
+                <div class="libro-info"><h3 class="libro-title">Simulador de Anatomía Humana 3D</h3><p class="libro-author">BioDigital Human</p></div>
+                <div class="libro-action"><a href="https://human.biodigital.com/" target="_blank" class="btn-drive-download btn-simular"><i class="fas fa-external-link-alt"></i> Acceder</a></div>
             </div>
-            <span class="inline-block mt-4 text-xs font-bold text-[#2980b9] group-hover:text-white uppercase tracking-wider">Acceder Portal &rarr;</span>
-          </a>
-
-          <div onclick="showSection('facultades-digital')" 
-               class="bg-white p-8 rounded-2xl shadow-xl border-b-4 border-[#2980b9] hover:-translate-y-2 hover:bg-[#2980b9] hover:text-white transition-all duration-300 group cursor-pointer text-center flex flex-col justify-between">
-            <div>
-              <div class="w-14 h-14 mx-auto rounded-full bg-blue-50 text-[#1e3c6e] group-hover:bg-white/20 group-hover:text-white flex items-center justify-center text-2xl transition mb-4">
-                <i class="fas fa-book-open-reader"></i>
-              </div>
-              <h3 class="text-xl font-bold uppercase text-[#1e3c6e] group-hover:text-white transition">Biblioteca Digital</h3>
-              <p class="text-xs sm:text-sm text-slate-600 group-hover:text-slate-100 mt-3 leading-relaxed transition">
-                Amplia variedad de recursos bibliográficos en Google Drive accesibles de forma inmediata para todas las carreras.
-              </p>
+            <div class="libro-card simulador-card" data-facultad="Facultad de Gestión">
+                <div class="libro-cover simulador-cover"><i class="fas fa-chart-pie"></i></div>
+                <div class="libro-info"><h3 class="libro-title">Simulador de Mercados y Bolsa</h3><p class="libro-author">Plataforma Financiera</p></div>
+                <div class="libro-action"><a href="https://www.investopedia.com/simulator/" target="_blank" class="btn-drive-download btn-simular"><i class="fas fa-external-link-alt"></i> Acceder</a></div>
             </div>
-            <span class="inline-block mt-4 text-xs font-bold text-[#2980b9] group-hover:text-white uppercase tracking-wider">Explorar Catálogo &rarr;</span>
-          </div>
-
-          <div onclick="showSection('facultades-impresa')" 
-               class="bg-white p-8 rounded-2xl shadow-xl border-b-4 border-[#2980b9] hover:-translate-y-2 hover:bg-[#2980b9] hover:text-white transition-all duration-300 group cursor-pointer text-center flex flex-col justify-between">
-            <div>
-              <div class="w-14 h-14 mx-auto rounded-full bg-blue-50 text-[#1e3c6e] group-hover:bg-white/20 group-hover:text-white flex items-center justify-center text-2xl transition mb-4">
-                <i class="fas fa-building-columns"></i>
-              </div>
-              <h3 class="text-xl font-bold uppercase text-[#1e3c6e] group-hover:text-white transition">Biblioteca Impresa</h3>
-              <p class="text-xs sm:text-sm text-slate-600 group-hover:text-slate-100 mt-3 leading-relaxed transition">
-                Catálogo del acervo físico disponible en salas de lectura presenciales de la sede central con inventarios PDF organizados.
-              </p>
+            <div class="libro-card simulador-card" data-facultad="Facultad de Ingeniería">
+                <div class="libro-cover simulador-cover"><i class="fas fa-network-wired"></i></div>
+                <div class="libro-info"><h3 class="libro-title">Simulador de Redes Cisco Packet Tracer</h3><p class="libro-author">Laboratorio Informático</p></div>
+                <div class="libro-action"><a href="https://www.netacad.com/courses/packet-tracer" target="_blank" class="btn-drive-download btn-simular"><i class="fas fa-external-link-alt"></i> Acceder</a></div>
             </div>
-            <span class="inline-block mt-4 text-xs font-bold text-[#2980b9] group-hover:text-white uppercase tracking-wider">Ver Inventarios &rarr;</span>
-          </div>
         </div>
-      </div>
-    </section>
+    </div>
+</div>
 
-    <!-- 2. Sección Facultades Digitales -->
-    <section id="facultades-digital-section" class="max-w-7xl mx-auto px-6 py-10 hidden animate-fade-in">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl sm:text-3xl font-bold text-[#1e3c6e] cooper-title uppercase">Facultades - Biblioteca Digital</h2>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1">Selecciona tu carrera para acceder a los libros en formato digital</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        <!-- Facultad de Salud -->
-        <div class="card-zoom relative h-96 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
-          <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/enfermeria_unida-ql44yi55fcezki8uwy991c9ar3btk20dbmt7sg6ztc.webp" alt="Facultad de Salud" class="w-full h-full object-cover transition duration-500">
-          <div class="overlay-info absolute inset-0 bg-[#1e3c6e]/85 p-6 flex flex-col justify-center items-center text-center transition duration-300">
-            <h3 class="text-2xl font-bold text-white uppercase cooper-title mb-3">Facultad de Salud</h3>
-            <ul class="carreras-reveal opacity-0 transform translate-y-4 transition duration-300 w-full space-y-1 text-xs text-slate-100 font-medium">
-              <li onclick="abrirCatalogo('Enfermería')" class="py-1 hover:text-sky-300 hover:scale-105 cursor-pointer border-b border-white/20 transition">Enfermería</li>
-              <li onclick="abrirCatalogo('Kinesiología y Fisioterapia')" class="py-1 hover:text-sky-300 hover:scale-105 cursor-pointer border-b border-white/20 transition">Kinesiología y Fisioterapia</li>
-              <li onclick="abrirCatalogo('Medicina')" class="py-1 hover:text-sky-300 hover:scale-105 cursor-pointer border-b border-white/20 transition">Medicina</li>
-              <li onclick="abrirCatalogo('Nutrición')" class="py-1 hover:text-sky-300 hover:scale-105 cursor-pointer transition">Nutrición</li>
-            </ul>
-            <button onclick="abrirSimuladores('Facultad de Salud')" class="btn-reveal opacity-0 transform translate-y-4 transition duration-300 mt-4 inline-flex items-center gap-2 bg-[#e67e22] hover:bg-[#d35400] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase shadow">
-              <i class="fas fa-laptop-medical"></i> Simuladores 3D
-            </button>
-          </div>
-        </div>
-
-        <!-- Facultad de Gestión -->
-        <div class="card-zoom relative h-96 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
-          <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/economia-ql474wuhitr21icq2cdwj1yin6v2n4ab3pwbydxqs0.webp" alt="Facultad de Gestión" class="w-full h-full object-cover transition duration-500">
-          <div class="overlay-info absolute inset-0 bg-[#1e3c6e]/85 p-6 flex flex-col justify-center items-center text-center transition duration-300">
-            <h3 class="text-2xl font-bold text-white uppercase cooper-title mb-3">Facultad de Gestión</h3>
-            <ul class="carreras-reveal opacity-0 transform translate-y-4 transition duration-300 w-full space-y-1 text-xs text-slate-100 font-medium">
-              <li onclick="abrirCatalogo('Administración de Empresas')" class="py-0.5 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Administración de Empresas</li>
-              <li onclick="abrirCatalogo('Comercio Internacional')" class="py-0.5 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Comercio Internacional</li>
-              <li onclick="abrirCatalogo('Contaduría Pública')" class="py-0.5 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Contaduría Pública</li>
-              <li onclick="abrirCatalogo('Ingeniería Comercial')" class="py-0.5 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Ingeniería Comercial</li>
-              <li onclick="abrirCatalogo('Marketing y Gestión Comercial')" class="py-0.5 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Marketing y Gestión Comercial</li>
-              <li onclick="abrirCatalogo('Relaciones Internacionales')" class="py-0.5 hover:text-sky-300 cursor-pointer transition">Relaciones Internacionales</li>
-            </ul>
-            <button onclick="abrirSimuladores('Facultad de Gestión')" class="btn-reveal opacity-0 transform translate-y-4 transition duration-300 mt-3 inline-flex items-center gap-2 bg-[#e67e22] hover:bg-[#d35400] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase shadow">
-              <i class="fas fa-chart-line"></i> Simulador Bolsa
-            </button>
-          </div>
-        </div>
-
-        <!-- Facultad de Ingeniería -->
-        <div class="card-zoom relative h-96 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
-          <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80" alt="Facultad de Ingeniería" class="w-full h-full object-cover transition duration-500">
-          <div class="overlay-info absolute inset-0 bg-[#1e3c6e]/85 p-6 flex flex-col justify-center items-center text-center transition duration-300">
-            <h3 class="text-2xl font-bold text-white uppercase cooper-title mb-3">Facultad de Ingeniería</h3>
-            <ul class="carreras-reveal opacity-0 transform translate-y-4 transition duration-300 w-full space-y-1 text-xs text-slate-100 font-medium">
-              <li onclick="abrirCatalogo('Ingeniería Electrónica')" class="py-1 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Ingeniería Electrónica</li>
-              <li onclick="abrirCatalogo('Ingeniería Industrial')" class="py-1 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Ingeniería Industrial</li>
-              <li onclick="abrirCatalogo('Ingeniería en Sistemas')" class="py-1 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Ingeniería en Sistemas</li>
-              <li onclick="abrirCatalogo('Ingeniería en Informática')" class="py-1 hover:text-sky-300 cursor-pointer transition">Ingeniería en Informática</li>
-            </ul>
-            <button onclick="abrirSimuladores('Facultad de Ingeniería')" class="btn-reveal opacity-0 transform translate-y-4 transition duration-300 mt-4 inline-flex items-center gap-2 bg-[#e67e22] hover:bg-[#d35400] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase shadow">
-              <i class="fas fa-network-wired"></i> Simulador Cisco
-            </button>
-          </div>
-        </div>
-
-        <!-- Ciencias Jurídicas -->
-        <div class="card-zoom relative h-96 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group">
-          <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=80" alt="C. Jurídicas" class="w-full h-full object-cover transition duration-500">
-          <div class="overlay-info absolute inset-0 bg-[#1e3c6e]/85 p-6 flex flex-col justify-center items-center text-center transition duration-300">
-            <h3 class="text-xl font-bold text-white uppercase cooper-title mb-3">C. Jurídicas y Sociales</h3>
-            <ul class="carreras-reveal opacity-0 transform translate-y-4 transition duration-300 w-full space-y-2 text-xs text-slate-100 font-medium">
-              <li onclick="abrirCatalogo('Derecho')" class="py-1 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Derecho</li>
-              <li onclick="abrirCatalogo('Ciencias Políticas')" class="py-1 hover:text-sky-300 cursor-pointer transition">Ciencias Políticas</li>
-            </ul>
-            <button onclick="abrirSimuladores('Facultad de C. JURÍDICAS Y SOCIALES')" class="btn-reveal opacity-0 transform translate-y-4 transition duration-300 mt-4 inline-flex items-center gap-2 bg-[#e67e22] hover:bg-[#d35400] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase shadow">
-              <i class="fas fa-balance-scale"></i> Simuladores Legales
-            </button>
-          </div>
-        </div>
-
-        <!-- FEADYS -->
-        <div class="card-zoom relative h-96 rounded-2xl overflow-hidden shadow-lg border border-slate-200 group md:col-span-2 lg:col-span-1">
-          <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/st_403991497-qfymca815zkjkmjzj5zfgkhhp3a2fdpawj6koah7m8.png" alt="FEADYS" class="w-full h-full object-cover transition duration-500">
-          <div class="overlay-info absolute inset-0 bg-[#1e3c6e]/85 p-6 flex flex-col justify-center items-center text-center transition duration-300">
-            <h3 class="text-2xl font-bold text-white uppercase cooper-title mb-3">FEADYS</h3>
-            <ul class="carreras-reveal opacity-0 transform translate-y-4 transition duration-300 w-full space-y-1 text-xs text-slate-100 font-medium">
-              <li onclick="abrirCatalogo('Adm. de Empresas/Pública')" class="py-0.5 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Adm. Empresas y Pública</li>
-              <li onclick="abrirCatalogo('Talento Humano')" class="py-0.5 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Talento Humano</li>
-              <li onclick="abrirCatalogo('Banca y Finanzas')" class="py-0.5 hover:text-sky-300 cursor-pointer border-b border-white/20 transition">Banca y Finanzas</li>
-              <li onclick="abrirCatalogo('Educación')" class="py-0.5 hover:text-sky-300 cursor-pointer transition">Educación</li>
-            </ul>
-            <button onclick="abrirSimuladores('FEADYS')" class="btn-reveal opacity-0 transform translate-y-4 transition duration-300 mt-3 inline-flex items-center gap-2 bg-[#e67e22] hover:bg-[#d35400] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase shadow">
-              <i class="fas fa-globe"></i> Recursos Online
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 3. Sección Catálogo / Resultados de Libros -->
-    <section id="catalogo-section" class="max-w-7xl mx-auto px-6 py-8 hidden animate-fade-in">
-      <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <button onclick="irAtras()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
-            <i class="fas fa-arrow-left"></i> Volver
-          </button>
-          <h2 id="catalogo-titulo" class="text-xl sm:text-2xl font-bold text-[#1e3c6e] cooper-title uppercase leading-none">
-            Catálogo
-          </h2>
-        </div>
-
-        <div class="flex flex-1 max-w-xl items-center gap-2">
-          <select id="filtro-libros" class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#2980b9] focus:outline-none cursor-pointer">
-            <option value="todos">Todo</option>
-            <option value="tema">Título</option>
-            <option value="autor">Autor</option>
-          </select>
-          <div class="relative flex-1">
-            <i class="fas fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
-            <input type="text" id="buscador-libros" placeholder="Buscar por título, autor (sin importar tildes)..." 
-                   class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-8 pr-4 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:bg-white focus:outline-none transition">
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 min-h-[350px]">
-        <!-- Mensaje de biblioteca vacía -->
-        <div id="mensaje-vacio" class="text-center py-16 hidden">
-          <i class="fas fa-book-open text-4xl text-slate-300 mb-3 block"></i>
-          <h3 class="text-base font-bold text-slate-600">Material en Proceso de Digitalización</h3>
-          <p class="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-            Aún no se han cargado volúmenes para esta selección o no hay coincidencias con la búsqueda introducida.
-          </p>
-        </div>
-
-        <div id="contenedor-libros" class="flex flex-col gap-4">
-          <!-- Renderizado dinámico de tarjetas -->
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Sección Simuladores -->
-    <section id="simuladores-section" class="max-w-7xl mx-auto px-6 py-8 hidden animate-fade-in">
-      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 mb-6 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <button onclick="irAtras()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold uppercase px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
-            <i class="fas fa-arrow-left"></i> Volver
-          </button>
-          <h2 id="simuladores-titulo" class="text-xl sm:text-2xl font-bold text-[#1e3c6e] cooper-title uppercase leading-none">
-            Simuladores Académicos
-          </h2>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <div id="contenedor-simuladores" class="flex flex-col gap-4">
-          
-          <div class="simulador-card flex flex-col sm:flex-row items-center justify-between p-4 border-2 border-[#1e3c6e]/20 rounded-xl hover:shadow-md transition gap-4" data-facultad="Facultad de Salud">
-            <div class="flex items-center gap-4 w-full sm:w-auto">
-              <div class="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                <i class="fas fa-microscope"></i>
-              </div>
-              <div>
-                <h3 class="text-base font-bold text-slate-900 leading-tight">Simulador de Anatomía Humana 3D</h3>
-                <p class="text-xs font-medium text-[#1e3c6e]">BioDigital Human Interactive</p>
-              </div>
+<div id="facultades-impresa-section" class="container">
+    <div class="facultades-grid">
+        <div class="facultad-card" style="cursor: default;">
+            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/enfermeria_unida-ql44yi55fcezki8uwy991c9ar3btk20dbmt7sg6ztc.webp" alt="Facultad de Salud">
+            <div class="overlay">
+                <h2 style="margin-bottom: 15px;">Facultad de Salud</h2>
+                <div style="display: flex; flex-direction: column; gap: 10px; width: 80%; max-width: 250px; z-index: 10;">
+                    <a href="https://drive.google.com/uc?export=download&id=1npxD5HavcDHiSa8FAyAfR43eGvtM1eZo" target="_blank" style="color: white; text-decoration: none; background: #2980b9; padding: 8px 15px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; text-align: center; transition: background 0.3s;">Enfermería</a>
+                    <a href="https://drive.google.com/uc?export=download&id=1oh2rb7Xra-ozFVoZB_fzCmSpJjhpBrKx" target="_blank" style="color: white; text-decoration: none; background: #2980b9; padding: 8px 15px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; text-align: center; transition: background 0.3s;">Medicina</a>
+                    <a href="https://drive.google.com/uc?export=download&id=15DE4MTKmr59IGKd1fUvFn1TCj8lyPIXK" target="_blank" style="color: white; text-decoration: none; background: #2980b9; padding: 8px 15px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; text-align: center; transition: background 0.3s;">Nutrición</a>
+                </div>
             </div>
-            <a href="https://human.biodigital.com/" target="_blank" class="w-full sm:w-auto bg-[#e67e22] hover:bg-[#d35400] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 shadow">
-              <i class="fas fa-arrow-up-right-from-square"></i> Acceder Simulador
-            </a>
-          </div>
-
-          <div class="simulador-card flex flex-col sm:flex-row items-center justify-between p-4 border-2 border-[#1e3c6e]/20 rounded-xl hover:shadow-md transition gap-4" data-facultad="Facultad de Gestión">
-            <div class="flex items-center gap-4 w-full sm:w-auto">
-              <div class="w-14 h-14 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                <i class="fas fa-chart-pie"></i>
-              </div>
-              <div>
-                <h3 class="text-base font-bold text-slate-900 leading-tight">Simulador Bursátil y Mercados Financieros</h3>
-                <p class="text-xs font-medium text-[#1e3c6e]">Laboratorio de Economía y Gestión</p>
-              </div>
-            </div>
-            <a href="https://www.investopedia.com/simulator/" target="_blank" class="w-full sm:w-auto bg-[#e67e22] hover:bg-[#d35400] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 shadow">
-              <i class="fas fa-arrow-up-right-from-square"></i> Acceder Simulador
-            </a>
-          </div>
-
-          <div class="simulador-card flex flex-col sm:flex-row items-center justify-between p-4 border-2 border-[#1e3c6e]/20 rounded-xl hover:shadow-md transition gap-4" data-facultad="Facultad de Ingeniería">
-            <div class="flex items-center gap-4 w-full sm:w-auto">
-              <div class="w-14 h-14 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                <i class="fas fa-network-wired"></i>
-              </div>
-              <div>
-                <h3 class="text-base font-bold text-slate-900 leading-tight">Simulador de Redes y Topologías Cisco Packet Tracer</h3>
-                <p class="text-xs font-medium text-[#1e3c6e]">Entornos Telemáticos y Telecomunicaciones</p>
-              </div>
-            </div>
-            <a href="https://www.netacad.com/courses/packet-tracer" target="_blank" class="w-full sm:w-auto bg-[#e67e22] hover:bg-[#d35400] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 shadow">
-              <i class="fas fa-arrow-up-right-from-square"></i> Acceder Simulador
-            </a>
-          </div>
-
         </div>
-      </div>
-    </section>
-
-    <!-- 5. Sección Biblioteca Impresa -->
-    <section id="facultades-impresa-section" class="max-w-7xl mx-auto px-6 py-10 hidden animate-fade-in">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl sm:text-3xl font-bold text-[#1e3c6e] cooper-title uppercase">Catálogos de Libros Impresos</h2>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1">Descarga el inventario físico oficial de los estantes en formato PDF</p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <!-- Salud Impreso -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm text-center flex flex-col justify-between">
-          <div>
-            <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
-              <i class="fas fa-heart-pulse"></i>
+        <div class="facultad-card" onclick="window.open('https://drive.google.com/uc?export=download&id=12hFEbrxRfEsZiv1gvz7A9aU6CXzrdLog', '_blank')">
+            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/economia-ql474wuhitr21icq2cdwj1yin6v2n4ab3pwbydxqs0.webp" alt="Facultad de Gestión">
+            <div class="overlay">
+                <h2 style="text-align: center; width: 100%;">Facultad de Gestión</h2>
             </div>
-            <h3 class="text-lg font-bold text-slate-800 uppercase mb-2">Facultad de Salud</h3>
-            <p class="text-xs text-slate-500 mb-4">Listados en estanterías físicas de Enfermería, Medicina y Nutrición.</p>
-          </div>
-          <div class="space-y-2">
-            <a href="https://drive.google.com/uc?export=download&id=1npxD5HavcDHiSa8FAyAfR43eGvtM1eZo" target="_blank" class="block w-full py-1.5 bg-[#2980b9] hover:bg-[#1e3c6e] text-white rounded text-xs font-semibold uppercase transition">Enfermería</a>
-            <a href="https://drive.google.com/uc?export=download&id=1oh2rb7Xra-ozFVoZB_fzCmSpJjhpBrKx" target="_blank" class="block w-full py-1.5 bg-[#2980b9] hover:bg-[#1e3c6e] text-white rounded text-xs font-semibold uppercase transition">Medicina</a>
-            <a href="https://drive.google.com/uc?export=download&id=15DE4MTKmr59IGKd1fUvFn1TCj8lyPIXK" target="_blank" class="block w-full py-1.5 bg-[#2980b9] hover:bg-[#1e3c6e] text-white rounded text-xs font-semibold uppercase transition">Nutrición</a>
-          </div>
         </div>
-
-        <!-- Gestión Impreso -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm text-center flex flex-col justify-between">
-          <div>
-            <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
-              <i class="fas fa-briefcase"></i>
+        <div class="facultad-card" onclick="window.open('https://drive.google.com/uc?export=download&id=1Jj3B2piVFqzsoi8tsl9dMZQFVPNePJnF', '_blank')">
+            <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80" alt="Facultad de Ingeniería">
+            <div class="overlay">
+                <h2>Facultad de Ingeniería</h2>
             </div>
-            <h3 class="text-lg font-bold text-slate-800 uppercase mb-2">Facultad de Gestión</h3>
-            <p class="text-xs text-slate-500 mb-4">Obras impresas de Administración, Contabilidad, Marketing y Comercio.</p>
-          </div>
-          <a href="https://drive.google.com/uc?export=download&id=12hFEbrxRfEsZiv1gvz7A9aU6CXzrdLog" target="_blank" class="w-full py-2 bg-[#2980b9] hover:bg-[#1e3c6e] text-white rounded-lg text-xs font-semibold uppercase transition inline-block">
-            <i class="fas fa-file-pdf"></i> Descargar PDF
-          </a>
         </div>
-
-        <!-- Ingeniería Impreso -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm text-center flex flex-col justify-between">
-          <div>
-            <div class="w-16 h-16 bg-blue-50 text-[#1e3c6e] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
-              <i class="fas fa-gears"></i>
+        <div class="facultad-card" onclick="window.open('https://drive.google.com/uc?export=download&id=197EBsdVvNtxfUaca-o_GYWlSMT-6ijl1', '_blank')">
+            <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=80" alt="C. Jurídicas y Sociales">
+            <div class="overlay">
+                <h2>Facultad de C. JURÍDICAS Y SOCIALES</h2>
             </div>
-            <h3 class="text-lg font-bold text-slate-800 uppercase mb-2">Facultad de Ingeniería</h3>
-            <p class="text-xs text-slate-500 mb-4">Volúmenes físicos de Sistemas, Informática, Electrónica e Industrial.</p>
-          </div>
-          <a href="https://drive.google.com/uc?export=download&id=1Jj3B2piVFqzsoi8tsl9dMZQFVPNePJnF" target="_blank" class="w-full py-2 bg-[#2980b9] hover:bg-[#1e3c6e] text-white rounded-lg text-xs font-semibold uppercase transition inline-block">
-            <i class="fas fa-file-pdf"></i> Descargar PDF
-          </a>
         </div>
-
-        <!-- Jurídicas Impreso -->
-        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm text-center flex flex-col justify-between">
-          <div>
-            <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
-              <i class="fas fa-scale-balanced"></i>
+        <div class="facultad-card" onclick="window.open('URL_PDF_FEADYS', '_blank')">
+            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/st_403991497-qfymca815zkjkmjzj5zfgkhhp3a2fdpawj6koah7m8.png" alt="FEADYS">
+            <div class="overlay">
+                <h2>FEADYS</h2>
             </div>
-            <h3 class="text-lg font-bold text-slate-800 uppercase mb-2">C. Jurídicas y Sociales</h3>
-            <p class="text-xs text-slate-500 mb-4">Tratados de Derecho, Leyes, Códigos Civiles y Jurisprudencia.</p>
-          </div>
-          <a href="https://drive.google.com/uc?export=download&id=197EBsdVvNtxfUaca-o_GYWlSMT-6ijl1" target="_blank" class="w-full py-2 bg-[#2980b9] hover:bg-[#1e3c6e] text-white rounded-lg text-xs font-semibold uppercase transition inline-block">
-            <i class="fas fa-file-pdf"></i> Descargar PDF
-          </a>
         </div>
+    </div>
+</div>
 
-      </div>
-    </section>
+<div id="descarga-section" class="container">
+    <div class="download-box">
+        <i class="fas fa-file-pdf" style="font-size: 80px; color: #e74c3c;"></i>
+        <h2 style="font-family: 'Cooper Black', serif; color: #1e3c6e; margin-top: 20px;">DESCARGAR MATERIAL ACADÉMICO</h2>
+        <p>Haz clic para acceder al libro <strong>Hábitos Atómicos</strong> en Google Drive.</p>
+        <a href="https://drive.google.com/file/d/1Tsbvncvq9fd3OqTtZX3CICpOIZ3EHlrj/view?usp=sharing" target="_blank" class="btn-download">ABRIR EN DRIVE</a>
+    </div>
+</div>
 
-    <!-- 6. Sección Descargas Directas -->
-    <section id="descarga-section" class="max-w-3xl mx-auto px-6 py-16 hidden animate-fade-in text-center">
-      <div class="bg-white rounded-3xl p-10 shadow-xl border border-slate-200">
-        <div class="w-20 h-20 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center text-4xl mx-auto mb-6 shadow-sm">
-          <i class="fas fa-file-pdf"></i>
+<!-- Modal Autenticación PIN Admin -->
+<div id="pinModal" class="pin-modal-overlay">
+    <div class="pin-modal-card">
+        <i class="fas fa-shield-halved" style="font-size: 2.2rem; color: #1e3c6e; margin-bottom: 10px;"></i>
+        <h3>Acceso al Panel</h3>
+        <p>Ingresa el PIN de seguridad administrativo para acceder al panel de gestión.</p>
+        <input type="password" id="adminPinInput" class="pin-input" maxlength="4" placeholder="••••" autofocus onkeydown="if(event.key==='Enter') verificarPin()">
+        <div class="pin-modal-actions">
+            <button class="pin-btn-cancel" onclick="cerrarPinModal()">Cancelar</button>
+            <button class="pin-btn-confirm" onclick="verificarPin()">Acceder</button>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-bold text-[#1e3c6e] cooper-title uppercase">Descarga de Material Académico</h2>
-        <p class="text-sm text-slate-600 mt-3 max-w-md mx-auto leading-relaxed">
-          Haz clic a continuación para descargar o leer de forma directa en Google Drive la obra <strong>Hábitos Atómicos</strong>.
-        </p>
-        <a href="https://drive.google.com/file/d/1Tsbvncvq9fd3OqTtZX3CICpOIZ3EHlrj/view?usp=sharing" target="_blank" 
-           class="inline-flex items-center gap-3 bg-[#1e3c6e] hover:bg-[#2980b9] text-white px-8 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition duration-200 shadow-md mt-8">
-          <i class="fab fa-google-drive text-lg"></i> Abrir en Google Drive
-        </a>
-      </div>
-    </section>
+    </div>
+</div>
 
-  </main>
+<!-- Carga del Catálogo Oficial Externo -->
+<script src="catalogo.js"></script>
 
-  <!-- Redes Flotantes Laterales -->
-  <aside class="fixed bottom-6 right-6 flex flex-col gap-3 z-40">
-    <a href="https://www.instagram.com/bibliotecaunida/" target="_blank" class="w-12 h-12 bg-white text-rose-500 rounded-full flex items-center justify-center text-xl shadow-lg hover:scale-110 transition border border-slate-200" title="Instagram">
-      <i class="fab fa-instagram"></i>
-    </a>
-    <a href="https://wa.me/595972377689" target="_blank" class="w-12 h-12 bg-white text-emerald-500 rounded-full flex items-center justify-center text-xl shadow-lg hover:scale-110 transition border border-slate-200" title="WhatsApp">
-      <i class="fab fa-whatsapp"></i>
-    </a>
-    <a href="https://www.facebook.com/bibliotecaunida" target="_blank" class="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl shadow-lg hover:scale-110 transition border border-slate-200" title="Facebook">
-      <i class="fab fa-facebook-f"></i>
-    </a>
-    <a href="mailto:bibliotecacentral@unida.edu.py" class="w-12 h-12 bg-white text-red-500 rounded-full flex items-center justify-center text-xl shadow-lg hover:scale-110 transition border border-slate-200" title="Email">
-      <i class="fas fa-envelope"></i>
-    </a>
-  </aside>
+<script>
+    const PIN_ADMIN_CORRECTO = "2026";
 
-  <!-- Archivo externo de libros -->
-  <script src="catalogo.js"></script>
+    function solicitarPinAdmin() {
+        const modal = document.getElementById('pinModal');
+        const input = document.getElementById('adminPinInput');
+        input.value = '';
+        modal.style.display = 'flex';
+        input.focus();
+    }
 
-  <!-- Lógica Reactiva de la Página -->
-  <script>
-    // Normalizador de URL de Google Drive
+    function cerrarPinModal() {
+        document.getElementById('pinModal').style.display = 'none';
+    }
+
+    function verificarPin() {
+        const pinIngresado = document.getElementById('adminPinInput').value;
+        if (pinIngresado === PIN_ADMIN_CORRECTO) {
+            sessionStorage.setItem('unida_admin_auth', 'true');
+            window.location.href = 'admin.html';
+        } else {
+            alert('PIN incorrecto. Acceso denegado.');
+            document.getElementById('adminPinInput').value = '';
+            document.getElementById('adminPinInput').focus();
+        }
+    }
+
     function normalizarUrlImagen(url) {
-      if (!url) return '';
-      if (url.includes('drive.google.com')) {
-        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-        if (match && match[1]) {
-          return `https://lh3.googleusercontent.com/d/${match[1]}`;
+        if (!url) return '';
+        if (url.includes('drive.google.com')) {
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
         }
-      }
-      return url;
+        return url;
     }
 
-    // Obtención de libros sin condiciones de bloqueo de longitud
     function obtenerColeccionLibros() {
-      const localData = localStorage.getItem('unida_catalogo_global');
-      if (localData) {
-        try {
-          const parsed = JSON.parse(localData);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
-          }
-        } catch(e) {
-          console.error("Error al leer localStorage:", e);
+        const localData = localStorage.getItem('unida_catalogo_global');
+        if (localData) {
+            try {
+                const parsed = JSON.parse(localData);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed;
+                }
+            } catch(e) {}
         }
-      }
-      if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros) && catalogoLibros.length > 0) {
-        return catalogoLibros;
-      }
-      if (window.catalogoLibros && Array.isArray(window.catalogoLibros) && window.catalogoLibros.length > 0) {
-        return window.catalogoLibros;
-      }
-      return [];
+        if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros) && catalogoLibros.length > 0) {
+            return catalogoLibros;
+        }
+        if (window.catalogoLibros && Array.isArray(window.catalogoLibros) && window.catalogoLibros.length > 0) {
+            return window.catalogoLibros;
+        }
+        return [];
     }
 
-    // Controlador de Pestañas y Secciones
     function showSection(sectionId) {
-      const secciones = [
-        'dashboard-section',
-        'facultades-digital-section',
-        'facultades-impresa-section',
-        'descarga-section',
-        'catalogo-section',
-        'simuladores-section'
-      ];
+        document.getElementById('dashboard-section').style.display = 'none';
+        document.getElementById('facultades-digital-section').style.display = 'none';
+        document.getElementById('facultades-impresa-section').style.display = 'none';
+        document.getElementById('descarga-section').style.display = 'none';
+        document.getElementById('catalogo-section').style.display = 'none';
+        document.getElementById('simuladores-section').style.display = 'none';
 
-      secciones.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-      });
-
-      const target = document.getElementById(sectionId + '-section');
-      if (target) target.classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+        const target = document.getElementById(sectionId + '-section');
+        if (target) target.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function irAtras() {
-      showSection('dashboard');
+        showSection('dashboard');
     }
 
     function abrirCatalogo(carrera) {
-      document.getElementById('catalogo-titulo').textContent = 'Catálogo - ' + carrera;
-      document.getElementById('buscador-libros').value = '';
-      mostrarLibros(carrera);
-      showSection('catalogo');
+        document.getElementById('catalogo-titulo').textContent = 'Catálogo - ' + carrera;
+        mostrarLibros(carrera);
+        showSection('catalogo');
     }
 
-    // Render de Libros
     function mostrarLibros(carreraFiltrada = null, textoBusqueda = '', filtroTipo = 'todos') {
-      const contenedor = document.getElementById('contenedor-libros');
-      const mensajeVacio = document.getElementById('mensaje-vacio');
-      contenedor.innerHTML = '';
+        const contenedor = document.getElementById('contenedor-libros');
+        const mensajeVacio = document.getElementById('mensaje-vacio');
+        contenedor.innerHTML = '';
 
-      textoBusqueda = (textoBusqueda || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      let librosDisponibles = obtenerColeccionLibros();
+        textoBusqueda = (textoBusqueda || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        let librosDisponibles = obtenerColeccionLibros();
 
-      if (carreraFiltrada) {
-        librosDisponibles = librosDisponibles.filter(libro => {
-          const carreraLibro = (libro.carrera || '').trim();
-          return carreraLibro === carreraFiltrada.trim() || 
-                 (carreraFiltrada.includes('Informática') && carreraLibro.includes('Informática')) ||
-                 (carreraFiltrada.includes('Sistemas') && (carreraLibro.includes('Sistemas') || carreraLibro.includes('Informática')));
-        });
-      }
+        if (carreraFiltrada) {
+            librosDisponibles = librosDisponibles.filter(libro => {
+                const carreraLibro = (libro.carrera || '').trim();
+                return carreraLibro === carreraFiltrada.trim() || 
+                       (carreraFiltrada.includes('Informática') && carreraLibro.includes('Informática')) ||
+                       (carreraFiltrada.includes('Sistemas') && (carreraLibro.includes('Sistemas') || carreraLibro.includes('Informática')));
+            });
+        }
 
-      if (textoBusqueda) {
-        librosDisponibles = librosDisponibles.filter(libro => {
-          const titulo = (libro.titulo || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          const autor = (libro.autor || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          if (filtroTipo === 'autor') return autor.includes(textoBusqueda);
-          if (filtroTipo === 'tema') return titulo.includes(textoBusqueda);
-          return titulo.includes(textoBusqueda) || autor.includes(textoBusqueda);
-        });
-      }
+        if (textoBusqueda) {
+            librosDisponibles = librosDisponibles.filter(libro => {
+                const titulo = (libro.titulo || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const autor = (libro.autor || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (filtroTipo === 'autor') return autor.includes(textoBusqueda);
+                if (filtroTipo === 'tema') return titulo.includes(textoBusqueda);
+                return titulo.includes(textoBusqueda) || autor.includes(textoBusqueda);
+            });
+        }
 
-      if (librosDisponibles.length === 0) {
-        mensajeVacio.classList.remove('hidden');
-      } else {
-        mensajeVacio.classList.add('hidden');
-        librosDisponibles.forEach(libro => {
-          const urlImg = normalizarUrlImagen(libro.imagen);
-          const card = document.createElement('div');
-          card.className = 'flex flex-col sm:flex-row items-center bg-white border border-slate-200 hover:border-[#1e3c6e] rounded-xl p-4 shadow-sm hover:shadow-md transition gap-4';
-          
-          card.innerHTML = `
-            <div class="w-20 h-28 bg-slate-100 rounded-lg overflow-hidden shrink-0 border border-slate-200 shadow-xs flex items-center justify-center">
-              <img src="${urlImg}" alt="Portada" class="w-full h-full object-cover"
-                   onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=150&q=80';">
-            </div>
-            <div class="flex-1 text-center sm:text-left">
-              <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">${libro.titulo}</h3>
-              <p class="text-xs font-semibold text-[#1e3c6e] mt-1">${libro.autor}</p>
-              <span class="inline-block bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded mt-2">
-                ${libro.carrera || 'General'}
-              </span>
-            </div>
-            <div class="w-full sm:w-auto shrink-0">
-              <a href="${libro.link}" target="_blank" 
-                 class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1e3c6e] hover:bg-[#2980b9] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow">
-                <i class="fab fa-google-drive"></i> Descargar
-              </a>
-            </div>
-          `;
-          contenedor.appendChild(card);
-        });
-      }
+        if (librosDisponibles.length === 0) {
+            mensajeVacio.style.display = 'block';
+        } else {
+            mensajeVacio.style.display = 'none';
+            librosDisponibles.forEach(libro => {
+                const urlImg = normalizarUrlImagen(libro.imagen);
+                const card = document.createElement('div');
+                card.className = 'libro-card';
+                card.innerHTML = `
+                    <div class="libro-cover">
+                        <img src="${urlImg}" alt="Portada" 
+                             style="width:100%; height:100%; object-fit:cover;"
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80';">
+                    </div>
+                    <div class="libro-info">
+                        <h3 class="libro-title">${libro.titulo}</h3>
+                        <p class="libro-author">${libro.autor}</p>
+                    </div>
+                    <div class="libro-action">
+                        <a href="${libro.link}" target="_blank" class="btn-drive-download">
+                            <i class="fab fa-google-drive"></i> Descargar
+                        </a>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            });
+        }
     }
 
-    // Buscador en Tiempo Real
     document.getElementById('buscador-libros').addEventListener('input', (e) => {
-      const texto = e.target.value;
-      const filtro = document.getElementById('filtro-libros').value;
-      const tituloActual = document.getElementById('catalogo-titulo').textContent;
-      const carreraActual = tituloActual.replace('Catálogo - ', '');
-      mostrarLibros(tituloActual === 'Catálogo' ? null : carreraActual, texto, filtro);
+        const texto = e.target.value;
+        const filtro = document.getElementById('filtro-libros').value;
+        const tituloActual = document.getElementById('catalogo-titulo').textContent;
+        const carreraActual = tituloActual.replace('Catálogo - ', '');
+        mostrarLibros(tituloActual === 'Catálogo' ? null : carreraActual, texto, filtro);
     });
 
-    document.getElementById('filtro-libros').addEventListener('change', () => {
-      const evento = new Event('input');
-      document.getElementById('buscador-libros').dispatchEvent(evento);
-    });
-
-    // Filtro de Simuladores
     function abrirSimuladores(facultad) {
-      document.getElementById('simuladores-titulo').textContent = 'Simuladores - ' + facultad;
-      const tarjetas = document.querySelectorAll('#contenedor-simuladores .simulador-card');
-      tarjetas.forEach(tarjeta => {
-        tarjeta.style.display = (tarjeta.dataset.facultad === facultad) ? 'flex' : 'none';
-      });
-      showSection('simuladores');
+        document.getElementById('simuladores-titulo').textContent = 'Simuladores - ' + facultad;
+        const contenedor = document.getElementById('contenedor-simuladores');
+        const tarjetas = contenedor.querySelectorAll('.simulador-card');
+        tarjetas.forEach(tarjeta => {
+            tarjeta.style.display = (tarjeta.dataset.facultad === facultad) ? 'flex' : 'none';
+        });
+        showSection('simuladores');
     }
 
-    // Inicio por defecto
-    window.addEventListener('DOMContentLoaded', () => {
-      showSection('dashboard');
-    });
-  </script>
+    showSection('dashboard');
+</script>
 </body>
 </html>
