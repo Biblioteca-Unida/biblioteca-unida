@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data:;">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-
     <title>Biblioteca Central - UNIDA</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,9 +16,6 @@
         header h1 { margin: 0; color: #1a1a1a; font-size: 2.2rem; font-family: "Cooper Black", serif; text-transform: uppercase; line-height: 1.1; white-space: nowrap; }
         header .biblioteca-text { color: #2980b9; font-size: 2rem; margin: 8px 0; font-family: "Cooper Black", serif; text-transform: uppercase; }
         header .nombre-honorifico { color: #444; font-size: 1.6rem; margin: 0; font-family: "Cooper Black", serif; text-transform: uppercase; }
-        .header-admin-btn { position: absolute; top: 15px; right: 25px; background: #1e3c6e; color: white; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; cursor: pointer; border: none; display: flex; align-items: center; gap: 6px; transition: background 0.3s; }
-        .header-admin-btn:hover { background: #2980b9; }
-
         nav { background: #1e3c6e; color: white; padding: 14px 0; text-align: center; position: sticky; top: 0; z-index: 1000; }
         nav a { color: white; text-decoration: none; margin: 0 20px; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; transition: color 0.3s; letter-spacing: 1px; }
         nav a:hover { color: #3498db; }
@@ -78,19 +72,6 @@
         .btn-drive-download.btn-simular:hover { background: #d35400; }
         .download-box { background: white; padding: 50px; border-radius: 20px; text-align: center; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .btn-download { background: #1e3c6e; color: white; padding: 18px 40px; border-radius: 12px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 25px; transition: 0.3s; }
-        
-        /* Modal de Acceso PIN */
-        .pin-modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; }
-        .pin-modal-card { background: white; border-radius: 16px; width: 90%; max-width: 360px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); text-align: center; }
-        .pin-modal-card h3 { margin: 0 0 8px 0; color: #1e3c6e; font-size: 1.4rem; font-family: "Cooper Black", serif; }
-        .pin-modal-card p { margin: 0 0 20px 0; font-size: 0.85rem; color: #64748b; }
-        .pin-input { width: 80%; padding: 12px; font-size: 1.4rem; letter-spacing: 6px; text-align: center; border: 2px solid #cbd5e1; border-radius: 8px; outline: none; margin-bottom: 15px; font-family: monospace; }
-        .pin-input:focus { border-color: #2980b9; }
-        .pin-modal-actions { display: flex; gap: 10px; justify-content: center; }
-        .pin-btn-confirm { background: #1e3c6e; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
-        .pin-btn-confirm:hover { background: #2980b9; }
-        .pin-btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -104,7 +85,6 @@
         <p class="nombre-honorifico">“EMB. JOÃO BAENA SOARES”</p>
     </div>
     <img src="https://i.ibb.co/JWCnzbyM/logo-biblioteca.png" alt="Logo Biblioteca" class="logo-biblioteca">
-    <button class="header-admin-btn" onclick="solicitarPinAdmin()"><i class="fas fa-lock"></i> Acceso Admin</button>
 </header>
 
 <nav>
@@ -253,23 +233,7 @@
         </div>
     </div>
     <div class="libros-list">
-        <div class="libros-grid-container" id="contenedor-simuladores">
-            <div class="libro-card simulador-card" data-facultad="Facultad de Salud">
-                <div class="libro-cover simulador-cover"><i class="fas fa-microscope"></i></div>
-                <div class="libro-info"><h3 class="libro-title">Simulador de Anatomía Humana 3D</h3><p class="libro-author">BioDigital Human</p></div>
-                <div class="libro-action"><a href="https://human.biodigital.com/" target="_blank" class="btn-drive-download btn-simular"><i class="fas fa-external-link-alt"></i> Acceder</a></div>
-            </div>
-            <div class="libro-card simulador-card" data-facultad="Facultad de Gestión">
-                <div class="libro-cover simulador-cover"><i class="fas fa-chart-pie"></i></div>
-                <div class="libro-info"><h3 class="libro-title">Simulador de Mercados y Bolsa</h3><p class="libro-author">Plataforma Financiera</p></div>
-                <div class="libro-action"><a href="https://www.investopedia.com/simulator/" target="_blank" class="btn-drive-download btn-simular"><i class="fas fa-external-link-alt"></i> Acceder</a></div>
-            </div>
-            <div class="libro-card simulador-card" data-facultad="Facultad de Ingeniería">
-                <div class="libro-cover simulador-cover"><i class="fas fa-network-wired"></i></div>
-                <div class="libro-info"><h3 class="libro-title">Simulador de Redes Cisco Packet Tracer</h3><p class="libro-author">Laboratorio Informático</p></div>
-                <div class="libro-action"><a href="https://www.netacad.com/courses/packet-tracer" target="_blank" class="btn-drive-download btn-simular"><i class="fas fa-external-link-alt"></i> Acceder</a></div>
-            </div>
-        </div>
+        <div class="libros-grid-container" id="contenedor-simuladores"></div>
     </div>
 </div>
 
@@ -322,49 +286,12 @@
     </div>
 </div>
 
-<!-- Modal Autenticación PIN Admin -->
-<div id="pinModal" class="pin-modal-overlay">
-    <div class="pin-modal-card">
-        <i class="fas fa-shield-halved" style="font-size: 2.2rem; color: #1e3c6e; margin-bottom: 10px;"></i>
-        <h3>Acceso al Panel</h3>
-        <p>Ingresa el PIN de seguridad administrativo para acceder al panel de gestión.</p>
-        <input type="password" id="adminPinInput" class="pin-input" maxlength="4" placeholder="••••" autofocus onkeydown="if(event.key==='Enter') verificarPin()">
-        <div class="pin-modal-actions">
-            <button class="pin-btn-cancel" onclick="cerrarPinModal()">Cancelar</button>
-            <button class="pin-btn-confirm" onclick="verificarPin()">Acceder</button>
-        </div>
-    </div>
-</div>
-
-<!-- Carga del Catálogo Oficial Externo -->
+<!-- LECTURA DEL CATÁLOGO EXTERNO -->
 <script src="catalogo.js"></script>
 
 <script>
-    const PIN_ADMIN_CORRECTO = "2026";
-
-    function solicitarPinAdmin() {
-        const modal = document.getElementById('pinModal');
-        const input = document.getElementById('adminPinInput');
-        input.value = '';
-        modal.style.display = 'flex';
-        input.focus();
-    }
-
-    function cerrarPinModal() {
-        document.getElementById('pinModal').style.display = 'none';
-    }
-
-    function verificarPin() {
-        const pinIngresado = document.getElementById('adminPinInput').value;
-        if (pinIngresado === PIN_ADMIN_CORRECTO) {
-            sessionStorage.setItem('unida_admin_auth', 'true');
-            window.location.href = 'admin.html';
-        } else {
-            alert('PIN incorrecto. Acceso denegado.');
-            document.getElementById('adminPinInput').value = '';
-            document.getElementById('adminPinInput').focus();
-        }
-    }
+    const STORAGE_KEY = "unida_catalogo_global";
+    const SIMULADORES_KEY = "unida_simuladores_global";
 
     function normalizarUrlImagen(url) {
         if (!url) return '';
@@ -378,7 +305,7 @@
     }
 
     function obtenerColeccionLibros() {
-        const localData = localStorage.getItem('unida_catalogo_global');
+        const localData = localStorage.getItem(STORAGE_KEY);
         if (localData) {
             try {
                 const parsed = JSON.parse(localData);
@@ -387,13 +314,22 @@
                 }
             } catch(e) {}
         }
-        if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros) && catalogoLibros.length > 0) {
+        if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
             return catalogoLibros;
         }
-        if (window.catalogoLibros && Array.isArray(window.catalogoLibros) && window.catalogoLibros.length > 0) {
-            return window.catalogoLibros;
-        }
         return [];
+    }
+
+    function obtenerSimuladores() {
+        const data = localStorage.getItem(SIMULADORES_KEY);
+        if (data) {
+            try { return JSON.parse(data); } catch(e) {}
+        }
+        return [
+            { facultad: "Facultad de Salud", titulo: "Simulador de Anatomía Humana 3D", autor: "BioDigital Human", link: "https://human.biodigital.com/" },
+            { facultad: "Facultad de Gestión", titulo: "Simulador de Mercados y Bolsa", autor: "Plataforma Financiera", link: "https://www.investopedia.com/simulator/" },
+            { facultad: "Facultad de Ingeniería", titulo: "Simulador de Redes Cisco Packet Tracer", autor: "Laboratorio Informático", link: "https://www.netacad.com/courses/packet-tracer" }
+        ];
     }
 
     function showSection(sectionId) {
@@ -415,6 +351,7 @@
 
     function abrirCatalogo(carrera) {
         document.getElementById('catalogo-titulo').textContent = 'Catálogo - ' + carrera;
+        document.getElementById('buscador-libros').value = '';
         mostrarLibros(carrera);
         showSection('catalogo');
     }
@@ -486,10 +423,31 @@
     function abrirSimuladores(facultad) {
         document.getElementById('simuladores-titulo').textContent = 'Simuladores - ' + facultad;
         const contenedor = document.getElementById('contenedor-simuladores');
-        const tarjetas = contenedor.querySelectorAll('.simulador-card');
-        tarjetas.forEach(tarjeta => {
-            tarjeta.style.display = (tarjeta.dataset.facultad === facultad) ? 'flex' : 'none';
-        });
+        contenedor.innerHTML = '';
+        
+        const sims = obtenerSimuladores().filter(s => s.facultad === facultad);
+        
+        if (sims.length === 0) {
+            contenedor.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">No hay simuladores cargados para esta facultad.</p>';
+        } else {
+            sims.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'libro-card simulador-card';
+                card.innerHTML = `
+                    <div class="libro-cover simulador-cover"><i class="fas fa-laptop-code"></i></div>
+                    <div class="libro-info">
+                        <h3 class="libro-title">${s.titulo}</h3>
+                        <p class="libro-author">${s.autor}</p>
+                    </div>
+                    <div class="libro-action">
+                        <a href="${s.link}" target="_blank" class="btn-drive-download btn-simular">
+                            <i class="fas fa-external-link-alt"></i> Acceder
+                        </a>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            });
+        }
         showSection('simuladores');
     }
 
