@@ -121,7 +121,7 @@
         </div>
         <div class="flex items-center gap-3">
           <button onclick="subirSemillaAFirebase()" id="btn-seed" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-            <i class="fas fa-cloud-arrow-up"></i> Cargar Semilla a la Nube
+            <i class="fas fa-cloud-arrow-up"></i> Cargar Semilla Limpia
           </button>
         </div>
       </header>
@@ -426,7 +426,7 @@
   </div>
 
   <script>
-    // --- SEMILLA DE RESPALDO DIRECTO (KURI) ---
+    // --- SEMILLA LIMPIA (ÚNICA Y SIN DUPLICADOS) ---
     const semillalibrosKuri = [
       { carrera: "Nutrición", imagen: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=300&q=80", titulo: "INTRODUCCION A LA TEORIA GENERAL <span class=\"libro-edicion\">7ª EDICIÓN</span>", autor: "Idalberto Chiavenato", link: "https://drive.google.com/file/d/1-F7zrSncvYPyZmh0NlD-VuUREXQfeRVY/view?usp=sharing" },
       { carrera: "Nutrición", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Administración de Alimentos a Colectividades y Servicios de Salud", autor: "Carolina Ibet Guerrero Ramo", link: "https://drive.google.com/file/d/1nV4cMUM4mNjlcazg-3l82gZeFbZAlf8o/view?usp=sharing" },
@@ -794,26 +794,47 @@
       actualizarTodoUI();
     }
 
+    // --- SUBIDA DE SEMILLA LIMPIA (EVITA DUPLICADOS POR TÍTULO) ---
     async function subirSemillaAFirebase() {
       if (!db) return alert("Conecta Firebase primero.");
       
       const librosRespaldo = (typeof semillalibrosKuri !== 'undefined' && semillalibrosKuri.length > 0) ? semillalibrosKuri : [];
 
-      if (!confirm(`¿Subir ${librosRespaldo.length} libros a Firestore?`)) return;
+      if (!confirm(`¿Deseas inyectar la semilla limpia (${librosRespaldo.length} libros únicos) a Firestore?`)) return;
 
       const spinner = document.getElementById('sync-spinner');
       spinner.classList.remove('hidden');
 
       try {
-        const batch = db.batch();
-        librosRespaldo.forEach(item => {
-          const docRef = db.collection("libros").doc();
-          batch.set(docRef, item);
+        // 1. Obtener libros actuales en Firebase para filtrar duplicados
+        const snapshot = await db.collection("libros").get();
+        const existentesTitulos = new Set();
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          if (d.titulo) existentesTitulos.add(d.titulo.toLowerCase().trim());
         });
-        await batch.commit();
-        alert(`¡Se cargaron ${librosRespaldo.length} libros a la nube correctamente!`);
+
+        const batch = db.batch();
+        let agregados = 0;
+
+        librosRespaldo.forEach(item => {
+          const tituloLimpio = item.titulo.toLowerCase().trim();
+          if (!existentesTitulos.has(tituloLimpio)) {
+            const docRef = db.collection("libros").doc();
+            batch.set(docRef, item);
+            existentesTitulos.add(tituloLimpio); // Evitar duplicados dentro del mismo lote
+            agregados++;
+          }
+        });
+
+        if (agregados > 0) {
+          await batch.commit();
+          alert(`¡Se agregaron ${agregados} libros únicos a la nube con éxito!`);
+        } else {
+          alert("Todos los libros de la semilla ya existían en la base de datos.");
+        }
       } catch (err) {
-        alert("Error: " + err.message);
+        alert("Error al cargar semilla: " + err.message);
       } finally {
         spinner.classList.add('hidden');
       }
@@ -938,7 +959,16 @@
       const librosPorFacultad = {};
       const conteoPorFacultad = {};
       
-      libros.forEach(l => {
+      // Filtrar duplicados exactos por título y carrera antes de armar el Excel
+      const vistos = new Set();
+      const librosUnicos = libros.filter(l => {
+        const key = (l.titulo + "|" + l.carrera).toLowerCase();
+        if (vistos.has(key)) return false;
+        vistos.add(key);
+        return true;
+      });
+
+      librosUnicos.forEach(l => {
         const fac = MAPA_FACULTADES[l.carrera] || "Otras Areas";
         conteoPorFacultad[fac] = (conteoPorFacultad[fac] || 0) + 1;
         if (!librosPorFacultad[fac]) librosPorFacultad[fac] = {};
@@ -956,7 +986,7 @@
         wsResumenData.push([facultad.toUpperCase().replace(/_/g, ' '), cant]);
       }
       wsResumenData.push([]);
-      wsResumenData.push(["TOTAL GENERAL", libros.length]);
+      wsResumenData.push(["TOTAL GENERAL", librosUnicos.length]);
       
       const wsResumen = XLSX.utils.aoa_to_sheet(wsResumenData);
       wsResumen['!cols'] = [{wch: 40}, {wch: 30}];
@@ -996,7 +1026,16 @@
     }
 
     function descargarJS() {
-      const librosLimpios = libros.map(({ _id, ...resto }) => resto);
+      // Filtrar duplicados antes de exportar el JS final
+      const vistos = new Set();
+      const librosUnicos = libros.filter(l => {
+        const key = (l.titulo + "|" + l.carrera).toLowerCase();
+        if (vistos.has(key)) return false;
+        vistos.add(key);
+        return true;
+      });
+
+      const librosLimpios = librosUnicos.map(({ _id, ...resto }) => resto);
       const simsLimpios = simuladores.map(({ _id, ...resto }) => resto);
       const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent(`const catalogoLibros = ${JSON.stringify(librosLimpios, null, 4)};\n\nconst simuladoresGlobales = ${JSON.stringify(simsLimpios, null, 4)};\n`);
       const a = document.createElement('a');
