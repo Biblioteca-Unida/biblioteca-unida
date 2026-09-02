@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Administrativo Maestro - UNIDA</title>
+  <title>Panel Administrativo Cloud - UNIDA</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -13,20 +13,24 @@
       theme: {
         extend: {
           colors: {
-            unida: {
-              navy: '#1e3c6e', blue: '#2980b9', orange: '#e67e22', dark: '#0f172a'
-            }
+            unida: { navy: '#1e3c6e', blue: '#2980b9', orange: '#e67e22', dark: '#0f172a' }
           }
         }
       }
     }
   </script>
 
-  <!-- Librerías Externas -->
+  <!-- Fuentes e Iconos CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Librerías de Datos y Gráficos CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase App y Firestore SDKs (Compatibles sin bundlers) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <style>
     body { font-family: 'Poppins', sans-serif; }
@@ -39,7 +43,7 @@
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-full flex antialiased">
 
   <!-- MODAL DE ACCESO PIN -->
-  <div id="auth-lock" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md">
+  <div id="auth-lock" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/95 backdrop-blur-md">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center">
       <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
         <i class="fas fa-shield-halved"></i>
@@ -54,20 +58,20 @@
     </div>
   </div>
 
-  <!-- DASHBOARD APP -->
+  <!-- DASHBOARD PRINCIPAL -->
   <div id="dashboard-app" class="flex-1 flex overflow-hidden hidden">
     
     <!-- SIDEBAR -->
-    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0">
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0 z-20">
       <div>
         <div class="h-20 flex items-center px-6 gap-3 border-b border-slate-100 dark:border-slate-800">
           <div class="w-10 h-10 rounded-xl bg-[#1e3c6e] flex items-center justify-center text-white text-lg shadow-md">
-            <i class="fas fa-cloud-bolt"></i>
+            <i class="fas fa-fire text-amber-400"></i>
           </div>
           <div class="overflow-hidden">
-            <h1 class="font-bold text-sm text-slate-900 dark:text-white leading-tight">API GITHUB</h1>
-            <span id="gh-badge" class="text-[11px] font-semibold text-rose-500 flex items-center gap-1 truncate">
-              <span class="w-2 h-2 rounded-full bg-rose-500"></span> Desconectado
+            <h1 class="font-bold text-sm text-slate-900 dark:text-white leading-tight">ADMIN CLOUD</h1>
+            <span id="cloud-badge" class="text-[11px] font-semibold text-rose-500 flex items-center gap-1 truncate">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span> Sin Conectar
             </span>
           </div>
         </div>
@@ -76,8 +80,8 @@
           <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-arrow-left w-5 text-center"></i> Ir al Sitio Web
           </a>
-          <button onclick="abrirConfigGH()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-            <i class="fas fa-key w-5 text-center"></i> Conectar API GitHub
+          <button onclick="abrirConfigFirebase()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+            <i class="fas fa-plug w-5 text-center"></i> Conectar Firebase
           </button>
           <hr class="border-slate-200 dark:border-slate-800 my-2">
           <button onclick="navegarPestana('tab-metricas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400">
@@ -89,8 +93,8 @@
           <button onclick="navegarPestana('tab-simuladores')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-laptop-code w-5 text-center"></i> Simuladores 3D
           </button>
-          <button onclick="navegarPestana('tab-sync')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
-            <i class="fas fa-file-excel w-5 text-center"></i> Exportar & Excel
+          <button onclick="navegarPestana('tab-database')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-file-excel w-5 text-center"></i> Base de Datos & Excel
           </button>
         </nav>
       </div>
@@ -105,60 +109,56 @@
       </div>
     </aside>
 
-    <!-- AREA PRINCIPAL -->
+    <!-- ÁREA DE CONTENIDO -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
       
+      <!-- HEADER -->
       <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between shrink-0">
         <div>
           <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-            Panel de Sincronización <span id="sync-spinner" class="hidden text-sky-500 text-sm animate-spin"><i class="fas fa-circle-notch"></i></span>
+            Panel Central Colaborativo <span id="sync-spinner" class="hidden text-amber-500 text-sm animate-spin"><i class="fas fa-circle-notch"></i></span>
           </h2>
-          <p class="text-xs text-slate-400">Tus cambios se envían a GitHub automáticamente</p>
+          <p class="text-xs text-slate-400">Sincronización en vivo entre múltiples administradores</p>
         </div>
         <div class="flex items-center gap-3">
-          <button onclick="sincronizarDesdeGitHub(true)" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
-            <i class="fas fa-arrows-rotate"></i> Traer Cambios de GitHub
+          <button onclick="subirSemillaAFirebase()" id="btn-seed" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fas fa-cloud-arrow-up"></i> Cargar Semilla a la Nube
           </button>
         </div>
       </header>
 
       <main class="flex-1 overflow-y-auto custom-scroll p-8 space-y-8">
         
-        <!-- Alerta de Diagnóstico -->
-        <div id="debug-alert" class="hidden bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-xl shadow-sm">
-          <div class="flex items-start gap-3">
-            <i class="fas fa-triangle-exclamation text-rose-600 mt-1"></i>
-            <div>
-              <h3 class="text-sm font-bold text-rose-800">Error de Conexión con GitHub</h3>
-              <p id="debug-message" class="text-xs text-rose-700 mt-1 font-mono bg-white/50 p-2 rounded border border-rose-100"></p>
-              <p class="text-xs text-rose-600 mt-2 font-medium">Revisa la configuración en el botón "Conectar API GitHub" (la llave en el menú izquierdo).</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- PESTAÑA 1: METRICAS -->
+        <!-- PESTAÑA 1: MÉTRICAS -->
         <section id="tab-metricas" class="tab-content space-y-8">
-          <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
               <div>
-                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Libros Actuales</span>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Libros en Nube</span>
                 <h3 id="kpi-total" class="text-3xl font-extrabold text-[#1e3c6e] dark:text-white mt-1">0</h3>
               </div>
               <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-[#1e3c6e] dark:text-blue-400 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-book"></i></div>
             </div>
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
               <div>
-                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Simuladores Activos</span>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Simuladores</span>
                 <h3 id="kpi-simuladores" class="text-3xl font-extrabold text-[#e67e22] mt-1">0</h3>
               </div>
               <div class="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-[#e67e22] rounded-xl flex items-center justify-center text-xl"><i class="fas fa-laptop-medical"></i></div>
             </div>
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
               <div>
-                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status Git</span>
-                <h3 id="kpi-git-sha" class="text-sm font-mono font-extrabold text-emerald-600 mt-2">------</h3>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Carreras Activas</span>
+                <h3 id="kpi-carreras" class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">0</h3>
               </div>
-              <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-code-branch"></i></div>
+              <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-graduation-cap"></i></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Canal en Vivo</span>
+                <h3 id="kpi-status-canal" class="text-sm font-bold text-amber-500 mt-2">Desconectado</h3>
+              </div>
+              <div class="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-amber-500 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-tower-broadcast"></i></div>
             </div>
           </div>
 
@@ -174,79 +174,145 @@
           </div>
         </section>
 
-        <!-- PESTAÑA 2: GESTION DE LIBROS -->
+        <!-- PESTAÑA 2: GESTIÓN DE LIBROS -->
         <section id="tab-libros" class="tab-content space-y-8 hidden">
           <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-1">Subir Libro a GitHub</h3>
-            <p class="text-xs text-slate-400 mb-6">Completa los datos y se actualizará automáticamente en la nube.</p>
-            
-            <form id="form-libro" onsubmit="guardarLibro(event)" class="space-y-4">
-              <input type="hidden" id="edit-id" value="-1">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Carrera / Área *</label>
-                  <select id="inp-carrera" onchange="asignarPortadaTematica()" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
-                    <option value="Medicina">Medicina</option>
-                    <option value="Nutrición">Nutrición</option>
-                    <option value="Enfermería">Enfermería</option>
-                    <option value="Kinesiología y Fisioterapia">Kinesiología y Fisioterapia</option>
-                    <option value="Ingeniería en Informática" selected>Ingeniería en Informática</option>
-                    <option value="Ingeniería en Sistemas">Ingeniería en Sistemas</option>
-                    <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                    <option value="Ingeniería Electrónica">Ingeniería Electrónica</option>
-                    <option value="Marketing y Gestión Comercial">Marketing y Gestión Comercial</option>
-                    <option value="Psicología Organizacional">Psicología Organizacional</option>
-                    <option value="Ingeniería Comercial">Ingeniería Comercial</option>
-                    <option value="Administración de Empresas">Administración de Empresas</option>
-                    <option value="Contaduría Pública">Contaduría Pública</option>
-                    <option value="Comercio Internacional">Comercio Internacional</option>
-                    <option value="Relaciones Internacionales">Relaciones Internacionales</option>
-                    <option value="Derecho">Derecho</option>
-                    <option value="Ciencias Políticas">Ciencias Políticas</option>
-                    <option value="Educación">Educación</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Edición / Tomo (Opcional)</label>
-                  <input type="text" id="inp-edicion" placeholder="Ej: 7ª EDICIÓN" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
-                </div>
+            <div class="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800 mb-6">
+              <div>
+                <h3 id="form-titulo" class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Registrar Libro en la Nube</h3>
+                <p class="text-xs text-slate-400">Los cambios se guardan instantáneamente en Firestore para todo el equipo.</p>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button type="button" onclick="limpiarFormulario()" class="text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i class="fas fa-rotate-left mr-1"></i> Limpiar Formulario
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <form id="form-libro" onsubmit="guardarLibro(event)" class="lg:col-span-7 space-y-4">
+                <input type="hidden" id="edit-doc-id" value="">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Carrera / Área *</label>
+                    <select id="inp-carrera" onchange="asignarPortadaTematica(); actualizarPreview();" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                      <optgroup label="Facultad de Salud">
+                        <option value="Medicina">Medicina</option>
+                        <option value="Nutrición">Nutrición</option>
+                        <option value="Enfermería">Enfermería</option>
+                        <option value="Kinesiología y Fisioterapia">Kinesiología y Fisioterapia</option>
+                      </optgroup>
+                      <optgroup label="Facultad de Ingeniería">
+                        <option value="Ingeniería en Informática" selected>Ingeniería en Informática</option>
+                        <option value="Ingeniería en Sistemas">Ingeniería en Sistemas</option>
+                        <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                        <option value="Ingeniería Electrónica">Ingeniería Electrónica</option>
+                      </optgroup>
+                      <optgroup label="Facultad de Gestión">
+                        <option value="Marketing y Gestión Comercial">Marketing y Gestión Comercial</option>
+                        <option value="Psicología Organizacional">Psicología Organizacional</option>
+                        <option value="Ingeniería Comercial">Ingeniería Comercial</option>
+                        <option value="Administración de Empresas">Administración de Empresas</option>
+                        <option value="Contaduría Pública">Contaduría Pública</option>
+                        <option value="Comercio Internacional">Comercio Internacional</option>
+                        <option value="Relaciones Internacionales">Relaciones Internacionales</option>
+                      </optgroup>
+                      <optgroup label="Ciencias Jurídicas y FEADYS">
+                        <option value="Derecho">Derecho</option>
+                        <option value="Ciencias Políticas">Ciencias Políticas</option>
+                        <option value="Educación">Educación</option>
+                        <option value="Adm. de Empresas/Pública">Adm. de Empresas/Pública</option>
+                        <option value="Adm. Gestión Emprendedora">Adm. Gestión Emprendedora</option>
+                        <option value="Talento Humano">Talento Humano</option>
+                        <option value="Banca y Finanzas">Banca y Finanzas</option>
+                        <option value="Marketing Digital">Marketing Digital</option>
+                        <option value="Sistemas">Sistemas</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Edición / Tomo (Opcional)</label>
+                    <input type="text" id="inp-edicion" oninput="actualizarPreview()" placeholder="Ej: 7ª EDICIÓN" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                  </div>
+                </div>
+
                 <div>
                   <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Título del Libro *</label>
-                  <input type="text" id="inp-titulo" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+                  <input type="text" id="inp-titulo" oninput="actualizarPreview()" placeholder="Ej: Fundamentos de Redes" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
+
                 <div>
                   <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Autor(es) *</label>
-                  <input type="text" id="inp-autor" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+                  <input type="text" id="inp-autor" oninput="actualizarPreview()" placeholder="Ej: Andrew S. Tanenbaum" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 <div>
-                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Enlace Drive *</label>
-                  <input type="url" id="inp-link" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Enlace de Google Drive *</label>
+                  <input type="url" id="inp-link" oninput="actualizarPreview()" placeholder="https://drive.google.com/file/d/..." required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
+
+                <div class="border border-slate-200 dark:border-slate-700 p-4 rounded-xl space-y-3 bg-slate-50/50 dark:bg-slate-800/20">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Imagen / Portada</label>
+                    <button type="button" onclick="asignarPortadaTematica(true)" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline">Restablecer Temática</button>
+                  </div>
+                  <div>
+                    <input type="url" id="inp-imagen" oninput="actualizarPreview()" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono outline-none" placeholder="Ingresa URL de imagen">
+                  </div>
+                </div>
+
+                <button type="submit" id="btn-submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md">
+                  <i class="fas fa-cloud-arrow-up"></i> Guardar en Firebase
+                </button>
+              </form>
+
+              <!-- PREVIEW EN VIVO -->
+              <div class="lg:col-span-5 bg-slate-50 dark:bg-slate-800/40 p-6 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 flex flex-col justify-between">
                 <div>
-                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">URL Portada <button type="button" onclick="asignarPortadaTematica(true)" class="text-blue-500 ml-2">(Restablecer Temática)</button></label>
-                  <input type="url" id="inp-imagen" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+                  <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-4">
+                    <i class="fas fa-eye mr-1"></i> Vista Previa de Tarjeta
+                  </span>
+                  
+                  <div class="bg-white dark:bg-slate-900 border-2 border-[#1e3c6e] rounded-xl p-4 shadow-sm flex gap-4 items-center">
+                    <img id="prev-img" src="" class="w-20 h-28 object-cover rounded shadow shrink-0 bg-slate-200">
+                    <div class="min-w-0 flex-1">
+                      <span id="prev-carrera" class="text-[10px] font-bold text-[#2980b9] uppercase">Carrera</span>
+                      <h4 id="prev-titulo" class="text-xs font-bold text-slate-900 dark:text-white truncate uppercase mt-0.5">Título del Libro</h4>
+                      <p id="prev-autor" class="text-[11px] font-semibold text-[#1e3c6e] dark:text-blue-300 truncate">Autor</p>
+                      <a id="prev-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1e3c6e] text-white text-[10px] font-bold rounded mt-2">
+                        <i class="fab fa-google-drive"></i> Probar Link
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="pt-4 flex gap-3 justify-end">
-                <button type="button" onclick="limpiarFormulario()" class="px-5 py-2.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">Cancelar</button>
-                <button type="submit" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition shadow-md"><i class="fas fa-cloud-arrow-up mr-1"></i> Guardar en Catálogo</button>
-              </div>
-            </form>
+            </div>
           </div>
 
+          <!-- TABLA DE INVENTARIO -->
           <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-            <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-              <h4 class="text-sm font-bold text-slate-800 dark:text-white">Inventario (Edición Rápida)</h4>
-              <input type="text" id="buscador-tabla" oninput="filtrarTabla()" placeholder="Buscar título..." class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs w-48 outline-none bg-slate-50 dark:bg-slate-800">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-white">Inventario en la Nube</h4>
+                <p class="text-xs text-slate-400">Listado sincronizado en tiempo real</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="text" id="buscador-tabla" oninput="filtrarTabla()" placeholder="Buscar título o autor..." class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none focus:ring-2 focus:ring-blue-500 w-56">
+                <select id="filtro-carrera" onchange="filtrarTabla()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none">
+                  <option value="">Todas las Carreras</option>
+                </select>
+              </div>
             </div>
-            <div class="overflow-x-auto max-h-[400px] custom-scroll">
+
+            <div class="overflow-x-auto max-h-[500px] custom-scroll">
               <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                <thead class="bg-slate-50 dark:bg-slate-800/40 uppercase text-[10px] font-bold text-slate-400 sticky top-0">
-                  <tr><th class="p-3">Título</th><th class="p-3">Carrera</th><th class="p-3">Autor</th><th class="p-3 text-right">Acciones</th></tr>
+                <thead class="bg-slate-50 dark:bg-slate-800/40 uppercase text-[10px] font-bold text-slate-400 tracking-wider border-b border-slate-100 dark:border-slate-800 sticky top-0">
+                  <tr>
+                    <th class="p-4">Material</th>
+                    <th class="p-4">Carrera</th>
+                    <th class="p-4">Autor</th>
+                    <th class="p-4">Drive</th>
+                    <th class="p-4 text-right">Acciones</th>
+                  </tr>
                 </thead>
                 <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
               </table>
@@ -254,7 +320,7 @@
           </div>
         </section>
 
-        <!-- PESTAÑA 3: GESTION DE SIMULADORES -->
+        <!-- PESTAÑA 3: SIMULADORES 3D -->
         <section id="tab-simuladores" class="tab-content space-y-8 hidden">
           <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-1">Nuevo Simulador Educativo</h3>
@@ -282,31 +348,52 @@
                 <input type="url" id="sim-link" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
               </div>
               <div class="md:col-span-2 pt-2 text-right">
-                <button type="submit" class="bg-[#e67e22] hover:bg-[#d35400] text-white text-xs font-bold py-2.5 px-6 rounded-xl transition shadow-md"><i class="fas fa-cloud-arrow-up"></i> Guardar Simulador</button>
+                <button type="submit" class="bg-[#e67e22] hover:bg-[#d35400] text-white text-xs font-bold py-2.5 px-6 rounded-xl transition shadow-md">
+                  <i class="fas fa-plus"></i> Guardar Simulador
+                </button>
               </div>
             </form>
           </div>
           <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
-            <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Simuladores Activos</h4>
+            <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Simuladores Activos en Nube</h4>
             <div id="lista-simuladores-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
           </div>
         </section>
 
         <!-- PESTAÑA 4: BASE DE DATOS Y EXCEL -->
-        <section id="tab-sync" class="tab-content space-y-6 hidden">
-          <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center max-w-2xl mx-auto space-y-5">
-            <div class="w-20 h-20 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto text-4xl shadow-inner border border-emerald-100 dark:border-emerald-800">
-              <i class="fas fa-file-excel"></i>
-            </div>
-            <h3 class="text-xl font-bold text-slate-800 dark:text-white">Inventario Anual Institucional</h3>
-            <p class="text-xs text-slate-500 leading-relaxed px-4">
-              Genera un reporte profesional de Excel (.xlsx) estructurado en múltiples hojas. Incluye una pestaña de resumen general y pestañas separadas por Facultad con los libros clasificados por Carrera.
-            </p>
-            <div class="pt-4 flex justify-center">
-              <button onclick="generarExcelInventario()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-8 py-4 rounded-xl transition shadow-lg flex items-center gap-3">
-                <i class="fas fa-download text-lg"></i> Descargar Excel Multiestructura
+        <section id="tab-database" class="tab-content space-y-6 hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                  <i class="fas fa-file-excel"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Inventario Anual en Excel (.xlsx)</h3>
+                <p class="text-xs text-slate-500 leading-relaxed mb-4">
+                  Genera la planilla institucional multihoja con hoja de resumen y desglose detallado de títulos, autores y ediciones clasificados por facultad y carrera.
+                </p>
+              </div>
+              <button onclick="generarExcelInventario()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                <i class="fas fa-table"></i> Descargar Excel Multiestructura
               </button>
             </div>
+
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="w-14 h-14 bg-[#1e3c6e]/10 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                  <i class="fab fa-js"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Exportar catalogo.js para GitHub</h3>
+                <p class="text-xs text-slate-500 leading-relaxed mb-4">
+                  Compila todo el catálogo almacenado en la nube en el archivo Javascript estático necesario para actualizar el sitio público de los alumnos.
+                </p>
+              </div>
+              <button onclick="descargarJS()" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold px-4 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                <i class="fas fa-download"></i> Descargar catalogo.js Final
+              </button>
+            </div>
+
           </div>
         </section>
 
@@ -314,39 +401,44 @@
     </div>
   </div>
 
-  <!-- MODAL CONFIGURACION GITHUB CON AVISOS MEJORADOS -->
-  <div id="modal-gh" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200 dark:border-slate-800">
+  <!-- MODAL CONFIGURACIÓN FIREBASE -->
+  <div id="modal-fb" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full max-w-lg mx-4 overflow-hidden border border-slate-200 dark:border-slate-800">
       <div class="bg-[#15294a] px-6 py-4 flex items-center justify-between">
-        <h3 class="text-white font-bold text-sm flex items-center gap-2"><i class="fab fa-github"></i> Conexión API GitHub</h3>
-        <button onclick="cerrarConfigGH()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+        <h3 class="text-white font-bold text-sm flex items-center gap-2"><i class="fas fa-fire text-amber-400"></i> Conectar Proyecto Firebase</h3>
+        <button onclick="cerrarConfigFirebase()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
       </div>
       <div class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Repositorio (Usuario/NombreRepo)</label>
-          <input type="text" id="gh-repo" value="Biblioteca-Unida/biblioteca-unida" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none font-mono">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Token PAT (Permiso: repo)</label>
-          <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none">
-        </div>
-        <div class="pt-2 flex justify-end gap-2">
-          <button onclick="cerrarConfigGH()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
-          <button onclick="guardarConfigGH()" class="bg-[#2980b9] hover:bg-[#1e3c6e] text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-md">Guardar y Sincronizar</button>
+        <p class="text-xs text-slate-500">Pega el objeto de configuración <code>firebaseConfig</code> obtenido de tu Consola de Firebase:</p>
+        <textarea id="fb-config-text" rows="8" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono outline-none focus:ring-2 focus:ring-blue-500" placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "tu-proyecto.firebaseapp.com",
+  "projectId": "tu-proyecto",
+  "storageBucket": "tu-proyecto.appspot.com",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'></textarea>
+        <div class="flex justify-end gap-2 pt-2">
+          <button onclick="cerrarConfigFirebase()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">Cancelar</button>
+          <button onclick="guardarConfigFirebase()" class="bg-[#2980b9] hover:bg-[#1e3c6e] text-white px-5 py-2 rounded-lg text-xs font-bold transition shadow-md">Conectar y Sincronizar</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Carga local por si falla GitHub -->
+  <!-- Script local con semillas para inicialización rápida -->
   <script src="catalogo.js"></script>
 
   <script>
-    // --- VARIABLES Y ESTADOS ---
+    // --- CONSTANTES Y ESTADOS ---
     const ADMIN_PIN = "2026";
+    const FB_STORAGE_KEY = "unida_firebase_config";
+    
+    let db = null;
     let libros = [];
     let simuladores = [];
-    let ghSha = null;
+    let chartCarrerasInst = null;
+    let chartFacultadesInst = null;
 
     const MAPA_FACULTADES = {
       "Medicina": "Salud", "Nutrición": "Salud", "Enfermería": "Salud", "Kinesiología y Fisioterapia": "Salud",
@@ -366,14 +458,15 @@
       "Educación": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80"
     };
 
-    // --- AUTENTICACION Y UI ---
+    // --- ACCESO Y UI ---
     function validarAcceso(e) {
       e.preventDefault();
       if (document.getElementById('auth-pin').value === ADMIN_PIN) {
         document.getElementById('auth-lock').classList.add('hidden');
         document.getElementById('dashboard-app').classList.remove('hidden');
         sessionStorage.setItem('admin_session', 'true');
-        sincronizarDesdeGitHub();
+        inicializarFirebase();
+        asignarPortadaTematica(true);
       } else {
         document.getElementById('auth-error').classList.remove('hidden');
       }
@@ -399,217 +492,160 @@
       document.getElementById('dark-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
     }
 
-    // --- GITHUB API INTEGRATION ---
-    function abrirConfigGH() {
-      const saved = JSON.parse(localStorage.getItem('unida_gh_config') || '{}');
-      document.getElementById('gh-repo').value = saved.repo || 'Biblioteca-Unida/biblioteca-unida';
-      document.getElementById('gh-token').value = saved.token || '';
-      document.getElementById('modal-gh').classList.remove('hidden');
-    }
-    
-    function cerrarConfigGH() { document.getElementById('modal-gh').classList.add('hidden'); }
-
-    function guardarConfigGH() {
-      const repo = document.getElementById('gh-repo').value.trim();
-      const token = document.getElementById('gh-token').value.trim();
-      localStorage.setItem('unida_gh_config', JSON.stringify({ repo, token }));
-      cerrarConfigGH();
-      sincronizarDesdeGitHub(true);
+    // --- CONEXIÓN FIREBASE ---
+    function abrirConfigFirebase() {
+      const saved = localStorage.getItem(FB_STORAGE_KEY);
+      if (saved) document.getElementById('fb-config-text').value = saved;
+      document.getElementById('modal-fb').classList.remove('hidden');
     }
 
-    function mostrarAlertaError(mensaje) {
-      const alertBox = document.getElementById('debug-alert');
-      const msgBox = document.getElementById('debug-message');
-      msgBox.textContent = mensaje;
-      alertBox.classList.remove('hidden');
+    function cerrarConfigFirebase() {
+      document.getElementById('modal-fb').classList.add('hidden');
     }
 
-    function ocultarAlertaError() {
-      document.getElementById('debug-alert').classList.add('hidden');
+    function guardarConfigFirebase() {
+      const txt = document.getElementById('fb-config-text').value.trim();
+      try {
+        // Valida que el texto sea un objeto JSON o formato de config JavaScript
+        let configObj = null;
+        if (txt.startsWith('{')) {
+          configObj = JSON.parse(txt);
+        } else {
+          // Extraer objeto mediante evaluación segura
+          const match = txt.match(/\{[\s\S]*\}/);
+          if (match) configObj = JSON.parse(match[0]);
+        }
+        if (!configObj || !configObj.projectId) throw new Error("Faltan parámetros de configuración.");
+
+        localStorage.setItem(FB_STORAGE_KEY, JSON.stringify(configObj, null, 2));
+        cerrarConfigFirebase();
+        location.reload();
+      } catch (err) {
+        alert("Configuración inválida. Asegúrate de pegar el objeto JSON completo de Firebase.");
+      }
     }
 
-    async function sincronizarDesdeGitHub(alertar = false) {
-      ocultarAlertaError();
-      const config = JSON.parse(localStorage.getItem('unida_gh_config') || '{}');
-      const badge = document.getElementById('gh-badge');
-      const spinner = document.getElementById('sync-spinner');
-      
-      if (!config.repo || !config.token) {
+    function inicializarFirebase() {
+      const savedConfig = localStorage.getItem(FB_STORAGE_KEY);
+      const badge = document.getElementById('cloud-badge');
+      const statusCanal = document.getElementById('kpi-status-canal');
+
+      if (!savedConfig) {
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Sin Configurar`;
-        badge.className = "text-[11px] font-semibold text-rose-500 flex items-center gap-1 truncate";
-        document.getElementById('kpi-git-sha').textContent = "Offline";
+        statusCanal.textContent = "Offline (Local)";
+        statusCanal.className = "text-sm font-bold text-rose-500 mt-2";
         fallbackLocal();
         return;
       }
 
-      spinner.classList.remove('hidden');
       try {
-        const url = `https://api.github.com/repos/${config.repo}/contents/catalogo.js?ref=main`;
-        const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${config.token}`, 'Accept': 'application/vnd.github.v3+json' } });
-        
-        if (!resp.ok) {
-           const errDetails = await resp.json();
-           throw new Error(errDetails.message || `HTTP ${resp.status}`);
+        const config = JSON.parse(savedConfig);
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config);
         }
-        
-        const data = await resp.json();
-        ghSha = data.sha;
-        document.getElementById('kpi-git-sha').textContent = ghSha.substring(0,7);
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Conectado`;
-        badge.className = "text-[11px] font-semibold text-emerald-500 flex items-center gap-1 truncate";
+        db = firebase.firestore();
 
-        // Decodificación segura del código de GitHub
-        const contentStr = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-        
-        const matchLibros = contentStr.match(/const\s+catalogoLibros\s*=\s*(\[[\s\S]*?\]);/);
-        const matchSim = contentStr.match(/const\s+simuladoresGlobales\s*=\s*(\[[\s\S]*?\]);/);
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> En Vivo`;
+        badge.className = "text-[11px] font-semibold text-emerald-500 flex items-center gap-1";
+        statusCanal.textContent = "Conectado (Cloud)";
+        statusCanal.className = "text-sm font-bold text-emerald-500 mt-2";
 
-        libros = matchLibros ? JSON.parse(matchLibros[1]) : [];
-        simuladores = matchSim ? JSON.parse(matchSim[1]) : [];
+        // Listener en tiempo real para libros
+        db.collection("libros").onSnapshot(snapshot => {
+          libros = [];
+          snapshot.forEach(doc => {
+            libros.push({ _id: doc.id, ...doc.data() });
+          });
+          actualizarTodoUI();
+        }, error => {
+          console.error("Error al escuchar libros:", error);
+          fallbackLocal();
+        });
 
-        actualizarTodoUI();
-        if (alertar) alert("¡Catálogo sincronizado exitosamente con GitHub!");
+        // Listener en tiempo real para simuladores
+        db.collection("simuladores").onSnapshot(snapshot => {
+          simuladores = [];
+          snapshot.forEach(doc => {
+            simuladores.push({ _id: doc.id, ...doc.data() });
+          });
+          renderSimuladores();
+        });
 
       } catch (e) {
         console.error(e);
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Error Sync`;
-        badge.className = "text-[11px] font-semibold text-amber-500 flex items-center gap-1 truncate";
-        document.getElementById('kpi-git-sha').textContent = "Fallido";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Error Firebase`;
         fallbackLocal();
-        
-        // Mostrar error exacto en pantalla
-        mostrarAlertaError(e.message);
-      } finally {
-        spinner.classList.add('hidden');
-      }
-    }
-
-    async function commitearEnGitHub(mensaje) {
-      ocultarAlertaError();
-      const config = JSON.parse(localStorage.getItem('unida_gh_config') || '{}');
-      if (!config.repo || !config.token) {
-        abrirConfigGH();
-        return;
-      }
-
-      const spinner = document.getElementById('sync-spinner');
-      spinner.classList.remove('hidden');
-
-      try {
-        const jsContent = `const catalogoLibros = ${JSON.stringify(libros, null, 4)};\n\nconst simuladoresGlobales = ${JSON.stringify(simuladores, null, 4)};\n`;
-        const base64Content = btoa(unescape(encodeURIComponent(jsContent)));
-
-        const url = `https://api.github.com/repos/${config.repo}/contents/catalogo.js`;
-        const reqSha = await fetch(`${url}?ref=main`, { headers: { 'Authorization': `Bearer ${config.token}` } });
-        if (reqSha.ok) { const d = await reqSha.json(); ghSha = d.sha; }
-
-        const putResp = await fetch(url, {
-          method: 'PUT',
-          headers: { 'Authorization': `Bearer ${config.token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: mensaje, content: base64Content, sha: ghSha, branch: 'main' })
-        });
-
-        if (!putResp.ok) {
-           const errDetails = await putResp.json();
-           throw new Error(errDetails.message || "Error al subir");
-        }
-        
-        const data = await putResp.json();
-        ghSha = data.content.sha;
-        document.getElementById('kpi-git-sha').textContent = ghSha.substring(0,7);
-
-      } catch (error) {
-        mostrarAlertaError(error.message);
-      } finally {
-        spinner.classList.add('hidden');
-        actualizarTodoUI();
       }
     }
 
     function fallbackLocal() {
-      if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) libros = [...catalogoLibros];
-      if (typeof simuladoresGlobales !== 'undefined' && Array.isArray(simuladoresGlobales)) simuladores = [...simuladoresGlobales];
+      if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
+        libros = [...catalogoLibros];
+      }
+      simuladores = [
+        { facultad: "Facultad de Salud", titulo: "Simulador de Anatomía Humana 3D", autor: "BioDigital Human", link: "https://human.biodigital.com/" },
+        { facultad: "Facultad de Gestión", titulo: "Simulador de Mercados y Bolsa", autor: "Plataforma Financiera", link: "https://www.investopedia.com/simulator/" },
+        { facultad: "Facultad de Ingeniería", titulo: "Simulador de Redes Cisco Packet Tracer", autor: "Laboratorio Informático", link: "https://www.netacad.com/courses/packet-tracer" }
+      ];
       actualizarTodoUI();
     }
 
-    // --- EXCEL MULTI-HOJA AVANZADO (SheetJS) ---
-    function generarExcelInventario() {
-      if(libros.length === 0) return alert("No hay libros para exportar");
-      const wb = XLSX.utils.book_new();
+    // --- CARGAR CATÁLOGO INICIAL A LA NUBE (SEMILLA) ---
+    async function subirSemillaAFirebase() {
+      if (!db) return alert("Conecta Firebase antes de subir la semilla.");
+      if (!confirm(`¿Subir los libros existentes en catalogo.js a tu base de datos de Firebase?`)) return;
 
-      const librosPorFacultad = {};
-      const conteoPorFacultad = {};
-      
-      libros.forEach(l => {
-        const fac = MAPA_FACULTADES[l.carrera] || "Otras Areas";
-        conteoPorFacultad[fac] = (conteoPorFacultad[fac] || 0) + 1;
-        if(!librosPorFacultad[fac]) librosPorFacultad[fac] = {};
-        if(!librosPorFacultad[fac][l.carrera]) librosPorFacultad[fac][l.carrera] = [];
-        librosPorFacultad[fac][l.carrera].push(l);
-      });
+      const spinner = document.getElementById('sync-spinner');
+      spinner.classList.remove('hidden');
 
-      const wsResumenData = [
-        ["INVENTARIO ANUAL DE BIBLIOTECA - UNIDA"],
-        ["Generado el:", new Date().toLocaleDateString()],
-        [],
-        ["FACULTAD", "CANTIDAD DE VOLÚMENES DIGITALES"]
-      ];
-      
-      for(const [facultad, cant] of Object.entries(conteoPorFacultad)) {
-        wsResumenData.push([facultad.toUpperCase().replace(/_/g, ' '), cant]);
-      }
-      wsResumenData.push([]);
-      wsResumenData.push(["TOTAL ACERVO DIGITAL", libros.length]);
-      
-      const wsResumen = XLSX.utils.aoa_to_sheet(wsResumenData);
-      wsResumen['!cols'] = [{wch: 40}, {wch: 35}];
-      XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen Global");
-
-      for(const [facultadRaw, carrerasObj] of Object.entries(librosPorFacultad)) {
-        const facNombreLimpio = facultadRaw.replace(/_/g, ' ').substring(0, 31);
-        const sheetData = [];
+      try {
+        const batch = db.batch();
+        const base = (typeof catalogoLibros !== 'undefined') ? catalogoLibros : [];
         
-        sheetData.push([`INVENTARIO DETALLADO: ${facNombreLimpio.toUpperCase()}`]);
-        sheetData.push(["Generado automáticamente por el Panel Admin de Biblioteca UNIDA"]);
-        sheetData.push([]);
+        base.forEach(item => {
+          const docRef = db.collection("libros").doc();
+          batch.set(docRef, item);
+        });
 
-        for(const [carrera, lista] of Object.entries(carrerasObj)) {
-          sheetData.push([`CARRERA: ${carrera.toUpperCase()}`]);
-          sheetData.push(["Nº", "Título del Material", "Autor / Editorial", "Edición / Tomo", "Enlace de Descarga Drive"]);
-          
-          lista.forEach((l, idx) => {
-            let tituloStr = l.titulo;
-            let edicionStr = "-";
-            if(tituloStr.includes('<span')) {
-              const div = document.createElement('div');
-              div.innerHTML = l.titulo;
-              const span = div.querySelector('span');
-              if(span) { edicionStr = span.textContent.trim(); span.remove(); }
-              tituloStr = div.textContent.trim();
-            }
-            sheetData.push([idx + 1, tituloStr, l.autor, edicionStr, l.link]);
-          });
-          sheetData.push([]);
-        }
-        
-        const ws = XLSX.utils.aoa_to_sheet(sheetData);
-        ws['!cols'] = [{wch: 5}, {wch: 50}, {wch: 35}, {wch: 20}, {wch: 50}];
-        XLSX.utils.book_append_sheet(wb, ws, facNombreLimpio);
+        await batch.commit();
+        alert(`¡Se han cargado ${base.length} libros a Firebase con éxito!`);
+      } catch (err) {
+        alert("Error al cargar semilla: " + err.message);
+      } finally {
+        spinner.classList.add('hidden');
       }
-
-      XLSX.writeFile(wb, `Inventario_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`);
     }
 
-    // --- LOGICA UI & CRUD ---
+    // --- CRUD LIBROS ---
     function asignarPortadaTematica(forzar = false) {
       const c = document.getElementById('inp-carrera').value;
       const inp = document.getElementById('inp-imagen');
-      if (!inp.value || forzar) inp.value = PORTADAS_PRESET[c] || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80";
+      if (!inp.value || forzar) {
+        inp.value = PORTADAS_PRESET[c] || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80";
+        actualizarPreview();
+      }
     }
 
-    function guardarLibro(e) {
+    function actualizarPreview() {
+      const carrera = document.getElementById('inp-carrera').value;
+      let titulo = document.getElementById('inp-titulo').value || 'TÍTULO DEL LIBRO';
+      const edicion = document.getElementById('inp-edicion').value;
+      const autor = document.getElementById('inp-autor').value || 'Nombre del Autor';
+      const imagen = document.getElementById('inp-imagen').value;
+      const link = document.getElementById('inp-link').value || '#';
+
+      if (edicion.trim()) titulo += ` <span class="text-[10px] text-slate-400">(${edicion})</span>`;
+
+      document.getElementById('prev-carrera').textContent = carrera;
+      document.getElementById('prev-titulo').innerHTML = titulo;
+      document.getElementById('prev-autor').textContent = autor;
+      document.getElementById('prev-img').src = imagen;
+      document.getElementById('prev-link').href = link;
+    }
+
+    async function guardarLibro(e) {
       e.preventDefault();
-      const id = parseInt(document.getElementById('edit-id').value);
+      const docId = document.getElementById('edit-doc-id').value;
       let titulo = document.getElementById('inp-titulo').value.trim();
       const edicion = document.getElementById('inp-edicion').value.trim();
       
@@ -623,15 +659,29 @@
         link: document.getElementById('inp-link').value.trim()
       };
 
-      if (id >= 0) libros[id] = libroObj; else libros.unshift(libroObj);
-      
+      if (db) {
+        if (docId) {
+          await db.collection("libros").doc(docId).update(libroObj);
+        } else {
+          await db.collection("libros").add(libroObj);
+        }
+      } else {
+        // Modo local
+        if (docId) {
+          const idx = libros.findIndex(l => l._id === docId);
+          if (idx >= 0) libros[idx] = libroObj;
+        } else {
+          libros.unshift(libroObj);
+        }
+        actualizarTodoUI();
+      }
+
       limpiarFormulario();
-      commitearEnGitHub(`Libro: ${libroObj.carrera} - Añadido/Editado`);
     }
 
     function editarLibro(i) {
       const l = libros[i];
-      document.getElementById('edit-id').value = i;
+      document.getElementById('edit-doc-id').value = l._id || "";
       document.getElementById('inp-carrera').value = l.carrera;
       
       if (l.titulo.includes('<span class="libro-edicion">')) {
@@ -646,45 +696,148 @@
       document.getElementById('inp-autor').value = l.autor;
       document.getElementById('inp-imagen').value = l.imagen;
       document.getElementById('inp-link').value = l.link;
+      actualizarPreview();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function eliminarLibro(i) {
-      if (confirm("¿Borrar definitivamente este libro de GitHub?")) {
-        libros.splice(i, 1);
-        commitearEnGitHub("Libro eliminado");
+    async function eliminarLibro(i) {
+      const l = libros[i];
+      if (confirm(`¿Eliminar definitivamente: ${l.titulo}?`)) {
+        if (db && l._id) {
+          await db.collection("libros").doc(l._id).delete();
+        } else {
+          libros.splice(i, 1);
+          actualizarTodoUI();
+        }
       }
     }
 
     function limpiarFormulario() {
-      document.getElementById('edit-id').value = -1;
+      document.getElementById('edit-doc-id').value = "";
       document.getElementById('form-libro').reset();
       asignarPortadaTematica(true);
     }
 
-    function guardarSimulador(e) {
+    // --- CRUD SIMULADORES ---
+    async function guardarSimulador(e) {
       e.preventDefault();
-      simuladores.push({
+      const simObj = {
         facultad: document.getElementById('sim-facultad').value,
         titulo: document.getElementById('sim-titulo').value.trim(),
         autor: document.getElementById('sim-autor').value.trim(),
         link: document.getElementById('sim-link').value.trim()
-      });
+      };
+
+      if (db) {
+        await db.collection("simuladores").add(simObj);
+      } else {
+        simuladores.push(simObj);
+        renderSimuladores();
+      }
       e.target.reset();
-      commitearEnGitHub("Simulador Añadido");
     }
 
-    function eliminarSimulador(i) {
-      if (confirm("¿Eliminar simulador remoto?")) {
-        simuladores.splice(i, 1);
-        commitearEnGitHub("Simulador Eliminado");
+    async function eliminarSimulador(i) {
+      const s = simuladores[i];
+      if (confirm(`¿Eliminar simulador: ${s.titulo}?`)) {
+        if (db && s._id) {
+          await db.collection("simuladores").doc(s._id).delete();
+        } else {
+          simuladores.splice(i, 1);
+          renderSimuladores();
+        }
       }
+    }
+
+    // --- EXPORTACIÓN EXCEL ANUAL (SheetJS) ---
+    function generarExcelInventario() {
+      if (libros.length === 0) return alert("No hay libros disponibles para exportar.");
+      const wb = XLSX.utils.book_new();
+
+      const librosPorFacultad = {};
+      const conteoPorFacultad = {};
+      
+      libros.forEach(l => {
+        const fac = MAPA_FACULTADES[l.carrera] || "Otras Areas";
+        conteoPorFacultad[fac] = (conteoPorFacultad[fac] || 0) + 1;
+        if (!librosPorFacultad[fac]) librosPorFacultad[fac] = {};
+        if (!librosPorFacultad[fac][l.carrera]) librosPorFacultad[fac][l.carrera] = [];
+        librosPorFacultad[fac][l.carrera].push(l);
+      });
+
+      // Hoja 1: Resumen
+      const wsResumenData = [
+        ["INVENTARIO ANUAL DE BIBLIOTECA - UNIDA"],
+        ["Fecha de corte:", new Date().toLocaleDateString()],
+        [],
+        ["FACULTAD", "VOLÚMENES REGISTRADOS"]
+      ];
+      
+      for (const [facultad, cant] of Object.entries(conteoPorFacultad)) {
+        wsResumenData.push([facultad.toUpperCase().replace(/_/g, ' '), cant]);
+      }
+      wsResumenData.push([]);
+      wsResumenData.push(["TOTAL GENERAL", libros.length]);
+      
+      const wsResumen = XLSX.utils.aoa_to_sheet(wsResumenData);
+      wsResumen['!cols'] = [{wch: 40}, {wch: 30}];
+      XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen Global");
+
+      // Hojas por Facultad
+      for (const [facultadRaw, carrerasObj] of Object.entries(librosPorFacultad)) {
+        const facNombre = facultadRaw.replace(/_/g, ' ').substring(0, 31);
+        const sheetData = [
+          [`INVENTARIO: ${facNombre.toUpperCase()}`],
+          ["Biblioteca Central UNIDA - Reporte Anual"],
+          []
+        ];
+
+        for (const [carrera, lista] of Object.entries(carrerasObj)) {
+          sheetData.push([`CARRERA: ${carrera.toUpperCase()}`]);
+          sheetData.push(["Nº", "Título del Material", "Autor / Editorial", "Edición / Tomo", "Enlace de Descarga Drive"]);
+          
+          lista.forEach((l, idx) => {
+            let tituloStr = l.titulo;
+            let edicionStr = "-";
+            if (tituloStr.includes('<span')) {
+              const div = document.createElement('div');
+              div.innerHTML = l.titulo;
+              const span = div.querySelector('span');
+              if (span) { edicionStr = span.textContent.trim(); span.remove(); }
+              tituloStr = div.textContent.trim();
+            }
+            sheetData.push([idx + 1, tituloStr, l.autor, edicionStr, l.link]);
+          });
+          sheetData.push([]);
+        }
+        
+        const ws = XLSX.utils.aoa_to_sheet(sheetData);
+        ws['!cols'] = [{wch: 5}, {wch: 50}, {wch: 35}, {wch: 20}, {wch: 50}];
+        XLSX.utils.book_append_sheet(wb, ws, facNombre);
+      }
+
+      XLSX.writeFile(wb, `Inventario_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`);
+    }
+
+    function descargarJS() {
+      // Limpia campos internos de base de datos (_id)
+      const librosLimpios = libros.map(({ _id, ...resto }) => resto);
+      const simsLimpios = simuladores.map(({ _id, ...resto }) => resto);
+      
+      const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent(`const catalogoLibros = ${JSON.stringify(librosLimpios, null, 4)};\n\nconst simuladoresGlobales = ${JSON.stringify(simsLimpios, null, 4)};\n`);
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = "catalogo.js";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
 
     // --- RENDERIZADO VISUAL ---
     function actualizarTodoUI() {
       document.getElementById('kpi-total').textContent = libros.length;
       document.getElementById('kpi-simuladores').textContent = simuladores.length;
+      document.getElementById('kpi-carreras').textContent = [...new Set(libros.map(l => l.carrera))].length;
 
       const filter = document.getElementById('filtro-carrera');
       const val = filter.value;
@@ -694,21 +847,7 @@
       
       filtrarTabla();
       renderGraficos();
-      
-      const boxSim = document.getElementById('lista-simuladores-admin');
-      boxSim.innerHTML = '';
-      simuladores.forEach((s, i) => {
-        boxSim.innerHTML += `
-          <div class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-800/40">
-            <div>
-              <span class="text-[10px] font-bold text-amber-600 uppercase">${s.facultad}</span>
-              <h5 class="text-xs font-bold text-slate-800 dark:text-white mt-0.5">${s.titulo}</h5>
-              <p class="text-[11px] text-slate-500">${s.autor}</p>
-            </div>
-            <button onclick="eliminarSimulador(${i})" class="text-rose-500 hover:text-rose-700 bg-white dark:bg-slate-800 p-2 rounded shadow-sm"><i class="fas fa-trash"></i></button>
-          </div>
-        `;
-      });
+      renderSimuladores();
     }
 
     function filtrarTabla() {
@@ -724,6 +863,7 @@
               <td class="p-3 truncate max-w-[200px] font-semibold text-slate-800 dark:text-slate-200">${l.titulo}</td>
               <td class="p-3"><span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-300 rounded text-[10px] font-bold">${l.carrera}</span></td>
               <td class="p-3 truncate max-w-[150px]">${l.autor}</td>
+              <td class="p-3"><a href="${l.link}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"><i class="fab fa-google-drive"></i> Link</a></td>
               <td class="p-3 text-right flex justify-end gap-2">
                 <button onclick="editarLibro(${i})" class="text-blue-500 p-1.5 hover:bg-blue-100 rounded"><i class="fas fa-pen"></i></button>
                 <button onclick="eliminarLibro(${i})" class="text-rose-500 p-1.5 hover:bg-rose-100 rounded"><i class="fas fa-trash"></i></button>
@@ -734,32 +874,58 @@
       });
     }
 
-    let c1, c2;
+    function renderSimuladores() {
+      const boxSim = document.getElementById('lista-simuladores-admin');
+      if (!boxSim) return;
+      boxSim.innerHTML = '';
+      simuladores.forEach((s, i) => {
+        boxSim.innerHTML += `
+          <div class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-800/40">
+            <div>
+              <span class="text-[10px] font-bold text-amber-600 uppercase">${s.facultad}</span>
+              <h5 class="text-xs font-bold text-slate-800 dark:text-white mt-0.5">${s.titulo}</h5>
+              <p class="text-[11px] text-slate-500">${s.autor}</p>
+            </div>
+            <button onclick="eliminarSimulador(${i})" class="text-rose-500 hover:text-rose-700 bg-white dark:bg-slate-800 p-2 rounded shadow-sm"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+      });
+    }
+
     function renderGraficos() {
       const carr = {}; libros.forEach(l => carr[l.carrera] = (carr[l.carrera] || 0) + 1);
-      if(c1) c1.destroy();
-      c1 = new Chart(document.getElementById('chartCarreras'), {
-        type: 'doughnut', data: { labels: Object.keys(carr), datasets: [{ data: Object.values(carr), backgroundColor: ['#1e3c6e', '#2980b9', '#e67e22', '#10b981', '#6366f1'] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 9 } } } } }
-      });
+      if (chartCarrerasInst) chartCarrerasInst.destroy();
+      const ctx1 = document.getElementById('chartCarreras');
+      if (ctx1) {
+        chartCarrerasInst = new Chart(ctx1, {
+          type: 'doughnut', 
+          data: { labels: Object.keys(carr), datasets: [{ data: Object.values(carr), backgroundColor: ['#1e3c6e', '#2980b9', '#e67e22', '#10b981', '#6366f1', '#ec4899', '#f59e0b'] }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 9 } } } } }
+        });
+      }
 
       const fac = { "Salud":0, "Ingeniería":0, "Gestión":0, "Jurídicas":0, "FEADYS":0 };
       libros.forEach(l => {
         const fm = MAPA_FACULTADES[l.carrera];
-        if (fm && fac[fm] !== undefined) fac[fm]++; else if (fac[fm.substring(0,9)]) fac[fm.substring(0,9)]++;
+        if (fm && fac[fm] !== undefined) fac[fm]++;
+        else if (fm && fac[fm.substring(0,9)]) fac[fm.substring(0,9)]++;
       });
-      if(c2) c2.destroy();
-      c2 = new Chart(document.getElementById('chartFacultades'), {
-        type: 'bar', data: { labels: Object.keys(fac), datasets: [{ data: Object.values(fac), backgroundColor: '#2980b9', borderRadius: 4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+      if (chartFacultadesInst) chartFacultadesInst.destroy();
+      const ctx2 = document.getElementById('chartFacultades');
+      if (ctx2) {
+        chartFacultadesInst = new Chart(ctx2, {
+          type: 'bar', 
+          data: { labels: Object.keys(fac), datasets: [{ data: Object.values(fac), backgroundColor: '#2980b9', borderRadius: 4 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
     }
 
     // Arranque
     if (sessionStorage.getItem('admin_session') === 'true') {
       document.getElementById('auth-lock').classList.add('hidden');
       document.getElementById('dashboard-app').classList.remove('hidden');
-      sincronizarDesdeGitHub();
+      inicializarFirebase();
     }
   </script>
 </body>
