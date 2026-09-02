@@ -120,6 +120,9 @@
           <p class="text-xs text-slate-400">Sincronización en vivo entre múltiples administradores</p>
         </div>
         <div class="flex items-center gap-3">
+          <button onclick="actualizarSistema()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fas fa-arrows-rotate"></i> Actualizar Vista & Datos
+          </button>
           <button onclick="vaciarBaseDeDatosNube()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
             <i class="fas fa-trash-can"></i> Vaciar Nube
           </button>
@@ -252,13 +255,15 @@
                   <input type="url" id="inp-link" oninput="actualizarPreview()" placeholder="https://drive.google.com/file/d/..." required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
 
+                <!-- CARGA DE IMAGEN DESDE EL EQUIPO -->
                 <div class="border border-slate-200 dark:border-slate-700 p-4 rounded-xl space-y-3 bg-slate-50/50 dark:bg-slate-800/20">
                   <div class="flex items-center justify-between">
-                    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Imagen / Portada</label>
+                    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Portada del Libro (Desde tu Equipo)</label>
                     <button type="button" onclick="asignarPortadaTematica(true)" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline">Restablecer Temática</button>
                   </div>
                   <div>
-                    <input type="url" id="inp-imagen" oninput="actualizarPreview()" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono outline-none" placeholder="Ingresa URL de imagen">
+                    <input type="file" id="inp-imagen-file" accept="image/*" onchange="procesarImagenLocal(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#1e3c6e] hover:file:bg-blue-100 cursor-pointer">
+                    <input type="hidden" id="inp-imagen" oninput="actualizarPreview()">
                   </div>
                 </div>
 
@@ -744,6 +749,10 @@
       }
     }
 
+    function actualizarSistema() {
+      location.reload();
+    }
+
     function inicializarFirebase() {
       const savedConfig = localStorage.getItem(FB_STORAGE_KEY);
       const badge = document.getElementById('cloud-badge');
@@ -797,10 +806,22 @@
       actualizarTodoUI();
     }
 
-    // --- FUNCIÓN PARA VACIAR LA NUBE POR COMPLETO ---
+    // --- PROCESAR IMAGEN DESDE EL EQUIPO ---
+    function procesarImagenLocal(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('inp-imagen').value = e.target.result;
+        actualizarPreview();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- VACIAR BASE DE DATOS EN LA NUBE ---
     async function vaciarBaseDeDatosNube() {
       if (!db) return alert("Conecta Firebase primero.");
-      if (!confirm("⚠️ ¿Estás SEGURO de que deseas eliminar TODOS los libros de la nube? Esta acción no se puede deshacer.")) return;
+      if (!confirm("⚠️ ¿Estás SEGURO de que deseas eliminar TODOS los libros de la nube? Esta acción borrará todo el inventario.")) return;
 
       const spinner = document.getElementById('sync-spinner');
       spinner.classList.remove('hidden');
@@ -812,7 +833,7 @@
           batch.delete(doc.ref);
         });
         await batch.commit();
-        alert("¡Base de datos en la nube vaciada con éxito! Ahora puedes cargar la semilla limpia.");
+        alert("¡Base de datos en la nube vaciada con éxito!");
       } catch (err) {
         alert("Error al vaciar la base de datos: " + err.message);
       } finally {
@@ -879,7 +900,7 @@
       let titulo = document.getElementById('inp-titulo').value || 'TÍTULO DEL LIBRO';
       const edicion = document.getElementById('inp-edicion').value;
       const autor = document.getElementById('inp-autor').value || 'Nombre del Autor';
-      const imagen = document.getElementById('inp-imagen').value;
+      const imagen = document.getElementById('inp-imagen').value || 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80';
       const link = document.getElementById('inp-link').value || '#';
 
       if (edicion.trim()) titulo += ` <span class="text-[10px] text-slate-400">(${edicion})</span>`;
@@ -903,7 +924,7 @@
         carrera: document.getElementById('inp-carrera').value,
         titulo: titulo,
         autor: document.getElementById('inp-autor').value.trim(),
-        imagen: document.getElementById('inp-imagen').value.trim(),
+        imagen: document.getElementById('inp-imagen').value.trim() || PORTADAS_PRESET[document.getElementById('inp-carrera').value],
         link: document.getElementById('inp-link').value.trim()
       };
 
@@ -954,6 +975,7 @@
     function limpiarFormulario() {
       document.getElementById('edit-doc-id').value = "";
       document.getElementById('form-libro').reset();
+      document.getElementById('inp-imagen').value = "";
       asignarPortadaTematica(true);
     }
 
