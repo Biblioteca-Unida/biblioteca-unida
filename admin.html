@@ -1,805 +1,808 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-100">
+<html lang="es" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administración Colaborativo - UNIDA</title>
+  <title>Panel Administrativo - Biblioteca UNIDA</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
             unida: {
               navy: '#1e3c6e',
               blue: '#2980b9',
-              dark: '#15294a'
+              orange: '#e67e22',
+              dark: '#0f172a'
             }
           }
         }
       }
     }
   </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .dark .custom-scroll::-webkit-scrollbar-thumb { background: #334155; }
+  </style>
 </head>
-<body class="h-full flex overflow-hidden font-sans text-slate-800">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-full flex antialiased">
 
-  <!-- Sidebar Lateral -->
-  <aside id="sidebar" class="w-64 bg-[#1e3c6e] text-white flex flex-col transition-all duration-300 z-30 shrink-0 shadow-xl">
-    <div class="h-20 flex items-center justify-between px-6 border-b border-blue-900/50 bg-[#15294a]">
-      <div class="flex items-center gap-3">
-        <i class="fas fa-cloud-bolt text-2xl text-sky-400"></i>
-        <div>
-          <span class="font-bold text-base tracking-wide block leading-tight">UNIDA Live</span>
-          <span class="text-xs text-slate-400">Sync GitHub Activo</span>
-        </div>
+  <!-- MODAL DE ACCESO PIN -->
+  <div id="auth-lock" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-md">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center">
+      <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+        <i class="fas fa-user-shield"></i>
       </div>
-    </div>
-    
-    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-      <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition text-sm">
-        <i class="fas fa-arrow-left w-5 text-center"></i>
-        <span>Portal Público</span>
-      </a>
-      <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#2980b9] text-white font-medium text-sm shadow">
-        <i class="fas fa-database w-5 text-center"></i>
-        <span>Catálogo Remoto</span>
-      </a>
-      <button onclick="abrirModalConfig()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition text-sm text-left">
-        <i class="fas fa-key w-5 text-center text-amber-400"></i>
-        <span>Configurar GitHub API</span>
-      </button>
-    </nav>
-
-    <div class="p-4 border-t border-blue-900/50 bg-[#15294a]/60">
-      <div class="flex items-center justify-between">
-        <div class="overflow-hidden">
-          <p class="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">Repositorio Conectado</p>
-          <p id="label-repo" class="text-xs font-mono text-sky-400 truncate">No configurado</p>
-        </div>
-        <span id="api-status-badge" class="h-2.5 w-2.5 rounded-full bg-rose-500 shrink-0" title="Desconectado"></span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Espacio Central -->
-  <div class="flex-1 flex flex-col h-full overflow-hidden">
-    
-    <!-- Header Superior -->
-    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 shadow-sm">
-      <div class="flex items-center gap-4">
-        <button id="toggle-sidebar" class="p-2 rounded-lg hover:bg-slate-100 text-slate-600 focus:outline-none">
-          <i class="fas fa-bars"></i>
-        </button>
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-bold text-[#1e3c6e]">Panel Colaborativo en Tiempo Real</span>
-          <span id="sync-spinner" class="hidden text-sky-600 text-xs animate-spin"><i class="fas fa-spinner"></i></span>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button onclick="sincronizarDesdeGitHub(true)" title="Descarga la última versión de GitHub para ver cambios del otro usuario" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition">
-          <i class="fas fa-arrows-rotate"></i>
-          <span class="hidden md:inline">Traer Cambios</span>
-        </button>
-
-        <button onclick="exportarCSV()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition shadow-sm">
-          <i class="fas fa-file-excel"></i>
-          <span class="hidden md:inline">Excel</span>
-        </button>
-        
-        <button onclick="abrirModalNuevo()" class="flex items-center gap-2 bg-[#1e3c6e] hover:bg-[#2980b9] text-white px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition shadow-sm">
-          <i class="fas fa-plus"></i>
-          <span>Subir a GitHub</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Contenido Scrollable -->
-    <main class="flex-1 overflow-y-auto p-6 space-y-6">
-      
-      <!-- Barra Informativa de Estado -->
-      <div id="banner-config" class="hidden bg-blue-50 border-l-4 border-[#2980b9] p-4 rounded-r-xl shadow-sm flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <i class="fas fa-circle-info text-[#2980b9]"></i>
-          <p class="text-xs text-blue-900">
-            <strong>Modo colaborativo:</strong> Conecta tu Personal Access Token (PAT) de GitHub para que cada libro que guardes se sincronice directamente con el repositorio en la nube.
-          </p>
-        </div>
-        <button onclick="abrirModalConfig()" class="bg-[#1e3c6e] text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#2980b9] transition shrink-0">
-          Configurar Token
-        </button>
-      </div>
-
-      <!-- KPIs -->
-      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Obras Totales</p>
-            <h3 id="kpi-total-libros" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
-            <span class="text-xs text-sky-600 font-medium">En rama principal</span>
-          </div>
-          <div class="p-3 bg-blue-50 text-[#1e3c6e] rounded-xl text-xl">
-            <i class="fas fa-book"></i>
-          </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Especialidades</p>
-            <h3 id="kpi-total-carreras" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
-            <span class="text-xs text-emerald-600 font-medium">Carreras registradas</span>
-          </div>
-          <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl text-xl">
-            <i class="fas fa-graduation-cap"></i>
-          </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Google Drive</p>
-            <h3 id="kpi-total-drive" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
-            <span class="text-xs text-blue-600 font-medium">Documentos vinculados</span>
-          </div>
-          <div class="p-3 bg-sky-50 text-[#2980b9] rounded-xl text-xl">
-            <i class="fab fa-google-drive"></i>
-          </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Estado Commit</p>
-            <h3 id="kpi-commit-status" class="text-sm font-bold text-emerald-600 mt-1 truncate">Al día</h3>
-            <span id="kpi-commit-sha" class="text-[10px] font-mono text-slate-400 block mt-0.5">SHA: ------</span>
-          </div>
-          <div class="p-3 bg-purple-50 text-purple-600 rounded-xl text-xl">
-            <i class="fas fa-code-commit"></i>
-          </div>
-        </div>
-      </section>
-
-      <!-- Gráficos -->
-      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h4 class="font-bold text-slate-800 text-sm">Top Carreras con Más Títulos</h4>
-            <span class="text-xs text-slate-400">Actualizado vía API</span>
-          </div>
-          <div class="h-64">
-            <canvas id="carrerasChart"></canvas>
-          </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <h4 class="font-bold text-slate-800 text-sm">Distribución por Áreas</h4>
-            <span class="text-xs text-slate-400">Proporcional</span>
-          </div>
-          <div class="h-64 flex items-center justify-center">
-            <canvas id="facultadesChart"></canvas>
-          </div>
-        </div>
-      </section>
-
-      <!-- Tabla de Datos -->
-      <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-        <div class="p-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
-            <div class="relative flex-1 max-w-md">
-              <i class="fas fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-              <input type="text" id="admin-search" placeholder="Buscar por título o autor..." 
-                     class="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-4 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none transition shadow-sm">
-            </div>
-
-            <select id="admin-filter-carrera" class="bg-white border border-slate-300 text-slate-700 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#2980b9] focus:outline-none shadow-sm cursor-pointer">
-              <option value="">Todas las Carreras</option>
-            </select>
-          </div>
-
-          <div class="text-xs text-slate-500 font-medium">
-            Registros: <span id="contador-filtrados" class="font-bold text-slate-800">0</span>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs text-slate-600 border-collapse">
-            <thead class="bg-slate-100 text-slate-700 uppercase font-semibold border-b border-slate-200 text-[11px] tracking-wider">
-              <tr>
-                <th class="py-3 px-4 w-12 text-center">#</th>
-                <th class="py-3 px-4 w-16">Portada</th>
-                <th class="py-3 px-4 min-w-[240px]">Título</th>
-                <th class="py-3 px-4 min-w-[180px]">Autor</th>
-                <th class="py-3 px-4 min-w-[160px]">Carrera</th>
-                <th class="py-3 px-4 text-center w-28">Drive</th>
-                <th class="py-3 px-4 text-right w-24">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="admin-table-body" class="divide-y divide-slate-200">
-              <!-- Carga dinámica -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Paginador -->
-        <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-          <span id="info-paginacion" class="text-xs text-slate-500">Página 1 de 1</span>
-          <div class="flex items-center gap-1.5">
-            <button id="btn-prev-page" onclick="cambiarPagina(-1)" class="px-3 py-1.5 border border-slate-300 bg-white rounded-md text-xs font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition">
-              <i class="fas fa-chevron-left"></i> Anterior
-            </button>
-            <button id="btn-next-page" onclick="cambiarPagina(1)" class="px-3 py-1.5 border border-slate-300 bg-white rounded-md text-xs font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition">
-              Siguiente <i class="fas fa-chevron-right"></i>
-            </button>
-          </div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- Modal Configuración GitHub API -->
-  <div id="modal-config" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div class="flex items-center gap-2">
-          <i class="fab fa-github text-[#1e3c6e] text-xl"></i>
-          <h3 class="font-bold text-slate-900 text-base">Vincular Repositorio GitHub</h3>
-        </div>
-        <button onclick="cerrarModalConfig()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-      </div>
-
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Repositorio (Usuario/Nombre)</label>
-          <input type="text" id="cfg-repo" placeholder="ej: tu-usuario/Biblioteca-Unida" 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Rama (Branch)</label>
-          <input type="text" id="cfg-branch" value="main" placeholder="main o master" 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Personal Access Token (PAT)</label>
-          <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none">
-          <p class="text-[11px] text-slate-400 mt-1">Requiere permiso <code>repo</code> o <code>contents:write</code>. Se guarda únicamente en tu navegador.</p>
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-        <button type="button" onclick="cerrarModalConfig()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition">Cerrar</button>
-        <button type="button" onclick="guardarConfigGitHub()" class="px-4 py-2 bg-[#1e3c6e] hover:bg-[#2980b9] text-white rounded-lg text-xs font-medium transition shadow">Vincular y Probar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Registrar Nueva Obra -->
-  <div id="modal-nuevo-libro" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-lg w-full p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div class="flex items-center gap-2">
-          <i class="fas fa-cloud-arrow-up text-[#1e3c6e] text-lg"></i>
-          <h3 class="font-bold text-slate-900 text-base">Registrar y Commitear en GitHub</h3>
-        </div>
-        <button onclick="cerrarModalNuevo()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-      </div>
-      
-      <form id="form-nuevo-libro" class="space-y-3" onsubmit="guardarYPublicarObra(event)">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Título de la Obra</label>
-          <input type="text" id="input-titulo" required placeholder="Ej: Anatomía Quirúrgica" 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Autor / Responsable</label>
-          <input type="text" id="input-autor" required placeholder="Ej: Dr. Fernando Quiroz" 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Carrera Exacta</label>
-          <input type="text" id="input-carrera" required placeholder="Ej: Medicina, Nutrición, Ingeniería en Informática..." 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">URL de Portada</label>
-          <input type="url" id="input-imagen" placeholder="https://... o link de Drive" 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">URL de Descarga en Google Drive</label>
-          <input type="url" id="input-link" required placeholder="https://drive.google.com/file/d/..." 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-[#2980b9] focus:outline-none">
-        </div>
-
-        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="cerrarModalNuevo()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition">Cancelar</button>
-          <button type="submit" id="btn-submit-libro" class="px-4 py-2 bg-[#1e3c6e] hover:bg-[#2980b9] text-white rounded-lg text-xs font-medium transition shadow flex items-center gap-2">
-            <span>Guardar en GitHub</span>
-          </button>
-        </div>
+      <h2 class="text-xl font-bold text-slate-800 dark:text-white">Panel de Carga UNIDA</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">Ingresa el PIN de acceso autorizado</p>
+      <form onsubmit="validarAcceso(event)">
+        <input type="password" id="auth-pin" maxlength="6" placeholder="****" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center tracking-widest text-xl font-bold outline-none focus:ring-2 focus:ring-blue-500 mb-4 text-slate-800 dark:text-white">
+        <p id="auth-error" class="text-rose-500 text-xs font-semibold hidden mb-3">PIN incorrecto.</p>
+        <button type="submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white font-medium py-3 rounded-xl transition duration-200 shadow-md">Entrar al Sistema</button>
       </form>
     </div>
   </div>
 
-  <!-- Fallback de catálogo local -->
+  <!-- CONTENEDOR PRINCIPAL DEL DASHBOARD -->
+  <div id="dashboard-app" class="flex-1 flex overflow-hidden hidden">
+    
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0">
+      <div>
+        <div class="h-20 flex items-center px-6 gap-3 border-b border-slate-100 dark:border-slate-800">
+          <div class="w-10 h-10 rounded-xl bg-[#1e3c6e] flex items-center justify-center text-white text-lg shadow-md">
+            <i class="fas fa-book-bookmark"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-sm text-slate-900 dark:text-white leading-tight">ADMIN BIBLIO</h1>
+            <span class="text-[11px] font-semibold text-emerald-500 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sincronizado
+            </span>
+          </div>
+        </div>
+
+        <nav class="p-4 space-y-1.5">
+          <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-arrow-left w-5 text-center"></i> Ir al Sitio Web
+          </a>
+          <button onclick="navegarPestana('tab-metricas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400">
+            <i class="fas fa-chart-pie w-5 text-center"></i> Métricas & KPIs
+          </button>
+          <button onclick="navegarPestana('tab-libros')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-book-medical w-5 text-center"></i> Carga & Catálogo
+          </button>
+          <button onclick="navegarPestana('tab-simuladores')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-laptop-code w-5 text-center"></i> Simuladores
+          </button>
+          <button onclick="navegarPestana('tab-sync')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-database w-5 text-center"></i> Base de Datos
+          </button>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition text-xs">
+          <i id="dark-icon" class="fas fa-moon"></i>
+        </button>
+        <button onclick="bloquearPanel()" class="text-xs text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1.5 p-2">
+          <i class="fas fa-lock"></i> Bloquear
+        </button>
+      </div>
+    </aside>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      
+      <!-- HEADER -->
+      <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between shrink-0">
+        <div>
+          <h2 id="topbar-titulo" class="text-base font-bold text-slate-800 dark:text-white">Panel de Administración de Libros</h2>
+          <p class="text-xs text-slate-400">Control directo del catálogo de biblioteca</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="forzarCargaSemilla()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fas fa-rotate"></i> Recargar Libros Originales
+          </button>
+          <button onclick="descargarJS()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fas fa-cloud-arrow-down"></i> Guardar catalogo.js
+          </button>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto custom-scroll p-8 space-y-8">
+        
+        <!-- PESTAÑA 1: MÉTRICAS -->
+        <section id="tab-metricas" class="tab-content space-y-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Libros</span>
+                <h3 id="kpi-total" class="text-3xl font-extrabold text-[#1e3c6e] dark:text-white mt-1">0</h3>
+                <span class="text-[11px] text-emerald-500 font-medium"><i class="fas fa-circle-check"></i> En Memoria</span>
+              </div>
+              <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-[#1e3c6e] dark:text-blue-400 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-book"></i></div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Carreras Activas</span>
+                <h3 id="kpi-carreras" class="text-3xl font-extrabold text-[#2980b9] mt-1">0</h3>
+                <span class="text-[11px] text-slate-400">Con acervo registrado</span>
+              </div>
+              <div class="w-12 h-12 bg-sky-50 dark:bg-sky-900/30 text-[#2980b9] rounded-xl flex items-center justify-center text-xl"><i class="fas fa-graduation-cap"></i></div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Simuladores</span>
+                <h3 id="kpi-simuladores" class="text-3xl font-extrabold text-[#e67e22] mt-1">0</h3>
+                <span class="text-[11px] text-amber-500 font-medium"><i class="fas fa-flask"></i> Registrados</span>
+              </div>
+              <div class="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-[#e67e22] rounded-xl flex items-center justify-center text-xl"><i class="fas fa-laptop-medical"></i></div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Almacenamiento</span>
+                <h3 class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">Drive</h3>
+                <span class="text-[11px] text-slate-400">100% En la nube</span>
+              </div>
+              <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl flex items-center justify-center text-xl"><i class="fab fa-google-drive"></i></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">Libros por Carrera</h4>
+              <div class="h-64 flex items-center justify-center">
+                <canvas id="chartCarreras"></canvas>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">Distribución por Facultad</h4>
+              <div class="h-64 flex items-center justify-center">
+                <canvas id="chartFacultades"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PESTAÑA 2: CARGA Y GESTIÓN DE LIBROS -->
+        <section id="tab-libros" class="tab-content space-y-8 hidden">
+          <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800 mb-6">
+              <div>
+                <h3 id="form-titulo" class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Cargar Material al Catálogo</h3>
+                <p class="text-xs text-slate-400">Los cambios se guardan localmente de forma instantánea.</p>
+              </div>
+              <button type="button" onclick="limpiarFormulario()" class="text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i class="fas fa-rotate-left mr-1"></i> Limpiar Campos
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <form id="form-libro" onsubmit="guardarLibro(event)" class="lg:col-span-7 space-y-4">
+                <input type="hidden" id="edit-id" value="-1">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Carrera / Área *</label>
+                    <select id="inp-carrera" onchange="asignarPortadaTematica(); actualizarPreview();" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                      <optgroup label="Facultad de Salud">
+                        <option value="Medicina">Medicina</option>
+                        <option value="Nutrición">Nutrición</option>
+                        <option value="Enfermería">Enfermería</option>
+                        <option value="Kinesiología y Fisioterapia">Kinesiología y Fisioterapia</option>
+                      </optgroup>
+                      <optgroup label="Facultad de Ingeniería">
+                        <option value="Ingeniería en Informática" selected>Ingeniería en Informática</option>
+                        <option value="Ingeniería en Sistemas">Ingeniería en Sistemas</option>
+                        <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                        <option value="Ingeniería Electrónica">Ingeniería Electrónica</option>
+                      </optgroup>
+                      <optgroup label="Facultad de Gestión">
+                        <option value="Marketing y Gestión Comercial">Marketing y Gestión Comercial</option>
+                        <option value="Psicología Organizacional">Psicología Organizacional</option>
+                        <option value="Ingeniería Comercial">Ingeniería Comercial</option>
+                        <option value="Administración de Empresas">Administración de Empresas</option>
+                        <option value="Contaduría Pública">Contaduría Pública</option>
+                        <option value="Comercio Internacional">Comercio Internacional</option>
+                        <option value="Relaciones Internacionales">Relaciones Internacionales</option>
+                      </optgroup>
+                      <optgroup label="Ciencias Jurídicas y FEADYS">
+                        <option value="Derecho">Derecho</option>
+                        <option value="Ciencias Políticas">Ciencias Políticas</option>
+                        <option value="Educación">Educación</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Edición / Tomo (Opcional)</label>
+                    <input type="text" id="inp-edicion" oninput="actualizarPreview()" placeholder="Ej: 7ª EDICIÓN o TOMO 1" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Título del Libro *</label>
+                  <input type="text" id="inp-titulo" oninput="actualizarPreview()" placeholder="Ej: Álgebra Lineal" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Autor(es) *</label>
+                  <input type="text" id="inp-autor" oninput="actualizarPreview()" placeholder="Ej: Stanley I. Grossman" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Enlace de Google Drive *</label>
+                  <input type="url" id="inp-link" oninput="actualizarPreview()" placeholder="https://drive.google.com/file/d/..." required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <!-- SUBIDA FÍSICA Y URL DE IMAGEN CON AJUSTE -->
+                <div class="border border-slate-200 dark:border-slate-700 p-4 rounded-xl space-y-3 bg-slate-50/50 dark:bg-slate-800/20">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Imagen / Portada</label>
+                    <button type="button" onclick="asignarPortadaTematica(true)" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline">Restablecer Temática</button>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <span class="text-[10px] text-slate-400 block mb-1">Subir Archivo Físico</span>
+                      <input type="file" id="inp-file" accept="image/*" onchange="cargarArchivoLocal(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#1e3c6e] hover:file:bg-blue-100">
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-400 block mb-1">Ajuste de Encuadre</span>
+                      <select id="inp-fit" onchange="cambiarAjusteImagen()" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+                        <option value="object-cover">Cubrir Todo (Cover)</option>
+                        <option value="object-contain">Completa sin Cortar (Contain)</option>
+                        <option value="object-fill">Estirar (Fill)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span class="text-[10px] text-slate-400 block mb-1">O pegar URL directa</span>
+                    <input type="text" id="inp-imagen" oninput="actualizarPreview()" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono outline-none">
+                  </div>
+                </div>
+
+                <button type="submit" id="btn-submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md">
+                  <i class="fas fa-plus"></i> Guardar Libro en Catálogo
+                </button>
+              </form>
+
+              <!-- PREVIEW EN VIVO -->
+              <div class="lg:col-span-5 bg-slate-50 dark:bg-slate-800/40 p-6 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-4">
+                    <i class="fas fa-eye mr-1"></i> Doble Check: Vista Alumno
+                  </span>
+                  
+                  <div class="bg-white dark:bg-slate-900 border-2 border-[#1e3c6e] rounded-xl p-4 shadow-sm flex gap-4 items-center">
+                    <img id="prev-img" src="" class="w-20 h-28 object-cover rounded shadow shrink-0 bg-slate-200">
+                    <div class="min-w-0 flex-1">
+                      <span id="prev-carrera" class="text-[10px] font-bold text-[#2980b9] uppercase">Carrera</span>
+                      <h4 id="prev-titulo" class="text-xs font-bold text-slate-900 dark:text-white truncate uppercase mt-0.5">Título del Libro</h4>
+                      <p id="prev-autor" class="text-[11px] font-semibold text-[#1e3c6e] dark:text-blue-300 truncate">Autor</p>
+                      <a id="prev-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1e3c6e] text-white text-[10px] font-bold rounded mt-2">
+                        <i class="fab fa-google-drive"></i> Probar Link
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-[11px] text-slate-500 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 p-3 rounded-xl mt-4">
+                  <p class="font-semibold text-blue-800 dark:text-blue-300"><i class="fas fa-check-double mr-1"></i> Verificación Activa</p>
+                  Al guardar, la lista se actualizará y estará disponible en toda la plataforma.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLA DE INVENTARIO -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-white">Inventario de Libros</h4>
+                <p class="text-xs text-slate-400">Listado completo de material cargado</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="text" id="buscador-tabla" oninput="filtrarTabla()" placeholder="Buscar título o autor..." class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none focus:ring-2 focus:ring-blue-500 w-56">
+                <select id="filtro-carrera" onchange="filtrarTabla()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none">
+                  <option value="">Todas las Carreras</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                <thead class="bg-slate-50 dark:bg-slate-800/40 uppercase text-[10px] font-bold text-slate-400 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                  <tr>
+                    <th class="p-4">Material</th>
+                    <th class="p-4">Carrera</th>
+                    <th class="p-4">Autor</th>
+                    <th class="p-4">Drive</th>
+                    <th class="p-4 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- PESTAÑA 3: GESTIÓN DE SIMULADORES -->
+        <section id="tab-simuladores" class="tab-content space-y-8 hidden">
+          <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-1">Registrar Nuevo Simulador</h3>
+            <p class="text-xs text-slate-400 mb-6">Añade plataformas interactivas o laboratorios virtuales por facultad.</p>
+            
+            <form onsubmit="guardarSimulador(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Facultad *</label>
+                <select id="sim-facultad" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+                  <option value="Facultad de Salud">Facultad de Salud</option>
+                  <option value="Facultad de Gestión">Facultad de Gestión</option>
+                  <option value="Facultad de Ingeniería">Facultad de Ingeniería</option>
+                  <option value="Facultad de C. JURÍDICAS Y SOCIALES">Facultad de C. JURÍDICAS Y SOCIALES</option>
+                  <option value="FEADYS">FEADYS</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Título del Simulador *</label>
+                <input type="text" id="sim-titulo" placeholder="Ej: Simulador de Circuitos Proteus" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Plataforma / Autor *</label>
+                <input type="text" id="sim-autor" placeholder="Ej: Laboratorio Tecnológico" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Enlace de Acceso *</label>
+                <input type="url" id="sim-link" placeholder="https://..." required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+              </div>
+
+              <div class="md:col-span-2 pt-2">
+                <button type="submit" class="bg-[#e67e22] hover:bg-[#d35400] text-white text-xs font-bold py-3 px-6 rounded-xl transition flex items-center gap-2 shadow-md">
+                  <i class="fas fa-plus"></i> Guardar Simulador
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden p-6">
+            <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Simuladores Activos</h4>
+            <div id="lista-simuladores-admin" class="space-y-3"></div>
+          </div>
+        </section>
+
+        <!-- PESTAÑA 4: DESCARGA BASE -->
+        <section id="tab-sync" class="tab-content space-y-6 hidden">
+          <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center max-w-xl mx-auto space-y-4">
+            <div class="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+              <i class="fas fa-file-code"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">Descargar Base de Datos</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">Descarga el archivo físico actualizado para colocarlo en tu repositorio de GitHub.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+              <button onclick="descargarJSON()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md inline-flex items-center justify-center gap-2">
+                <i class="fas fa-download"></i> Descargar catalogo.json
+              </button>
+              <button onclick="descargarJS()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-6 py-3.5 rounded-xl transition shadow-md inline-flex items-center justify-center gap-2">
+                <i class="fas fa-code"></i> Descargar catalogo.js
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- CARGA DE DATOS ORIGINALES -->
   <script src="catalogo.js"></script>
 
-  <!-- Lógica de Conexión a GitHub API y Renderizado -->
   <script>
-    let listaLibros = [];
-    let listaFiltrada = [];
-    let paginaActual = 1;
-    const itemsPorPagina = 10;
-    let catalogoShaActual = null; // Requerido por la API de GitHub para actualizar archivos
+    const ADMIN_PIN = "2026";
+    const STORAGE_KEY = "unida_catalogo_global";
+    const SIMULADORES_KEY = "unida_simuladores_global";
 
-    let chartCarrerasInstance = null;
-    let chartFacultadesInstance = null;
-
-    // Configuración persistida en localStorage del navegador
-    const GH_CONFIG_KEY = 'unida_gh_config';
-    let ghConfig = {
-      repo: '',
-      branch: 'main',
-      token: ''
+    const PORTADAS_PRESET = {
+      "Medicina": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
+      "Nutrición": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=300&q=80",
+      "Enfermería": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
+      "Kinesiología y Fisioterapia": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
+      "Ingeniería en Informática": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80",
+      "Ingeniería en Sistemas": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80",
+      "Ingeniería Industrial": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=300&q=80",
+      "Ingeniería Electrónica": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=300&q=80",
+      "Marketing y Gestión Comercial": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+      "Psicología Organizacional": "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=300&q=80",
+      "Ingeniería Comercial": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+      "Administración de Empresas": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+      "Contaduría Pública": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+      "Comercio Internacional": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+      "Relaciones Internacionales": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+      "Derecho": "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=300&q=80",
+      "Ciencias Políticas": "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=300&q=80",
+      "Educación": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80"
     };
 
-    function normalizarDriveImg(url) {
-      if (!url) return 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=150&q=80';
-      if (url.includes('drive.google.com')) {
-        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
-        if (match && match[1]) {
-          return `https://lh3.googleusercontent.com/d/${match[1]}`;
-        }
-      }
-      return url;
-    }
+    let libros = [];
+    let simuladores = [];
 
-    // Modal Configuración
-    function abrirModalConfig() {
-      document.getElementById('cfg-repo').value = ghConfig.repo || '';
-      document.getElementById('cfg-branch').value = ghConfig.branch || 'main';
-      document.getElementById('cfg-token').value = ghConfig.token || '';
-      document.getElementById('modal-config').classList.remove('hidden');
-      document.getElementById('modal-config').classList.add('flex');
-    }
-
-    function cerrarModalConfig() {
-      document.getElementById('modal-config').classList.add('hidden');
-      document.getElementById('modal-config').classList.remove('flex');
-    }
-
-    function guardarConfigGitHub() {
-      ghConfig.repo = document.getElementById('cfg-repo').value.trim();
-      ghConfig.branch = document.getElementById('cfg-branch').value.trim() || 'main';
-      ghConfig.token = document.getElementById('cfg-token').value.trim();
-
-      localStorage.setItem(GH_CONFIG_KEY, JSON.stringify(ghConfig));
-      cerrarModalConfig();
-      actualizarBadgesConfig();
-      sincronizarDesdeGitHub(true);
-    }
-
-    function actualizarBadgesConfig() {
-      const labelRepo = document.getElementById('label-repo');
-      const badge = document.getElementById('api-status-badge');
-      const banner = document.getElementById('banner-config');
-
-      if (ghConfig.repo && ghConfig.token) {
-        labelRepo.textContent = ghConfig.repo;
-        badge.className = "h-2.5 w-2.5 rounded-full bg-emerald-400 shrink-0";
-        badge.title = "Conectado a GitHub API";
-        banner.classList.add('hidden');
-      } else {
-        labelRepo.textContent = "Sin vincular";
-        badge.className = "h-2.5 w-2.5 rounded-full bg-rose-500 shrink-0";
-        badge.title = "No configurado";
-        banner.classList.remove('hidden');
-      }
-    }
-
-    // Traer catalogo.js directamente desde la API de GitHub
-    async function sincronizarDesdeGitHub(notificar = false) {
-      const spinner = document.getElementById('sync-spinner');
-      spinner.classList.remove('hidden');
-
-      if (!ghConfig.repo || !ghConfig.token) {
-        // Modo offline / fallback
-        if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
-          listaLibros = [...catalogoLibros];
-        }
-        spinner.classList.add('hidden');
-        refrescarTodo();
-        return;
-      }
-
-      try {
-        const url = `https://api.github.com/repos/${ghConfig.repo}/contents/catalogo.js?ref=${ghConfig.branch}`;
-        const resp = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${ghConfig.token}`,
-            'Accept': 'application/vnd.github.v3+json'
+    function cargarDatos() {
+      const localData = localStorage.getItem(STORAGE_KEY);
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            libros = parsed;
           }
-        });
-
-        if (!resp.ok) throw new Error(`Error API: ${resp.statusText}`);
-
-        const data = await resp.json();
-        catalogoShaActual = data.sha;
-        document.getElementById('kpi-commit-sha').textContent = `SHA: ${data.sha.slice(0, 7)}`;
-
-        // Decodificar Base64 soportando UTF-8
-        const rawContent = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-        
-        // Extraer el JSON del string de catalogo.js
-        const jsonMatch = rawContent.match(/catalogoLibros\s*=\s*(\[[\s\S]*?\]);/);
-        if (jsonMatch && jsonMatch[1]) {
-          listaLibros = JSON.parse(jsonMatch[1]);
-          document.getElementById('kpi-commit-status').textContent = "Sincronizado";
-          document.getElementById('kpi-commit-status').className = "text-sm font-bold text-emerald-600 mt-1 truncate";
-          if (notificar) alert("¡Catálogo sincronizado exitosamente desde GitHub!");
-        } else {
-          throw new Error("No se pudo interpretar el formato de catalogo.js");
-        }
-      } catch (err) {
-        console.error(err);
-        document.getElementById('kpi-commit-status').textContent = "Error Sync";
-        document.getElementById('kpi-commit-status').className = "text-sm font-bold text-rose-600 mt-1 truncate";
-        if (notificar) alert("Error al sincronizar con GitHub. Verifica el Repositorio y el Token en la configuración.");
-      } finally {
-        spinner.classList.add('hidden');
-        refrescarTodo();
+        } catch(e) {}
       }
-    }
-
-    // Enviar commit a GitHub con el catálogo actualizado
-    async function commitearEnGitHub(nuevoArray, mensajeCommit) {
-      if (!ghConfig.repo || !ghConfig.token) {
-        alert("Debes configurar tu Repositorio y Token de GitHub para guardar.");
-        abrirModalConfig();
-        return false;
-      }
-
-      const spinner = document.getElementById('sync-spinner');
-      spinner.classList.remove('hidden');
-
-      try {
-        // 1. Obtener siempre el SHA más reciente del archivo para evitar conflictos
-        const getUrl = `https://api.github.com/repos/${ghConfig.repo}/contents/catalogo.js?ref=${ghConfig.branch}`;
-        const getResp = await fetch(getUrl, {
-          headers: {
-            'Authorization': `Bearer ${ghConfig.token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
-
-        let sha = catalogoShaActual;
-        if (getResp.ok) {
-          const getData = await getResp.json();
-          sha = getData.sha;
-        }
-
-        // 2. Preparar el nuevo contenido JS codificado en Base64 con UTF-8
-        const nuevoJsContenido = `const catalogoLibros = ${JSON.stringify(nuevoArray, null, 4)};\n`;
-        const base64Contenido = btoa(unescape(encodeURIComponent(nuevoJsContenido)));
-
-        // 3. Hacer el PUT para crear el Commit remoto
-        const putUrl = `https://api.github.com/repos/${ghConfig.repo}/contents/catalogo.js`;
-        const putResp = await fetch(putUrl, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${ghConfig.token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: mensajeCommit,
-            content: base64Contenido,
-            sha: sha,
-            branch: ghConfig.branch
-          })
-        });
-
-        if (!putResp.ok) {
-          const errData = await putResp.json();
-          throw new Error(errData.message || 'Error al hacer commit en GitHub');
-        }
-
-        const putData = await putResp.json();
-        catalogoShaActual = putData.content.sha;
-        document.getElementById('kpi-commit-sha').textContent = `SHA: ${catalogoShaActual.slice(0, 7)}`;
-        return true;
-      } catch (err) {
-        alert("Fallo al actualizar GitHub: " + err.message);
-        return false;
-      } finally {
-        spinner.classList.add('hidden');
-      }
-    }
-
-    // Formulario de Alta y Guardado Remoto
-    async function guardarYPublicarObra(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-submit-libro');
-      btn.disabled = true;
-      btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Publicando...`;
-
-      const nuevaObra = {
-        carrera: document.getElementById('input-carrera').value.trim(),
-        imagen: document.getElementById('input-imagen').value.trim(),
-        titulo: document.getElementById('input-titulo').value.trim(),
-        autor: document.getElementById('input-autor').value.trim(),
-        link: document.getElementById('input-link').value.trim()
-      };
-
-      const arrayActualizado = [nuevaObra, ...listaLibros];
-      const exito = await commitearEnGitHub(arrayActualizado, `Añadir libro: ${nuevaObra.titulo}`);
-
-      if (exito) {
-        listaLibros = arrayActualizado;
-        cerrarModalNuevo();
-        refrescarTodo();
-        alert("¡Obra publicada con éxito en GitHub! Tu compañero ya puede verla al sincronizar.");
-      }
-
-      btn.disabled = false;
-      btn.innerHTML = `<span>Guardar en GitHub</span>`;
-    }
-
-    // Eliminación remota
-    async function eliminarObra(index) {
-      const libro = listaLibros[index];
-      if (confirm(`¿Eliminar definitivamente de GitHub: "${libro.titulo}"?`)) {
-        const arrayActualizado = listaLibros.filter((_, i) => i !== index);
-        const exito = await commitearEnGitHub(arrayActualizado, `Eliminar libro: ${libro.titulo}`);
-        if (exito) {
-          listaLibros = arrayActualizado;
-          refrescarTodo();
-        }
-      }
-    }
-
-    // Modal Libro
-    function abrirModalNuevo() {
-      document.getElementById('modal-nuevo-libro').classList.remove('hidden');
-      document.getElementById('modal-nuevo-libro').classList.add('flex');
-      document.getElementById('input-titulo').focus();
-    }
-
-    function cerrarModalNuevo() {
-      document.getElementById('modal-nuevo-libro').classList.add('hidden');
-      document.getElementById('modal-nuevo-libro').classList.remove('flex');
-      document.getElementById('form-nuevo-libro').reset();
-    }
-
-    // Render y KPIs
-    function actualizarKPIs() {
-      document.getElementById('kpi-total-libros').textContent = listaLibros.length;
-      const carrerasSet = new Set(listaLibros.map(l => (l.carrera || '').trim()));
-      document.getElementById('kpi-total-carreras').textContent = carrerasSet.size;
-      const driveCount = listaLibros.filter(l => (l.link || '').includes('drive.google.com')).length;
-      document.getElementById('kpi-total-drive').textContent = driveCount;
-    }
-
-    function actualizarFiltroCarreras() {
-      const select = document.getElementById('admin-filter-carrera');
-      const actual = select.value;
-      const carreras = [...new Set(listaLibros.map(l => (l.carrera || 'General').trim()))].sort();
       
+      if (libros.length === 0 && typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
+        libros = [...catalogoLibros];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(libros));
+      }
+
+      // Cargar simuladores
+      const simData = localStorage.getItem(SIMULADORES_KEY);
+      if (simData) {
+        try { simuladores = JSON.parse(simData); } catch(e) {}
+      } else {
+        simuladores = [
+          { facultad: "Facultad de Salud", titulo: "Simulador de Anatomía Humana 3D", autor: "BioDigital Human", link: "https://human.biodigital.com/" },
+          { facultad: "Facultad de Gestión", titulo: "Simulador de Mercados y Bolsa", autor: "Plataforma Financiera", link: "https://www.investopedia.com/simulator/" },
+          { facultad: "Facultad de Ingeniería", titulo: "Simulador de Redes Cisco Packet Tracer", autor: "Laboratorio Informático", link: "https://www.netacad.com/courses/packet-tracer" }
+        ];
+        localStorage.setItem(SIMULADORES_KEY, JSON.stringify(simuladores));
+      }
+
+      actualizarTodo();
+    }
+
+    function forzarCargaSemilla() {
+      if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
+        libros = [...catalogoLibros];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(libros));
+        actualizarTodo();
+        alert('¡Se han restaurado los ' + libros.length + ' libros originales desde catalogo.js!');
+      } else {
+        alert('No se encontró el archivo catalogo.js en la carpeta.');
+      }
+    }
+
+    function guardarDatos() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(libros));
+      actualizarTodo();
+    }
+
+    function validarAcceso(e) {
+      e.preventDefault();
+      if (document.getElementById('auth-pin').value === ADMIN_PIN) {
+        document.getElementById('auth-lock').classList.add('hidden');
+        document.getElementById('dashboard-app').classList.remove('hidden');
+        sessionStorage.setItem('admin_session', 'true');
+        cargarDatos();
+        asignarPortadaTematica(true);
+      } else {
+        document.getElementById('auth-error').classList.remove('hidden');
+      }
+    }
+
+    function bloquearPanel() {
+      sessionStorage.removeItem('admin_session');
+      document.getElementById('auth-lock').classList.remove('hidden');
+      document.getElementById('dashboard-app').classList.add('hidden');
+    }
+
+    function navegarPestana(id) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800";
+      });
+      document.getElementById(id).classList.remove('hidden');
+      event.currentTarget.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400";
+    }
+
+    function asignarPortadaTematica(forzar = false) {
+      const carrera = document.getElementById('inp-carrera').value;
+      const input = document.getElementById('inp-imagen');
+      if (!input.value || forzar) {
+        input.value = PORTADAS_PRESET[carrera] || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80";
+        actualizarPreview();
+      }
+    }
+
+    function cargarArchivoLocal(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('inp-imagen').value = evt.target.result;
+          actualizarPreview();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function cambiarAjusteImagen() {
+      const fit = document.getElementById('inp-fit').value;
+      const prev = document.getElementById('prev-img');
+      prev.className = `w-20 h-28 ${fit} rounded shadow shrink-0 bg-slate-200`;
+    }
+
+    function actualizarPreview() {
+      const carrera = document.getElementById('inp-carrera').value;
+      let titulo = document.getElementById('inp-titulo').value || 'TÍTULO DEL LIBRO';
+      const edicion = document.getElementById('inp-edicion').value;
+      const autor = document.getElementById('inp-autor').value || 'Nombre del Autor';
+      const imagen = document.getElementById('inp-imagen').value;
+      const link = document.getElementById('inp-link').value || '#';
+
+      if (edicion.trim()) {
+        titulo += ` <span class="text-[10px] text-slate-400">(${edicion})</span>`;
+      }
+
+      document.getElementById('prev-carrera').textContent = carrera;
+      document.getElementById('prev-titulo').innerHTML = titulo;
+      document.getElementById('prev-autor').textContent = autor;
+      document.getElementById('prev-img').src = imagen;
+      document.getElementById('prev-link').href = link;
+    }
+
+    function guardarLibro(e) {
+      e.preventDefault();
+      const editId = parseInt(document.getElementById('edit-id').value);
+      const carrera = document.getElementById('inp-carrera').value;
+      let titulo = document.getElementById('inp-titulo').value.trim();
+      const edicion = document.getElementById('inp-edicion').value.trim();
+      const autor = document.getElementById('inp-autor').value.trim();
+      const imagen = document.getElementById('inp-imagen').value.trim();
+      const link = document.getElementById('inp-link').value.trim();
+
+      let tituloFinal = titulo;
+      if (edicion) {
+        tituloFinal = `${titulo} <span class="libro-edicion">${edicion}</span>`;
+      }
+
+      const item = { carrera, imagen, titulo: tituloFinal, autor, link };
+
+      if (editId >= 0) {
+        libros[editId] = item;
+      } else {
+        libros.unshift(item);
+      }
+
+      guardarDatos();
+      limpiarFormulario();
+      alert('¡Libro guardado en catálogo!');
+    }
+
+    function editarLibro(i) {
+      const item = libros[i];
+      document.getElementById('edit-id').value = i;
+      document.getElementById('inp-carrera').value = item.carrera;
+      
+      if (item.titulo.includes('<span class="libro-edicion">')) {
+        const parts = item.titulo.split('<span class="libro-edicion">');
+        document.getElementById('inp-titulo').value = parts[0].trim();
+        document.getElementById('inp-edicion').value = parts[1].replace('</span>', '').trim();
+      } else {
+        document.getElementById('inp-titulo').value = item.titulo;
+        document.getElementById('inp-edicion').value = '';
+      }
+
+      document.getElementById('inp-autor').value = item.autor;
+      document.getElementById('inp-imagen').value = item.imagen;
+      document.getElementById('inp-link').value = item.link;
+
+      document.getElementById('form-titulo').textContent = 'Modificando Registro #' + (i + 1);
+      document.getElementById('btn-submit').innerHTML = '<i class="fas fa-check"></i> Actualizar Cambios';
+      actualizarPreview();
+      navegarPestana('tab-libros');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function eliminarLibro(i) {
+      if (confirm(`¿Eliminar libro: ${libros[i].titulo}?`)) {
+        libros.splice(i, 1);
+        guardarDatos();
+      }
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('edit-id').value = -1;
+      document.getElementById('form-libro').reset();
+      document.getElementById('form-titulo').textContent = 'Cargar Material al Catálogo';
+      document.getElementById('btn-submit').innerHTML = '<i class="fas fa-plus"></i> Guardar Libro en Catálogo';
+      asignarPortadaTematica(true);
+    }
+
+    // SIMULADORES
+    function guardarSimulador(e) {
+      e.preventDefault();
+      const nuevoSim = {
+        facultad: document.getElementById('sim-facultad').value,
+        titulo: document.getElementById('sim-titulo').value.trim(),
+        autor: document.getElementById('sim-autor').value.trim(),
+        link: document.getElementById('sim-link').value.trim()
+      };
+      simuladores.push(nuevoSim);
+      localStorage.setItem(SIMULADORES_KEY, JSON.stringify(simuladores));
+      e.target.reset();
+      renderSimuladoresAdmin();
+      alert('¡Simulador agregado con éxito!');
+    }
+
+    function eliminarSimulador(i) {
+      if (confirm(`¿Eliminar simulador: ${simuladores[i].titulo}?`)) {
+        simuladores.splice(i, 1);
+        localStorage.setItem(SIMULADORES_KEY, JSON.stringify(simuladores));
+        renderSimuladoresAdmin();
+      }
+    }
+
+    function renderSimuladoresAdmin() {
+      const cont = document.getElementById('lista-simuladores-admin');
+      cont.innerHTML = '';
+      document.getElementById('kpi-simuladores').textContent = simuladores.length;
+
+      simuladores.forEach((s, idx) => {
+        cont.innerHTML += `
+          <div class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-xl">
+            <div>
+              <span class="text-[10px] font-bold text-amber-600 uppercase">${s.facultad}</span>
+              <h5 class="text-xs font-bold text-slate-800 dark:text-white">${s.titulo}</h5>
+              <p class="text-[11px] text-slate-400">${s.autor}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="${s.link}" target="_blank" class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-semibold rounded text-blue-600"><i class="fas fa-external-link-alt"></i></a>
+              <button onclick="eliminarSimulador(${idx})" class="text-rose-500 p-1.5"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function actualizarTodo() {
+      renderKPIs();
+      renderTabla();
+      renderGraficos();
+      renderSimuladoresAdmin();
+    }
+
+    function renderKPIs() {
+      document.getElementById('kpi-total').textContent = libros.length;
+      const carreras = [...new Set(libros.map(l => l.carrera))].length;
+      document.getElementById('kpi-carreras').textContent = carreras;
+    }
+
+    function renderTabla() {
+      const select = document.getElementById('filtro-carrera');
+      const prevSelect = select.value;
+      const carreras = [...new Set(libros.map(l => l.carrera))];
       select.innerHTML = '<option value="">Todas las Carreras</option>';
-      carreras.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = c;
-        if (c === actual) opt.selected = true;
-        select.appendChild(opt);
-      });
+      carreras.forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+      select.value = prevSelect;
+      filtrarTabla();
     }
 
-    function aplicarFiltros() {
-      const busqueda = (document.getElementById('admin-search').value || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      const carrera = document.getElementById('admin-filter-carrera').value;
-
-      listaFiltrada = listaLibros.filter(libro => {
-        const titulo = (libro.titulo || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const autor = (libro.autor || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const carreraLibro = (libro.carrera || '').trim();
-
-        const coincideTexto = !busqueda || titulo.includes(busqueda) || autor.includes(busqueda);
-        const coincideCarrera = !carrera || carreraLibro === carrera;
-
-        return coincideTexto && coincideCarrera;
-      });
-
-      document.getElementById('contador-filtrados').textContent = listaFiltrada.length;
-      paginaActual = 1;
-      renderizarTabla();
-    }
-
-    function renderizarTabla() {
-      const tbody = document.getElementById('admin-table-body');
+    function filtrarTabla() {
+      const query = document.getElementById('buscador-tabla').value.toLowerCase();
+      const carrera = document.getElementById('filtro-carrera').value;
+      const tbody = document.getElementById('tabla-cuerpo');
       tbody.innerHTML = '';
 
-      const totalPaginas = Math.ceil(listaFiltrada.length / itemsPorPagina) || 1;
-      if (paginaActual > totalPaginas) paginaActual = totalPaginas;
-
-      const inicio = (paginaActual - 1) * itemsPorPagina;
-      const fin = inicio + itemsPorPagina;
-      const paginaItems = listaFiltrada.slice(inicio, fin);
-
-      if (paginaItems.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" class="text-center py-8 text-slate-400 italic">
-              No hay obras cargadas o no coinciden con la búsqueda.
-            </td>
-          </tr>
-        `;
-      } else {
-        paginaItems.forEach((libro, idx) => {
-          const indexReal = listaLibros.indexOf(libro);
-          const tr = document.createElement('tr');
-          tr.className = 'hover:bg-slate-50 transition border-b border-slate-200/60';
-          
-          tr.innerHTML = `
-            <td class="py-3 px-4 text-center font-mono text-slate-400 font-bold">${inicio + idx + 1}</td>
-            <td class="py-3 px-4">
-              <div class="w-10 h-14 bg-slate-200 rounded border border-slate-300 overflow-hidden shadow-xs shrink-0">
-                <img src="${normalizarDriveImg(libro.imagen)}" alt="Portada" class="w-full h-full object-cover"
-                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=100&q=80';">
-              </div>
-            </td>
-            <td class="py-3 px-4">
-              <div class="font-bold text-slate-900 leading-tight">${libro.titulo}</div>
-            </td>
-            <td class="py-3 px-4">
-              <span class="text-slate-600 font-medium">${libro.autor}</span>
-            </td>
-            <td class="py-3 px-4">
-              <span class="inline-block bg-blue-50 text-[#1e3c6e] text-[11px] font-semibold px-2.5 py-1 rounded-md border border-blue-100">
-                ${libro.carrera || 'General'}
-              </span>
-            </td>
-            <td class="py-3 px-4 text-center">
-              <a href="${libro.link}" target="_blank" class="inline-flex items-center gap-1 text-[#2980b9] hover:text-[#1e3c6e] font-semibold text-xs transition">
-                <i class="fas fa-arrow-up-right-from-square"></i> Ver
-              </a>
-            </td>
-            <td class="py-3 px-4 text-right">
-              <button onclick="eliminarObra(${indexReal})" class="text-rose-500 hover:text-rose-700 p-2 rounded-lg hover:bg-rose-50 transition" title="Eliminar de GitHub">
-                <i class="fas fa-trash-can"></i>
-              </button>
-            </td>
+      libros.forEach((l, i) => {
+        if ((!carrera || l.carrera === carrera) && 
+            ((l.titulo || '').toLowerCase().includes(query) || (l.autor || '').toLowerCase().includes(query))) {
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+              <td class="p-4 flex items-center gap-3">
+                <img src="${l.imagen}" class="w-8 h-11 object-cover rounded shadow-sm bg-slate-200" onerror="this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=100&q=80';">
+                <span class="font-bold text-slate-800 dark:text-white">${l.titulo}</span>
+              </td>
+              <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-[#1e3c6e] dark:bg-blue-900/40 dark:text-blue-300">${l.carrera}</span></td>
+              <td class="p-4 font-medium">${l.autor}</td>
+              <td class="p-4"><a href="${l.link}" target="_blank" class="text-blue-600 hover:underline font-semibold"><i class="fab fa-google-drive"></i> Link</a></td>
+              <td class="p-4 text-right space-x-2">
+                <button onclick="editarLibro(${i})" class="text-slate-400 hover:text-blue-600 p-1"><i class="fas fa-pen"></i></button>
+                <button onclick="eliminarLibro(${i})" class="text-slate-400 hover:text-rose-600 p-1"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
           `;
-          tbody.appendChild(tr);
+        }
+      });
+    }
+
+    let chart1, chart2;
+    function renderGraficos() {
+      const recuento = {};
+      libros.forEach(l => recuento[l.carrera] = (recuento[l.carrera] || 0) + 1);
+
+      if (chart1) chart1.destroy();
+      const ctx1 = document.getElementById('chartCarreras');
+      if (ctx1) {
+        chart1 = new Chart(ctx1, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(recuento),
+            datasets: [{ data: Object.values(recuento), backgroundColor: ['#1e3c6e', '#2980b9', '#e67e22', '#10b981', '#6366f1', '#ec4899', '#f59e0b'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9 } } } } }
         });
       }
 
-      document.getElementById('info-paginacion').textContent = `Página ${paginaActual} de ${totalPaginas}`;
-      document.getElementById('btn-prev-page').disabled = (paginaActual === 1);
-      document.getElementById('btn-next-page').disabled = (paginaActual === totalPaginas);
-    }
-
-    function cambiarPagina(delta) {
-      paginaActual += delta;
-      renderizarTabla();
-    }
-
-    function renderizarGraficos() {
-      const conteo = {};
-      listaLibros.forEach(l => {
-        const c = (l.carrera || 'Otras').trim();
-        conteo[c] = (conteo[c] || 0) + 1;
+      const fac = { "Salud": 0, "Ingeniería": 0, "Gestión": 0, "Otras": 0 };
+      libros.forEach(l => {
+        if (['Medicina', 'Nutrición', 'Enfermería', 'Kinesiología y Fisioterapia'].includes(l.carrera)) fac["Salud"]++;
+        else if (l.carrera.includes('Ingeniería')) fac["Ingeniería"]++;
+        else if (['Marketing y Gestión Comercial', 'Psicología Organizacional', 'Administración de Empresas', 'Relaciones Internacionales', 'Comercio Internacional', 'Contaduría Pública'].includes(l.carrera)) fac["Gestión"]++;
+        else fac["Otras"]++;
       });
 
-      const ordenados = Object.entries(conteo).sort((a, b) => b[1] - a[1]).slice(0, 5);
-
-      if (chartCarrerasInstance) chartCarrerasInstance.destroy();
-      const ctxC = document.getElementById('carrerasChart').getContext('2d');
-      chartCarrerasInstance = new Chart(ctxC, {
-        type: 'bar',
-        data: {
-          labels: ordenados.map(x => x[0]),
-          datasets: [{
-            data: ordenados.map(x => x[1]),
-            backgroundColor: '#2980b9',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
-            y: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
-          }
-        }
-      });
-
-      let salud = 0, gestion = 0, ingenieria = 0, juridicas = 0, otras = 0;
-      listaLibros.forEach(l => {
-        const c = (l.carrera || '').toLowerCase();
-        if (c.includes('medicina') || c.includes('nutrición') || c.includes('enfermería') || c.includes('kinesiología')) salud++;
-        else if (c.includes('gestión') || c.includes('comercial') || c.includes('administración') || c.includes('marketing') || c.includes('relaciones')) gestion++;
-        else if (c.includes('ingeniería') || c.includes('informática') || c.includes('sistemas')) ingenieria++;
-        else if (c.includes('derecho') || c.includes('política')) juridicas++;
-        else otras++;
-      });
-
-      if (chartFacultadesInstance) chartFacultadesInstance.destroy();
-      const ctxF = document.getElementById('facultadesChart').getContext('2d');
-      chartFacultadesInstance = new Chart(ctxF, {
-        type: 'doughnut',
-        data: {
-          labels: ['Salud', 'Gestión', 'Ingeniería', 'Jurídicas', 'Otras'],
-          datasets: [{
-            data: [salud, gestion, ingenieria, juridicas, otras],
-            backgroundColor: ['#e74c3c', '#e67e22', '#1e3c6e', '#8e44ad', '#95a5a6'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+      if (chart2) chart2.destroy();
+      const ctx2 = document.getElementById('chartFacultades');
+      if (ctx2) {
+        chart2 = new Chart(ctx2, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(fac),
+            datasets: [{ data: Object.values(fac), backgroundColor: '#2980b9', borderRadius: 6 }]
           },
-          cutout: '70%'
-        }
-      });
-    }
-
-    function exportarCSV() {
-      let csv = "\uFEFFIndice;Carrera;Titulo;Autor;Link;Imagen\n";
-      listaLibros.forEach((l, i) => {
-        const clean = (t) => (t || '').replace(/"/g, '""').replace(/<[^>]*>?/gm, '');
-        csv += `${i + 1};"${clean(l.carrera)}";"${clean(l.titulo)}";"${clean(l.autor)}";"${clean(l.link)}";"${clean(l.imagen)}"\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.setAttribute("download", `catalogo_unida_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    function refrescarTodo() {
-      actualizarFiltroCarreras();
-      actualizarKPIs();
-      aplicarFiltros();
-      renderizarGraficos();
-    }
-
-    // Eventos
-    document.getElementById('admin-search').addEventListener('input', aplicarFiltros);
-    document.getElementById('admin-filter-carrera').addEventListener('change', aplicarFiltros);
-    document.getElementById('toggle-sidebar').addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('-ml-64');
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const saved = localStorage.getItem(GH_CONFIG_KEY);
-      if (saved) {
-        try { ghConfig = JSON.parse(saved); } catch(e) {}
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
       }
-      actualizarBadgesConfig();
-      sincronizarDesdeGitHub(false);
-    });
+    }
+
+    function descargarJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(libros, null, 4));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "catalogo.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function descargarJS() {
+      const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent("const catalogoLibros = " + JSON.stringify(libros, null, 4) + ";");
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "catalogo.js");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      document.getElementById('dark-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    if (sessionStorage.getItem('admin_session') === 'true') {
+      document.getElementById('auth-lock').classList.add('hidden');
+      document.getElementById('dashboard-app').classList.remove('hidden');
+      cargarDatos();
+      asignarPortadaTematica(true);
+    }
   </script>
 </body>
 </html>
