@@ -120,6 +120,9 @@
           <p class="text-xs text-slate-400">Sincronización en vivo entre múltiples administradores</p>
         </div>
         <div class="flex items-center gap-3">
+          <button onclick="vaciarBaseDeDatosNube()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fas fa-trash-can"></i> Vaciar Nube
+          </button>
           <button onclick="subirSemillaAFirebase()" id="btn-seed" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
             <i class="fas fa-cloud-arrow-up"></i> Cargar Semilla Limpia
           </button>
@@ -794,6 +797,29 @@
       actualizarTodoUI();
     }
 
+    // --- FUNCIÓN PARA VACIAR LA NUBE POR COMPLETO ---
+    async function vaciarBaseDeDatosNube() {
+      if (!db) return alert("Conecta Firebase primero.");
+      if (!confirm("⚠️ ¿Estás SEGURO de que deseas eliminar TODOS los libros de la nube? Esta acción no se puede deshacer.")) return;
+
+      const spinner = document.getElementById('sync-spinner');
+      spinner.classList.remove('hidden');
+
+      try {
+        const snapshot = await db.collection("libros").get();
+        const batch = db.batch();
+        snapshot.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+        alert("¡Base de datos en la nube vaciada con éxito! Ahora puedes cargar la semilla limpia.");
+      } catch (err) {
+        alert("Error al vaciar la base de datos: " + err.message);
+      } finally {
+        spinner.classList.add('hidden');
+      }
+    }
+
     // --- SUBIDA DE SEMILLA LIMPIA (EVITA DUPLICADOS POR TÍTULO) ---
     async function subirSemillaAFirebase() {
       if (!db) return alert("Conecta Firebase primero.");
@@ -806,7 +832,6 @@
       spinner.classList.remove('hidden');
 
       try {
-        // 1. Obtener libros actuales en Firebase para filtrar duplicados
         const snapshot = await db.collection("libros").get();
         const existentesTitulos = new Set();
         snapshot.forEach(doc => {
@@ -822,7 +847,7 @@
           if (!existentesTitulos.has(tituloLimpio)) {
             const docRef = db.collection("libros").doc();
             batch.set(docRef, item);
-            existentesTitulos.add(tituloLimpio); // Evitar duplicados dentro del mismo lote
+            existentesTitulos.add(tituloLimpio);
             agregados++;
           }
         });
@@ -959,7 +984,6 @@
       const librosPorFacultad = {};
       const conteoPorFacultad = {};
       
-      // Filtrar duplicados exactos por título y carrera antes de armar el Excel
       const vistos = new Set();
       const librosUnicos = libros.filter(l => {
         const key = (l.titulo + "|" + l.carrera).toLowerCase();
@@ -1026,7 +1050,6 @@
     }
 
     function descargarJS() {
-      // Filtrar duplicados antes de exportar el JS final
       const vistos = new Set();
       const librosUnicos = libros.filter(l => {
         const key = (l.titulo + "|" + l.carrera).toLowerCase();
