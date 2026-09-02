@@ -459,8 +459,8 @@
         
         // Diagnóstico personalizado para el usuario
         let msjUsuario = "Revisa tu Token y el nombre del Repositorio.";
-        if (e.message.includes("Bad credentials")) msjUsuario = "El Token es incorrecto o expiró.";
-        if (e.message.includes("Not Found")) msjUsuario = "No se encontró el repositorio (revisa mayúsculas/minúsculas) o el archivo catalogo.js.";
+        if (e.message.includes("Bad credentials")) msjUsuario = "El Token es incorrecto o expiró. Borra tu token actual y generalo de nuevo marcando la casilla 'repo'.";
+        if (e.message.includes("Not Found")) msjUsuario = "No se encontró el repositorio. Asegúrate que diga: Biblioteca-Unida/biblioteca-unida";
         
         if (alertar) alert(`ERROR DE CONEXIÓN CON GITHUB\nMotivo: ${e.message}\n\nSolución: ${msjUsuario}`);
       } finally {
