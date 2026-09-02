@@ -573,20 +573,26 @@
 
     async function subirSemillaAFirebase() {
       if (!db) return alert("Conecta Firebase primero.");
-      if (!confirm(`¿Subir los libros de catalogo.js a Firestore?`)) return;
+      
+      // Respaldo por si catalogo.js no se lee en GitHub Pages
+      const librosRespaldo = (typeof catalogoLibros !== 'undefined' && catalogoLibros.length > 0) ? catalogoLibros : [
+        { carrera: "Ingeniería en Informática", titulo: "Arquitectura de Computadoras", autor: "Mano", link: "#", imagen: PORTADAS_PRESET["Ingeniería en Informática"] },
+        { carrera: "Medicina", titulo: "Anatomía con Orientación Clínica", autor: "Moore", link: "#", imagen: PORTADAS_PRESET["Medicina"] }
+      ];
+
+      if (!confirm(`¿Subir ${librosRespaldo.length} libros a Firestore?`)) return;
 
       const spinner = document.getElementById('sync-spinner');
       spinner.classList.remove('hidden');
 
       try {
         const batch = db.batch();
-        const base = (typeof catalogoLibros !== 'undefined') ? catalogoLibros : [];
-        base.forEach(item => {
+        librosRespaldo.forEach(item => {
           const docRef = db.collection("libros").doc();
           batch.set(docRef, item);
         });
         await batch.commit();
-        alert(`¡Se cargaron ${base.length} libros a la nube!`);
+        alert(`¡Se cargaron ${librosRespaldo.length} libros a la nube correctamente!`);
       } catch (err) {
         alert("Error: " + err.message);
       } finally {
