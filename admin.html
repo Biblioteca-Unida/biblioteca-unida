@@ -28,7 +28,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
-  <!-- Firebase App y Firestore SDKs (Compatibles sin bundlers) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -61,7 +61,7 @@
   <!-- DASHBOARD PRINCIPAL -->
   <div id="dashboard-app" class="flex-1 flex overflow-hidden hidden">
     
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR SEMÁNTICO -->
     <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0 z-20">
       <div>
         <div class="h-20 flex items-center px-6 gap-3 border-b border-slate-100 dark:border-slate-800">
@@ -109,10 +109,9 @@
       </div>
     </aside>
 
-    <!-- ÁREA DE CONTENIDO -->
+    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
       
-      <!-- HEADER -->
       <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between shrink-0">
         <div>
           <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
@@ -129,7 +128,7 @@
 
       <main class="flex-1 overflow-y-auto custom-scroll p-8 space-y-8">
         
-        <!-- PESTAÑA 1: MÉTRICAS -->
+        <!-- PESTAÑA 1: MÉTRICAS & KPIS -->
         <section id="tab-metricas" class="tab-content space-y-8">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
@@ -426,11 +425,9 @@
     </div>
   </div>
 
-  <!-- Script local con semillas para inicialización rápida -->
   <script src="catalogo.js"></script>
 
   <script>
-    // --- CONSTANTES Y ESTADOS ---
     const ADMIN_PIN = "2026";
     const FB_STORAGE_KEY = "unida_firebase_config";
     
@@ -458,7 +455,6 @@
       "Educación": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80"
     };
 
-    // --- ACCESO Y UI ---
     function validarAcceso(e) {
       e.preventDefault();
       if (document.getElementById('auth-pin').value === ADMIN_PIN) {
@@ -492,7 +488,6 @@
       document.getElementById('dark-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
     }
 
-    // --- CONEXIÓN FIREBASE ---
     function abrirConfigFirebase() {
       const saved = localStorage.getItem(FB_STORAGE_KEY);
       if (saved) document.getElementById('fb-config-text').value = saved;
@@ -506,22 +501,20 @@
     function guardarConfigFirebase() {
       const txt = document.getElementById('fb-config-text').value.trim();
       try {
-        // Valida que el texto sea un objeto JSON o formato de config JavaScript
         let configObj = null;
         if (txt.startsWith('{')) {
           configObj = JSON.parse(txt);
         } else {
-          // Extraer objeto mediante evaluación segura
           const match = txt.match(/\{[\s\S]*\}/);
           if (match) configObj = JSON.parse(match[0]);
         }
-        if (!configObj || !configObj.projectId) throw new Error("Faltan parámetros de configuración.");
+        if (!configObj || !configObj.projectId) throw new Error("Faltan parámetros.");
 
         localStorage.setItem(FB_STORAGE_KEY, JSON.stringify(configObj, null, 2));
         cerrarConfigFirebase();
         location.reload();
       } catch (err) {
-        alert("Configuración inválida. Asegúrate de pegar el objeto JSON completo de Firebase.");
+        alert("Configuración inválida. Asegúrate de pegar el objeto JSON completo.");
       }
     }
 
@@ -550,38 +543,26 @@
         statusCanal.textContent = "Conectado (Cloud)";
         statusCanal.className = "text-sm font-bold text-emerald-500 mt-2";
 
-        // Listener en tiempo real para libros
         db.collection("libros").onSnapshot(snapshot => {
           libros = [];
-          snapshot.forEach(doc => {
-            libros.push({ _id: doc.id, ...doc.data() });
-          });
+          snapshot.forEach(doc => { libros.push({ _id: doc.id, ...doc.data() }); });
           actualizarTodoUI();
-        }, error => {
-          console.error("Error al escuchar libros:", error);
-          fallbackLocal();
-        });
+        }, error => { fallbackLocal(); });
 
-        // Listener en tiempo real para simuladores
         db.collection("simuladores").onSnapshot(snapshot => {
           simuladores = [];
-          snapshot.forEach(doc => {
-            simuladores.push({ _id: doc.id, ...doc.data() });
-          });
+          snapshot.forEach(doc => { simuladores.push({ _id: doc.id, ...doc.data() }); });
           renderSimuladores();
         });
 
       } catch (e) {
-        console.error(e);
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Error Firebase`;
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Error`;
         fallbackLocal();
       }
     }
 
     function fallbackLocal() {
-      if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) {
-        libros = [...catalogoLibros];
-      }
+      if (typeof catalogoLibros !== 'undefined' && Array.isArray(catalogoLibros)) libros = [...catalogoLibros];
       simuladores = [
         { facultad: "Facultad de Salud", titulo: "Simulador de Anatomía Humana 3D", autor: "BioDigital Human", link: "https://human.biodigital.com/" },
         { facultad: "Facultad de Gestión", titulo: "Simulador de Mercados y Bolsa", autor: "Plataforma Financiera", link: "https://www.investopedia.com/simulator/" },
@@ -590,10 +571,9 @@
       actualizarTodoUI();
     }
 
-    // --- CARGAR CATÁLOGO INICIAL A LA NUBE (SEMILLA) ---
     async function subirSemillaAFirebase() {
-      if (!db) return alert("Conecta Firebase antes de subir la semilla.");
-      if (!confirm(`¿Subir los libros existentes en catalogo.js a tu base de datos de Firebase?`)) return;
+      if (!db) return alert("Conecta Firebase primero.");
+      if (!confirm(`¿Subir los libros de catalogo.js a Firestore?`)) return;
 
       const spinner = document.getElementById('sync-spinner');
       spinner.classList.remove('hidden');
@@ -601,22 +581,19 @@
       try {
         const batch = db.batch();
         const base = (typeof catalogoLibros !== 'undefined') ? catalogoLibros : [];
-        
         base.forEach(item => {
           const docRef = db.collection("libros").doc();
           batch.set(docRef, item);
         });
-
         await batch.commit();
-        alert(`¡Se han cargado ${base.length} libros a Firebase con éxito!`);
+        alert(`¡Se cargaron ${base.length} libros a la nube!`);
       } catch (err) {
-        alert("Error al cargar semilla: " + err.message);
+        alert("Error: " + err.message);
       } finally {
         spinner.classList.add('hidden');
       }
     }
 
-    // --- CRUD LIBROS ---
     function asignarPortadaTematica(forzar = false) {
       const c = document.getElementById('inp-carrera').value;
       const inp = document.getElementById('inp-imagen');
@@ -660,13 +637,9 @@
       };
 
       if (db) {
-        if (docId) {
-          await db.collection("libros").doc(docId).update(libroObj);
-        } else {
-          await db.collection("libros").add(libroObj);
-        }
+        if (docId) await db.collection("libros").doc(docId).update(libroObj);
+        else await db.collection("libros").add(libroObj);
       } else {
-        // Modo local
         if (docId) {
           const idx = libros.findIndex(l => l._id === docId);
           if (idx >= 0) libros[idx] = libroObj;
@@ -675,7 +648,6 @@
         }
         actualizarTodoUI();
       }
-
       limpiarFormulario();
     }
 
@@ -703,12 +675,8 @@
     async function eliminarLibro(i) {
       const l = libros[i];
       if (confirm(`¿Eliminar definitivamente: ${l.titulo}?`)) {
-        if (db && l._id) {
-          await db.collection("libros").doc(l._id).delete();
-        } else {
-          libros.splice(i, 1);
-          actualizarTodoUI();
-        }
+        if (db && l._id) await db.collection("libros").doc(l._id).delete();
+        else { libros.splice(i, 1); actualizarTodoUI(); }
       }
     }
 
@@ -718,7 +686,6 @@
       asignarPortadaTematica(true);
     }
 
-    // --- CRUD SIMULADORES ---
     async function guardarSimulador(e) {
       e.preventDefault();
       const simObj = {
@@ -727,33 +694,22 @@
         autor: document.getElementById('sim-autor').value.trim(),
         link: document.getElementById('sim-link').value.trim()
       };
-
-      if (db) {
-        await db.collection("simuladores").add(simObj);
-      } else {
-        simuladores.push(simObj);
-        renderSimuladores();
-      }
+      if (db) await db.collection("simuladores").add(simObj);
+      else { simuladores.push(simObj); renderSimuladores(); }
       e.target.reset();
     }
 
     async function eliminarSimulador(i) {
       const s = simuladores[i];
       if (confirm(`¿Eliminar simulador: ${s.titulo}?`)) {
-        if (db && s._id) {
-          await db.collection("simuladores").doc(s._id).delete();
-        } else {
-          simuladores.splice(i, 1);
-          renderSimuladores();
-        }
+        if (db && s._id) await db.collection("simuladores").doc(s._id).delete();
+        else { simuladores.splice(i, 1); renderSimuladores(); }
       }
     }
 
-    // --- EXPORTACIÓN EXCEL ANUAL (SheetJS) ---
     function generarExcelInventario() {
-      if (libros.length === 0) return alert("No hay libros disponibles para exportar.");
+      if (libros.length === 0) return alert("No hay libros disponibles.");
       const wb = XLSX.utils.book_new();
-
       const librosPorFacultad = {};
       const conteoPorFacultad = {};
       
@@ -765,14 +721,12 @@
         librosPorFacultad[fac][l.carrera].push(l);
       });
 
-      // Hoja 1: Resumen
       const wsResumenData = [
         ["INVENTARIO ANUAL DE BIBLIOTECA - UNIDA"],
         ["Fecha de corte:", new Date().toLocaleDateString()],
         [],
         ["FACULTAD", "VOLÚMENES REGISTRADOS"]
       ];
-      
       for (const [facultad, cant] of Object.entries(conteoPorFacultad)) {
         wsResumenData.push([facultad.toUpperCase().replace(/_/g, ' '), cant]);
       }
@@ -783,7 +737,6 @@
       wsResumen['!cols'] = [{wch: 40}, {wch: 30}];
       XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen Global");
 
-      // Hojas por Facultad
       for (const [facultadRaw, carrerasObj] of Object.entries(librosPorFacultad)) {
         const facNombre = facultadRaw.replace(/_/g, ' ').substring(0, 31);
         const sheetData = [
@@ -810,20 +763,16 @@
           });
           sheetData.push([]);
         }
-        
         const ws = XLSX.utils.aoa_to_sheet(sheetData);
         ws['!cols'] = [{wch: 5}, {wch: 50}, {wch: 35}, {wch: 20}, {wch: 50}];
         XLSX.utils.book_append_sheet(wb, ws, facNombre);
       }
-
       XLSX.writeFile(wb, `Inventario_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`);
     }
 
     function descargarJS() {
-      // Limpia campos internos de base de datos (_id)
       const librosLimpios = libros.map(({ _id, ...resto }) => resto);
       const simsLimpios = simuladores.map(({ _id, ...resto }) => resto);
-      
       const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent(`const catalogoLibros = ${JSON.stringify(librosLimpios, null, 4)};\n\nconst simuladoresGlobales = ${JSON.stringify(simsLimpios, null, 4)};\n`);
       const a = document.createElement('a');
       a.href = dataStr;
@@ -833,7 +782,6 @@
       a.remove();
     }
 
-    // --- RENDERIZADO VISUAL ---
     function actualizarTodoUI() {
       document.getElementById('kpi-total').textContent = libros.length;
       document.getElementById('kpi-simuladores').textContent = simuladores.length;
@@ -908,7 +856,7 @@
       libros.forEach(l => {
         const fm = MAPA_FACULTADES[l.carrera];
         if (fm && fac[fm] !== undefined) fac[fm]++;
-        else if (fm && fac[fm.substring(0,9)]) fac[fm.substring(0,9)]++;
+        else if (fm && fm.substring(0,9) && fac[fm.substring(0,9)]) fac[fm.substring(0,9)]++;
       });
       if (chartFacultadesInst) chartFacultadesInst.destroy();
       const ctx2 = document.getElementById('chartFacultades');
@@ -921,7 +869,6 @@
       }
     }
 
-    // Arranque
     if (sessionStorage.getItem('admin_session') === 'true') {
       document.getElementById('auth-lock').classList.add('hidden');
       document.getElementById('dashboard-app').classList.remove('hidden');
