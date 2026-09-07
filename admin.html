@@ -1,478 +1,1192 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca Central - UNIDA</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    
-    <style>
-        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f0f2f5; color: #333; overflow-x: hidden; }
-        header { background-color: #ffffff; padding: 1.5rem 3rem; text-align: center; border-bottom: 5px solid #2980b9; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
-        .logo-unida { width: auto; height: 55px; object-fit: contain; cursor: pointer; }
-        .logo-biblioteca { width: auto; height: 110px; object-fit: contain; }
-        .header-text { flex-grow: 1; text-align: center; padding: 0 20px; }
-        header h1 { margin: 0; color: #1a1a1a; font-size: 2.2rem; font-family: "Cooper Black", serif; text-transform: uppercase; line-height: 1.1; white-space: nowrap; }
-        header .biblioteca-text { color: #2980b9; font-size: 2rem; margin: 8px 0; font-family: "Cooper Black", serif; text-transform: uppercase; }
-        header .nombre-honorifico { color: #444; font-size: 1.6rem; margin: 0; font-family: "Cooper Black", serif; text-transform: uppercase; }
-        nav { background: #1e3c6e; color: white; padding: 14px 0; text-align: center; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; }
-        nav a { color: white; text-decoration: none; margin: 0 20px; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; transition: color 0.3s; letter-spacing: 1px; }
-        nav a:hover { color: #3498db; }
-        .container { max-width: 1500px; margin: 3rem auto; padding: 0 2rem; }
-        #dashboard-section { animation: fadeIn 0.5s ease; position: relative; }
-        .hero-library { text-align: center; padding: 100px 20px; background: linear-gradient(rgba(30, 60, 110, 0.85), rgba(30, 60, 110, 0.85)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; background-attachment: fixed; color: white; border-radius: 0 0 50px 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .hero-library h2 { font-family: "Cooper Black", serif; font-size: 3.8rem; margin: 0; text-transform: uppercase; }
-        .hero-library p { font-size: 1.2rem; max-width: 800px; margin: 20px auto 0; font-weight: 300; line-height: 1.6; opacity: 0.95; }
-        .quick-actions-minimal { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-top: -60px; }
-        .minimal-card { background: #ffffff; padding: 45px 30px; border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.1); cursor: pointer; border-bottom: 6px solid #2980b9; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-decoration: none; color: inherit; display: block; }
-        @media (min-width: 769px) { .minimal-card:hover { transform: translateY(-15px); background-color: #2980b9; color: white; } .minimal-card:hover h3, .minimal-card:hover p { color: white; } }
-        .minimal-card h3 { font-family: "Cooper Black", serif; color: #1e3c6e; font-size: 1.8rem; margin: 0; text-transform: uppercase; transition: color 0.3s; }
-        .minimal-card p { font-size: 0.95rem; margin-top: 15px; line-height: 1.6; color: #555; transition: color 0.3s; }
-        .social-sidebar { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-        .social-sidebar a { width: 55px; height: 55px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; text-decoration: none; box-shadow: 0 5px 20px rgba(0,0,0,0.15); transition: 0.3s; }
-        .social-sidebar a.ig { color: #E1306C; } .social-sidebar a.wa { color: #25D366; } .social-sidebar a.fb { color: #1877F2; } .social-sidebar a.ml { color: #D44638; }
-        #facultades-digital-section, #facultades-impresa-section, #descarga-section, #catalogo-section, #simuladores-section { display: none; animation: fadeIn 0.5s ease; }
-        .facultades-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
-        .facultad-card { position: relative; height: 440px; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; transition: transform 0.4s ease; }
-        .facultad-card img { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; transition: 0.6s; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 60, 110, 0.85); z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 25px; box-sizing: border-box; transition: 0.4s; }
-        .facultad-card h2 { color: white; z-index: 3; font-family: "Cooper Black", serif; font-size: 2.2rem; text-transform: uppercase; margin: 0; transition: 0.4s; }
-        .carreras-list { opacity: 0; transform: translateY(20px); transition: 0.4s; color: white; z-index: 3; margin-top: 15px; list-style: none; padding: 0; font-size: 0.95rem; font-weight: 300; text-align: center; width: 100%; }
-        .carreras-list li { margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 3px; cursor: pointer; transition: color 0.3s, transform 0.2s; }
-        .carreras-list li:hover { color: #3498db; transform: scale(1.05); font-weight: 600; border-bottom-color: #3498db; }
-        .btn-simulador { background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-family: 'Poppins', sans-serif; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.3s; margin-top: 20px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; z-index: 3; opacity: 0; transform: translateY(20px); }
-        .btn-simulador:hover { background: #d35400; transform: scale(1.05); }
-        .facultad-card:hover img { transform: scale(1.1); }
-        .facultad-card:hover .overlay { background: rgba(41, 128, 185, 0.9); }
-        .facultad-card:hover .carreras-list, .facultad-card:hover .btn-simulador { opacity: 1; transform: translateY(0); }
-        .catalogo-header { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 25px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px; }
-        .catalogo-titulo-contenedor { display: flex; align-items: center; gap: 15px; flex-grow: 1; }
-        .catalogo-header h2 { font-family: "Cooper Black", serif; color: #1e3c6e; font-size: 2rem; margin: 0; text-transform: uppercase; }
-        .btn-volver { background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; font-family: 'Poppins', sans-serif; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
-        .btn-volver:hover { background: #c0392b; }
-        .search-controls { display: flex; gap: 15px; flex-grow: 1; max-width: 600px; }
-        .search-bar { flex-grow: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; outline: none; transition: 0.3s; }
-        .search-bar:focus { border-color: #2980b9; box-shadow: 0 0 5px rgba(41, 128, 185, 0.3); }
-        .filter-select { padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; outline: none; background: white; cursor: pointer; }
-        .libros-list { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-height: 300px; }
-        .libros-grid-container { display: flex; flex-direction: column; gap: 20px; }
-        .libro-card { display: flex; align-items: center; background: #ffffff; border: 2px solid #1e3c6e; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; }
-        .libro-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        .libro-cover { width: 110px; height: 160px; object-fit: cover; border-radius: 8px; margin-right: 25px; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: #e0e5ec; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
-        .simulador-cover { background-color: #2c3e50; color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
-        .libro-info { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-        .libro-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.4rem; color: #1a1a1a; margin: 0 0 5px 0; text-transform: uppercase; }
-        .libro-edicion { font-size: 0.6em; color: #7f8c8d; font-weight: 600; vertical-align: middle; margin-left: 8px; }
-        .libro-author { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem; color: #1e3c6e; margin: 0 0 10px 0; }
-        .libro-action { margin-left: 20px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; min-width: 220px; }
-        .btn-drive-download { background: #1e3c6e; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: background 0.3s, transform 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: pointer; text-transform: uppercase; width: 100%; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn-drive-download:hover { background: #2980b9; transform: translateY(-2px); }
-        .btn-drive-download.btn-simular { background: #e67e22; }
-        .btn-drive-download.btn-simular:hover { background: #d35400; }
-        .download-box { background: white; padding: 50px; border-radius: 20px; text-align: center; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .btn-download { background: #1e3c6e; color: white; padding: 18px 40px; border-radius: 12px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 25px; transition: 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Administrativo Cloud - UNIDA</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            unida: { navy: '#1e3c6e', blue: '#2980b9', orange: '#e67e22', dark: '#0f172a' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Fuentes e Iconos CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Librerías de Datos y Gráficos CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .dark .custom-scroll::-webkit-scrollbar-thumb { background: #334155; }
+  </style>
 </head>
-<body>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-full flex antialiased">
 
-<header>
-    <img src="https://www.unida.edu.py/v4/wp-content/uploads/2024/01/UNIDA-LOGO-1.png" alt="Logo UNIDA" class="logo-unida" onclick="irAtras()">
-    <div class="header-text">
-        <h1>Universidad de la Integración de las Américas</h1>
-        <p class="biblioteca-text">Biblioteca Central</p>
-        <p class="nombre-honorifico">“EMB. JOÃO BAENA SOARES”</p>
+  <!-- MODAL DE ACCESO PIN -->
+  <div id="auth-lock" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/95 backdrop-blur-md">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center">
+      <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+        <i class="fas fa-shield-halved"></i>
+      </div>
+      <h2 class="text-xl font-bold text-slate-800 dark:text-white">Panel Central UNIDA</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">Ingresa el PIN de seguridad</p>
+      <form onsubmit="validarAcceso(event)">
+        <input type="password" id="auth-pin" maxlength="6" placeholder="****" class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center tracking-widest text-xl font-bold outline-none focus:ring-2 focus:ring-blue-500 mb-4 text-slate-800 dark:text-white">
+        <p id="auth-error" class="text-rose-500 text-xs font-semibold hidden mb-3">PIN incorrecto.</p>
+        <button type="submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white font-medium py-3 rounded-xl transition duration-200 shadow-md">Acceder al Sistema</button>
+      </form>
     </div>
-    <img src="https://i.ibb.co/JWCnzbyM/logo-biblioteca.png" alt="Logo Biblioteca" class="logo-biblioteca">
-</header>
+  </div>
 
-<nav>
-    <a onclick="showSection('dashboard')">Inicio</a>
-    <a onclick="showSection('facultades-digital')">Biblioteca Digital</a>
-    <a onclick="showSection('facultades-impresa')">Biblioteca Impresa</a>
-    <a onclick="showSection('descarga')">Descargas</a>
-</nav>
-
-<div id="dashboard-section">
-    <section class="hero-library">
-        <h2>Bienvenidos a la Biblioteca</h2>
-        <p>Tu portal al conocimiento y la investigación académica en la UNIDA. Explora nuestros recursos digitales y físicos diseñados para potenciar tu formación profesional.</p>
-    </section>
+  <!-- DASHBOARD PRINCIPAL -->
+  <div id="dashboard-app" class="flex-1 flex overflow-hidden hidden">
     
-    <div class="container">
-        <div class="quick-actions-minimal">
-            <a href="https://www.unida.edu.py/bibliotecas/" target="_blank" class="minimal-card">
-                <h3>Biblioteca Virtual</h3>
-                <p>Portal de investigación con acceso remoto a bases de datos multidisciplinarias, revistas especializadas y audiolibros sin costo para el autoaprendizaje científico.</p>
-            </a>
-            <div class="minimal-card" onclick="showSection('facultades-digital')">
-                <h3>Biblioteca Digital</h3>
-                <p>Amplia variedad de recursos y servicios digitales asequibles de manera inclusiva, facilitando la formación académica continua en cualquier momento y lugar.</p>
-            </div>
-            <div class="minimal-card" onclick="showSection('facultades-impresa')">
-                <h3>Biblioteca Impresa</h3>
-                <p>Espacio colaborativo que fomenta el estudio presencial y la participación cultural, ofreciendo información de alta calidad abierta a toda la comunidad educativa.</p>
-            </div>
+    <!-- SIDEBAR SEMÁNTICO -->
+    <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between shrink-0 z-20">
+      <div>
+        <div class="h-20 flex items-center px-6 gap-3 border-b border-slate-100 dark:border-slate-800">
+          <div class="w-10 h-10 rounded-xl bg-[#1e3c6e] flex items-center justify-center text-white text-lg shadow-md">
+            <i class="fas fa-fire text-amber-400"></i>
+          </div>
+          <div class="overflow-hidden">
+            <h1 class="font-bold text-sm text-slate-900 dark:text-white leading-tight">ADMIN CLOUD</h1>
+            <span id="cloud-badge" class="text-[11px] font-semibold text-rose-500 flex items-center gap-1 truncate">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span> Sin Conectar
+            </span>
+          </div>
         </div>
-    </div>
 
-    <div class="social-sidebar">
-        <a href="https://www.instagram.com/bibliotecaunida/" target="_blank" class="ig" title="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="https://wa.me/595972377689" target="_blank" class="wa" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://www.facebook.com/bibliotecaunida" target="_blank" class="fb" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="mailto:bibliotecacentral@unida.edu.py" class="ml" title="Enviar Correo"><i class="fas fa-envelope"></i></a>
-    </div>
-</div>
+        <nav class="p-4 space-y-1.5">
+          <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-arrow-left w-5 text-center"></i> Ir al Sitio Web
+          </a>
+          <button onclick="abrirConfigFirebase()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+            <i class="fas fa-plug w-5 text-center"></i> Conectar Firebase
+          </button>
+          <hr class="border-slate-200 dark:border-slate-800 my-2">
+          <button onclick="navegarPestana('tab-metricas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400">
+            <i class="fas fa-chart-pie w-5 text-center"></i> Métricas & KPIs
+          </button>
+          <button onclick="navegarPestana('tab-libros')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-book-medical w-5 text-center"></i> Gestión de Libros
+          </button>
+          <button onclick="navegarPestana('tab-simuladores')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-laptop-code w-5 text-center"></i> Simuladores 3D
+          </button>
+          <button onclick="navegarPestana('tab-database')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-file-excel w-5 text-center"></i> Base de Datos & Excel
+          </button>
+        </nav>
+      </div>
 
-<div id="facultades-digital-section" class="container">
-    <div class="facultades-grid">
-        <div class="facultad-card">
-            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/enfermeria_unida-ql44yi55fcezki8uwy991c9ar3btk20dbmt7sg6ztc.webp" alt="Facultad de Salud">
-            <div class="overlay">
-                <h2>Facultad de Salud</h2>
-                <ul class="carreras-list">
-                    <li onclick="abrirCatalogo('Enfermería')">Enfermería</li>
-                    <li onclick="abrirCatalogo('Kinesiología y Fisioterapia')">Kinesiología y Fisioterapia</li>
-                    <li onclick="abrirCatalogo('Medicina')">Medicina</li>
-                    <li onclick="abrirCatalogo('Nutrición')">Nutrición</li>
-                </ul>
-                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Salud')"><i class="fas fa-laptop-medical"></i> Ver Simuladores</button>
-            </div>
-        </div>
-        <div class="facultad-card">
-            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/economia-ql474wuhitr21icq2cdwj1yin6v2n4ab3pwbydxqs0.webp" alt="Facultad de Gestión">
-            <div class="overlay">
-                <h2>Facultad de Gestión</h2>
-                <ul class="carreras-list">
-                    <li onclick="abrirCatalogo('Administración de Empresas')">Administración de Empresas</li>
-                    <li onclick="abrirCatalogo('Comercio Internacional')">Comercio Internacional</li>
-                    <li onclick="abrirCatalogo('Contaduría Pública')">Contaduría Pública</li>
-                    <li onclick="abrirCatalogo('Ingeniería Comercial')">Ingeniería Comercial</li>
-                    <li onclick="abrirCatalogo('Marketing y Gestión Comercial')">Marketing y Gestión Comercial</li>
-                    <li onclick="abrirCatalogo('Relaciones Internacionales')">Relaciones Internacionales</li>
-                    <li onclick="abrirCatalogo('Psicología Organizacional')">Psicología Organizacional</li>
-                </ul>
-                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Gestión')"><i class="fas fa-chart-line"></i> Ver Simuladores</button>
-            </div>
-        </div>
-        <div class="facultad-card">
-            <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80" alt="Facultad de Ingeniería">
-            <div class="overlay">
-                <h2>Facultad de Ingeniería</h2>
-                <ul class="carreras-list">
-                    <li onclick="abrirCatalogo('Ingeniería Electrónica')">Ingeniería Electrónica</li>
-                    <li onclick="abrirCatalogo('Ingeniería Industrial')">Ingeniería Industrial</li>
-                    <li onclick="abrirCatalogo('Ingeniería en Sistemas')">Ingeniería en Sistemas</li>
-                    <li onclick="abrirCatalogo('Ingeniería en Informática')">Ingeniería en Informática</li>
-                </ul>
-                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Ingeniería')"><i class="fas fa-cogs"></i> Ver Simuladores</button>
-            </div>
-        </div>
-        <div class="facultad-card">
-            <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=80" alt="C. Jurídicas">
-            <div class="overlay">
-                <h2>Facultad de C. JURÍDICAS Y SOCIALES</h2>
-                <ul class="carreras-list">
-                    <li onclick="abrirCatalogo('Derecho')">Derecho</li>
-                    <li onclick="abrirCatalogo('Ciencias Políticas')">Ciencias Políticas</li>
-                </ul>
-                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de C. JURÍDICAS Y SOCIALES')"><i class="fas fa-balance-scale"></i> Ver Simuladores</button>
-            </div>
-        </div>
-        <div class="facultad-card">
-            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/st_403991497-qfymca815zkjkmjzj5zfgkhhp3a2fdpawj6koah7m8.png" alt="FEADYS">
-            <div class="overlay">
-                <h2>FEADYS</h2>
-                <ul class="carreras-list" style="font-size: 0.75rem;">
-                    <li onclick="abrirCatalogo('Adm. de Empresas/Pública')">Adm. de Empresas/Pública</li>
-                    <li onclick="abrirCatalogo('Adm. Gestión Emprendedora')">Adm. Gestión Emprendedora</li>
-                    <li onclick="abrirCatalogo('Talento Humano')">Talento Humano</li>
-                    <li onclick="abrirCatalogo('Banca y Finanzas')">Banca y Finanzas</li>
-                    <li onclick="abrirCatalogo('Educación')">Educación</li>
-                    <li onclick="abrirCatalogo('Marketing Digital')">Marketing Digital</li>
-                    <li onclick="abrirCatalogo('Sistemas')">Sistemas</li>
-                </ul>
-                <button class="btn-simulador" onclick="abrirSimuladores('FEADYS')"><i class="fas fa-globe"></i> Ver Simuladores</button>
-            </div>
-        </div>
-    </div>
-</div>
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition text-xs">
+          <i id="dark-icon" class="fas fa-moon"></i>
+        </button>
+        <button onclick="bloquearPanel()" class="text-xs text-rose-500 hover:text-rose-600 font-semibold flex items-center gap-1.5 p-2">
+          <i class="fas fa-lock"></i> Bloquear
+        </button>
+      </div>
+    </aside>
 
-<div id="catalogo-section" class="container">
-    <div class="catalogo-header">
-        <div class="catalogo-titulo-contenedor">
-            <button class="btn-volver" onclick="irAtras()"><i class="fas fa-arrow-left"></i> Volver</button>
-            <h2 id="catalogo-titulo">Catálogo</h2>
+    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      
+      <header class="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between shrink-0">
+        <div>
+          <h2 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            Panel Central Colaborativo <span id="sync-spinner" class="hidden text-amber-500 text-sm animate-spin"><i class="fas fa-circle-notch"></i></span>
+          </h2>
+          <p class="text-xs text-slate-400">Sincronización en vivo entre múltiples administradores</p>
         </div>
-        <div class="search-controls">
-            <select id="filtro-libros" class="filter-select">
-                <option value="todos">Buscar por...</option>
-                <option value="autor">Autor</option>
-                <option value="tema">Tema (Título)</option>
-            </select>
-            <input type="text" id="buscador-libros" class="search-bar" placeholder="Escribe aquí para buscar (sin importar acentos)...">
+        <div class="flex items-center gap-3">
+          <button onclick="actualizarSistema()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fas fa-arrows-rotate"></i> Actualizar Vista & Datos
+          </button>
+          <button onclick="vaciarBaseDeDatosNube()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fas fa-trash-can"></i> Vaciar Nube
+          </button>
+          <button onclick="subirSemillaAFirebase()" id="btn-seed" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fas fa-cloud-arrow-up"></i> Cargar Semilla Limpia
+          </button>
         </div>
-    </div>
+      </header>
 
-    <div class="libros-list">
-        <div id="mensaje-vacio" style="text-align: center; padding: 40px 20px; display: none;">
-            <i class="fas fa-book-open" style="font-size: 50px; color: #ccc; margin-bottom: 15px;"></i>
-            <h3 style="color: #666; font-family: 'Poppins', sans-serif;">La biblioteca digital de esta carrera está en construcción</h3>
-            <p style="color: #999;">Próximamente se agregará el catálogo de libros y materiales de estudio correspondientes.</p>
-        </div>
-        <div class="libros-grid-container" id="contenedor-libros"></div>
-    </div>
-</div>
+      <main class="flex-1 overflow-y-auto custom-scroll p-8 space-y-8">
+        
+        <!-- PESTAÑA 1: MÉTRICAS & KPIS -->
+        <section id="tab-metricas" class="tab-content space-y-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Libros en Nube</span>
+                <h3 id="kpi-total" class="text-3xl font-extrabold text-[#1e3c6e] dark:text-white mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-[#1e3c6e] dark:text-blue-400 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-book"></i></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Simuladores</span>
+                <h3 id="kpi-simuladores" class="text-3xl font-extrabold text-[#e67e22] mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-[#e67e22] rounded-xl flex items-center justify-center text-xl"><i class="fas fa-laptop-medical"></i></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Carreras Activas</span>
+                <h3 id="kpi-carreras" class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-graduation-cap"></i></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Canal en Vivo</span>
+                <h3 id="kpi-status-canal" class="text-sm font-bold text-amber-500 mt-2">Desconectado</h3>
+              </div>
+              <div class="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-amber-500 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-tower-broadcast"></i></div>
+            </div>
+          </div>
 
-<div id="simuladores-section" class="container">
-    <div class="catalogo-header">
-        <div class="catalogo-titulo-contenedor">
-            <button class="btn-volver" onclick="irAtras()"><i class="fas fa-arrow-left"></i> Volver</button>
-            <h2 id="simuladores-titulo">Simuladores</h2>
-        </div>
-    </div>
-    <div class="libros-list">
-        <div class="libros-grid-container" id="contenedor-simuladores">
-            <!-- Los simuladores se cargan dinámicamente desde Firebase -->
-        </div>
-    </div>
-</div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">Libros por Carrera</h4>
+              <div class="h-64 flex items-center justify-center"><canvas id="chartCarreras"></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">Distribución por Facultad</h4>
+              <div class="h-64 flex items-center justify-center"><canvas id="chartFacultades"></canvas></div>
+            </div>
+          </div>
+        </section>
 
-<div id="facultades-impresa-section" class="container">
-    <div class="facultades-grid">
-        <div class="facultad-card" style="cursor: default;">
-            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/enfermeria_unida-ql44yi55fcezki8uwy991c9ar3btk20dbmt7sg6ztc.webp" alt="Facultad de Salud">
-            <div class="overlay">
-                <h2 style="margin-bottom: 15px;">Facultad de Salud</h2>
-                <div style="display: flex; flex-direction: column; gap: 10px; width: 80%; max-width: 250px; z-index: 10;">
-                    <a href="https://drive.google.com/uc?export=download&id=1npxD5HavcDHiSa8FAyAfR43eGvtM1eZo" target="_blank" style="color: white; text-decoration: none; background: #2980b9; padding: 8px 15px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; text-align: center; transition: background 0.3s;">Enfermería</a>
-                    <a href="https://drive.google.com/uc?export=download&id=1oh2rb7Xra-ozFVoZB_fzCmSpJjhpBrKx" target="_blank" style="color: white; text-decoration: none; background: #2980b9; padding: 8px 15px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; text-align: center; transition: background 0.3s;">Medicina</a>
-                    <a href="https://drive.google.com/uc?export=download&id=15DE4MTKmr59IGKd1fUvFn1TCj8lyPIXK" target="_blank" style="color: white; text-decoration: none; background: #2980b9; padding: 8px 15px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; text-align: center; transition: background 0.3s;">Nutrición</a>
+        <!-- PESTAÑA 2: GESTIÓN DE LIBROS -->
+        <section id="tab-libros" class="tab-content space-y-8 hidden">
+          <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800 mb-6">
+              <div>
+                <h3 id="form-titulo" class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider">Registrar Libro en la Nube</h3>
+                <p class="text-xs text-slate-400">Los cambios se guardan instantáneamente en Firestore para todo el equipo.</p>
+              </div>
+              <button type="button" onclick="limpiarFormulario()" class="text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <i class="fas fa-rotate-left mr-1"></i> Limpiar Formulario
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <form id="form-libro" onsubmit="guardarLibro(event)" class="lg:col-span-7 space-y-4">
+                <input type="hidden" id="edit-doc-id" value="">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Carrera / Área *</label>
+                    <select id="inp-carrera" onchange="asignarPortadaTematica(); actualizarPreview();" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                      <optgroup label="Facultad de Salud">
+                        <option value="Medicina">Medicina</option>
+                        <option value="Nutrición">Nutrición</option>
+                        <option value="Enfermería">Enfermería</option>
+                        <option value="Kinesiología y Fisioterapia">Kinesiología y Fisioterapia</option>
+                      </optgroup>
+                      <optgroup label="Facultad de Ingeniería">
+                        <option value="Ingeniería en Informática" selected>Ingeniería en Informática</option>
+                        <option value="Ingeniería en Sistemas">Ingeniería en Sistemas</option>
+                        <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                        <option value="Ingeniería Electrónica">Ingeniería Electrónica</option>
+                      </optgroup>
+                      <optgroup label="Facultad de Gestión">
+                        <option value="Marketing y Gestión Comercial">Marketing y Gestión Comercial</option>
+                        <option value="Psicología Organizacional">Psicología Organizacional</option>
+                        <option value="Ingeniería Comercial">Ingeniería Comercial</option>
+                        <option value="Administración de Empresas">Administración de Empresas</option>
+                        <option value="Contaduría Pública">Contaduría Pública</option>
+                        <option value="Comercio Internacional">Comercio Internacional</option>
+                        <option value="Relaciones Internacionales">Relaciones Internacionales</option>
+                      </optgroup>
+                      <optgroup label="Ciencias Jurídicas y FEADYS">
+                        <option value="Derecho">Derecho</option>
+                        <option value="Ciencias Políticas">Ciencias Políticas</option>
+                        <option value="Educación">Educación</option>
+                        <option value="Adm. de Empresas/Pública">Adm. de Empresas/Pública</option>
+                        <option value="Adm. Gestión Emprendedora">Adm. Gestión Emprendedora</option>
+                        <option value="Talento Humano">Talento Humano</option>
+                        <option value="Banca y Finanzas">Banca y Finanzas</option>
+                        <option value="Marketing Digital">Marketing Digital</option>
+                        <option value="Sistemas">Sistemas</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Edición / Tomo (Opcional)</label>
+                    <input type="text" id="inp-edicion" oninput="actualizarPreview()" placeholder="Ej: 7ª EDICIÓN" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                  </div>
                 </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Título del Libro *</label>
+                  <input type="text" id="inp-titulo" oninput="actualizarPreview()" placeholder="Ej: Fundamentos de Redes" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Autor(es) *</label>
+                  <input type="text" id="inp-autor" oninput="actualizarPreview()" placeholder="Ej: Andrew S. Tanenbaum" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Enlace de Google Drive *</label>
+                  <input type="url" id="inp-link" oninput="actualizarPreview()" placeholder="https://drive.google.com/file/d/..." required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <!-- CARGA DE IMAGEN DESDE EL EQUIPO -->
+                <div class="border border-slate-200 dark:border-slate-700 p-4 rounded-xl space-y-3 bg-slate-50/50 dark:bg-slate-800/20">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Portada del Libro (Desde tu Equipo)</label>
+                    <button type="button" onclick="asignarPortadaTematica(true)" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline">Restablecer Temática</button>
+                  </div>
+                  <div>
+                    <input type="file" id="inp-imagen-file" accept="image/*" onchange="procesarImagenLocal(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#1e3c6e] hover:file:bg-blue-100 cursor-pointer">
+                    <input type="hidden" id="inp-imagen" oninput="actualizarPreview()">
+                  </div>
+                </div>
+
+                <button type="submit" id="btn-submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md">
+                  <i class="fas fa-cloud-arrow-up"></i> Guardar en Firebase
+                </button>
+              </form>
+
+              <!-- PREVIEW EN VIVO -->
+              <div class="lg:col-span-5 bg-slate-50 dark:bg-slate-800/40 p-6 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-4">
+                    <i class="fas fa-eye mr-1"></i> Vista Previa de Tarjeta
+                  </span>
+                  
+                  <div class="bg-white dark:bg-slate-900 border-2 border-[#1e3c6e] rounded-xl p-4 shadow-sm flex gap-4 items-center">
+                    <img id="prev-img" src="" class="w-20 h-28 object-cover rounded shadow shrink-0 bg-slate-200">
+                    <div class="min-w-0 flex-1">
+                      <span id="prev-carrera" class="text-[10px] font-bold text-[#2980b9] uppercase">Carrera</span>
+                      <h4 id="prev-titulo" class="text-xs font-bold text-slate-900 dark:text-white truncate uppercase mt-0.5">Título del Libro</h4>
+                      <p id="prev-autor" class="text-[11px] font-semibold text-[#1e3c6e] dark:text-blue-300 truncate">Autor</p>
+                      <a id="prev-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1e3c6e] text-white text-[10px] font-bold rounded mt-2">
+                        <i class="fab fa-google-drive"></i> Probar Link
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-        </div>
-        <div class="facultad-card" onclick="window.open('https://drive.google.com/uc?export=download&id=12hFEbrxRfEsZiv1gvz7A9aU6CXzrdLog', '_blank')">
-            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/economia-ql474wuhitr21icq2cdwj1yin6v2n4ab3pwbydxqs0.webp" alt="Facultad de Gestión">
-            <div class="overlay">
-                <h2 style="text-align: center; width: 100%;">Facultad de Gestión</h2>
+          </div>
+
+          <!-- TABLA DE INVENTARIO -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-white">Inventario en la Nube</h4>
+                <p class="text-xs text-slate-400">Listado sincronizado en tiempo real</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="text" id="buscador-tabla" oninput="filtrarTabla()" placeholder="Buscar título o autor..." class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none focus:ring-2 focus:ring-blue-500 w-56">
+                <select id="filtro-carrera" onchange="filtrarTabla()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none">
+                  <option value="">Todas las Carreras</option>
+                </select>
+              </div>
             </div>
-        </div>
-        <div class="facultad-card" onclick="window.open('https://drive.google.com/uc?export=download&id=1Jj3B2piVFqzsoi8tsl9dMZQFVPNePJnF', '_blank')">
-            <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80" alt="Facultad de Ingeniería">
-            <div class="overlay">
-                <h2>Facultad de Ingeniería</h2>
+
+            <div class="overflow-x-auto max-h-[500px] custom-scroll">
+              <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                <thead class="bg-slate-50 dark:bg-slate-800/40 uppercase text-[10px] font-bold text-slate-400 tracking-wider border-b border-slate-100 dark:border-slate-800 sticky top-0">
+                  <tr>
+                    <th class="p-4">Material</th>
+                    <th class="p-4">Carrera</th>
+                    <th class="p-4">Autor</th>
+                    <th class="p-4">Drive</th>
+                    <th class="p-4 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+              </table>
             </div>
-        </div>
-        <div class="facultad-card" onclick="window.open('https://drive.google.com/uc?export=download&id=197EBsdVvNtxfUaca-o_GYWlSMT-6ijl1', '_blank')">
-            <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=80" alt="C. Jurídicas y Sociales">
-            <div class="overlay">
-                <h2>Facultad de C. JURÍDICAS Y SOCIALES</h2>
+          </div>
+        </section>
+
+        <!-- PESTAÑA 3: SIMULADORES 3D -->
+        <section id="tab-simuladores" class="tab-content space-y-8 hidden">
+          <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-1">Nuevo Simulador Educativo</h3>
+            <form onsubmit="guardarSimulador(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Facultad Destino *</label>
+                <select id="sim-facultad" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+                  <option value="Facultad de Salud">Facultad de Salud</option>
+                  <option value="Facultad de Gestión">Facultad de Gestión</option>
+                  <option value="Facultad de Ingeniería">Facultad de Ingeniería</option>
+                  <option value="Facultad de C. JURÍDICAS Y SOCIALES">Facultad de C. JURÍDICAS Y SOCIALES</option>
+                  <option value="FEADYS">FEADYS</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Título del Simulador *</label>
+                <input type="text" id="sim-titulo" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Plataforma / Autor *</label>
+                <input type="text" id="sim-autor" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Enlace de Acceso *</label>
+                <input type="url" id="sim-link" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs outline-none">
+              </div>
+              <div class="md:col-span-2 pt-2 text-right">
+                <button type="submit" class="bg-[#e67e22] hover:bg-[#d35400] text-white text-xs font-bold py-2.5 px-6 rounded-xl transition shadow-md">
+                  <i class="fas fa-plus"></i> Guardar Simulador
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+            <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Simuladores Activos en Nube</h4>
+            <div id="lista-simuladores-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+          </div>
+        </section>
+
+        <!-- PESTAÑA 4: BASE DE DATOS Y EXCEL -->
+        <section id="tab-database" class="tab-content space-y-6 hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                  <i class="fas fa-file-excel"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Inventario Anual en Excel (.xlsx)</h3>
+                <p class="text-xs text-slate-500 leading-relaxed mb-4">
+                  Genera la planilla institucional multihoja con hoja de resumen y desglose detallado de títulos, autores y ediciones clasificados por facultad y carrera.
+                </p>
+              </div>
+              <button onclick="generarExcelInventario()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                <i class="fas fa-table"></i> Descargar Excel Multiestructura
+              </button>
             </div>
-        </div>
-        <div class="facultad-card" onclick="window.open('URL_PDF_FEADYS', '_blank')">
-            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/st_403991497-qfymca815zkjkmjzj5zfgkhhp3a2fdpawj6koah7m8.png" alt="FEADYS">
-            <div class="overlay">
-                <h2>FEADYS</h2>
+
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="w-14 h-14 bg-[#1e3c6e]/10 text-[#1e3c6e] dark:text-blue-400 rounded-2xl flex items-center justify-center text-2xl mb-4">
+                  <i class="fab fa-js"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Exportar catalogo.js para GitHub</h3>
+                <p class="text-xs text-slate-500 leading-relaxed mb-4">
+                  Compila todo el catálogo almacenado en la nube en el archivo Javascript estático necesario para actualizar el sitio público de los alumnos.
+                </p>
+              </div>
+              <button onclick="descargarJS()" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white text-xs font-bold px-4 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                <i class="fas fa-download"></i> Descargar catalogo.js Final
+              </button>
             </div>
-        </div>
+
+          </div>
+        </section>
+
+      </main>
     </div>
-</div>
+  </div>
 
-<div id="descarga-section" class="container">
-    <div class="download-box">
-        <i class="fas fa-file-pdf" style="font-size: 80px; color: #e74c3c;"></i>
-        <h2 style="font-family: 'Cooper Black', serif; color: #1e3c6e; margin-top: 20px;">DESCARGAR MATERIAL ACADÉMICO</h2>
-        <p>Haz clic para acceder al libro <strong>Hábitos Atómicos</strong> en Google Drive.</p>
-        <a href="https://drive.google.com/file/d/1Tsbvncvq9fd3OqTtZX3CICpOIZ3EHlrj/view?usp=sharing" target="_blank" class="btn-download">ABRIR EN DRIVE</a>
+  <!-- MODAL CONFIGURACIÓN FIREBASE -->
+  <div id="modal-fb" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl w-full max-w-lg mx-4 overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="bg-[#15294a] px-6 py-4 flex items-center justify-between">
+        <h3 class="text-white font-bold text-sm flex items-center gap-2"><i class="fas fa-fire text-amber-400"></i> Conectar Proyecto Firebase</h3>
+        <button onclick="cerrarConfigFirebase()" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-xs text-slate-500">Pega el objeto de configuración <code>firebaseConfig</code> obtenido de tu Consola de Firebase:</p>
+        <textarea id="fb-config-text" rows="8" class="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono outline-none focus:ring-2 focus:ring-blue-500" placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "tu-proyecto.firebaseapp.com",
+  "projectId": "tu-proyecto",
+  "storageBucket": "tu-proyecto.appspot.com",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'></textarea>
+        <div class="flex justify-end gap-2 pt-2">
+          <button onclick="cerrarConfigFirebase()" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">Cancelar</button>
+          <button onclick="guardarConfigFirebase()" class="bg-[#2980b9] hover:bg-[#1e3c6e] text-white px-5 py-2 rounded-lg text-xs font-bold transition shadow-md">Conectar y Sincronizar</button>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- LECTURA DEL CATÁLOGO EXTERNO Y CONEXIÓN FIREBASE -->
-<script src="catalogo.js"></script>
+  <script>
+    // --- SEMILLA LIMPIA (ÚNICA Y SIN DUPLICADOS) ---
+    const semillalibrosKuri = [
+      { carrera: "Nutrición", imagen: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=300&q=80", titulo: "INTRODUCCION A LA TEORIA GENERAL <span class=\"libro-edicion\">7ª EDICIÓN</span>", autor: "Idalberto Chiavenato", link: "https://drive.google.com/file/d/1-F7zrSncvYPyZmh0NlD-VuUREXQfeRVY/view?usp=sharing" },
+      { carrera: "Nutrición", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Administración de Alimentos a Colectividades y Servicios de Salud", autor: "Carolina Ibet Guerrero Ramo", link: "https://drive.google.com/file/d/1nV4cMUM4mNjlcazg-3l82gZeFbZAlf8o/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=300&q=80", titulo: "Abordajes Neuroquirúrgicos de la Patología Craneal y Cerebral", autor: "José Manuel González-Darder", link: "https://drive.google.com/file/d/1K5ZMqNmwNL7DqgulX3RB-85_Qsl8D65m/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=300&q=80", titulo: "Actualización en Neuroendocrinología", autor: "José Manuel Gómez Sáez", link: "https://drive.google.com/file/d/1BIzddyGxodak6ZdEEF91E8T-otwVD9bB/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Bouchet (Cara, cabeza y órganos de los sentidos)", autor: "A. Bouchet, J. Cuilleret", link: "https://drive.google.com/file/d/1svnIkXK2DK2rPTkFLiSw5E6lOBkTgqr-/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Clínica", autor: "Pró", link: "https://drive.google.com/file/d/1qHLfgrxEyQ-4YVGlwQIMUqS28txbdqoB/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía con Orientación Clínica <span class=\"libro-edicion\">4ª EDICIÓN</span>", autor: "Keith L. Moore, Arthur F. Dalley", link: "https://drive.google.com/file/d/1IrQb5lfVQKHQcDkYrqizGSd_-B4kwmMH/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía con Orientación Clínica <span class=\"libro-edicion\">6ª EDICIÓN</span>", autor: "Keith L. Moore", link: "https://drive.google.com/file/d/14L3rIQ1wDFfbYLZP5kc5b7QXFNnrlCP0/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía con Orientación Clínica <span class=\"libro-edicion\">8ª EDICIÓN</span>", autor: "Keith L. Moore, Arthur F. Dalley, Anne M. R. Agur", link: "https://drive.google.com/file/d/12qhQfq7yIlQ6es-J-lwNZcgKOHhu_GLi/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía con Orientación Clínica (Variante) <span class=\"libro-edicion\">8.ª EDICIÓN</span>", autor: "Keith L. Moore", link: "https://drive.google.com/file/d/1CZijaMPm2j-O1vKVUsZ-BzacRFv91WuC/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Cromodinámica", autor: "Wynn Kapit, Lawrence M. Elson", link: "https://drive.google.com/file/d/1PvIm3VshWNwGYdbjsKScX7yy3cJ5bqvL/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía del Aparato Locomotor <span class=\"libro-edicion\">TOMO 1</span>", autor: "Michel Dufour", link: "https://drive.google.com/file/d/1ZZU0YfVQ_v48N2mNSZzzYcdaYh6JAHU1/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Funcional", autor: "Christy Cael", link: "https://drive.google.com/file/d/1LgA1AWfNx4R9XWSp4hOBuWnt2H0BABfn/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1559757175-5700efe6732a?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana <span class=\"libro-edicion\">6TA EDICIÓN</span>", autor: "Frederic H. Martini", link: "https://drive.google.com/file/d/1RHbkm5BhJm1s6SJRasVR-imowmFoglQS/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1559757175-5700efe6732a?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana 4 en 1", autor: "L. Testut - A. Latarjet", link: "https://drive.google.com/file/d/14Rr2MEwOObcHqb8BnKRmf-7LWeoFwvC0/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1530026405186-ed1ea0ac7a63?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana (Cabeza y Cuello) Rouviere <span class=\"libro-edicion\">TOMO 1</span>", autor: "Henri Rouviere, André Delmas", link: "https://drive.google.com/file/d/1-qoN37IbCUVG36cJCcXw-PsItyoGOLRR/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1579684389782-64d84b5e901a?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana (Miembros) Rouviere <span class=\"libro-edicion\">TOMO 3</span>", autor: "Henri Rouviere, André Delmas", link: "https://drive.google.com/file/d/17S_hsDiA9ZRPg82AHwAwfZSyQzytceEG/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana (SNC) Rouviere <span class=\"libro-edicion\">TOMO 4</span>", autor: "Henri Rouviere, André Delmas", link: "https://drive.google.com/file/d/1YRW6gLQwEJ-5y-XM8MNQfYaoEfcEqz3D/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana (Tronco) Rouviere <span class=\"libro-edicion\">TOMO 2</span>", autor: "Henri Rouviere, André Delmas", link: "https://drive.google.com/file/d/11JCQZQbSivT_6f4SEne_YvhLaWpgHxTh/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana Latarjet <span class=\"libro-edicion\">TOMO 1</span>", autor: "Michel Latarjet, Alfredo Ruiz Liard", link: "https://drive.google.com/file/d/10sq1kb-fLK26aDB0wBfcoX5wmo3WHboI/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana Latarjet <span class=\"libro-edicion\">TOMO 2</span>", autor: "Michel Latarjet, Alfredo Ruiz Liard", link: "https://drive.google.com/file/d/1pibGoDUqBkFojxuuvDBFT01Gn9G6X4Zd/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana Quiroz <span class=\"libro-edicion\">TOMO 1</span>", autor: "Dr. Fernando Quiroz Gutiérrez", link: "https://drive.google.com/file/d/1UFa0y0mSnePbHecRWZTqXPL-WyHU0R0i/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana Quiroz <span class=\"libro-edicion\">TOMO 2</span>", autor: "Dr. Fernando Quiroz Gutiérrez", link: "https://drive.google.com/file/d/1AFwZ0zYisunI7aKKDdQRIm6mL8tEnoAm/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana Quiroz <span class=\"libro-edicion\">TOMO 3</span>", autor: "Dr. Fernando Quiroz Gutiérrez", link: "https://drive.google.com/file/d/187mUvGNA6dnS5-BcuA9K05G5JvN3UnIR/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1530026405186-ed1ea0ac7a63?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana: Descriptiva <span class=\"libro-edicion\">PARTE 1</span>", autor: "Henri Rouvière, André Delmas", link: "https://drive.google.com/file/d/184lFh7oCK9QlXiMmY--2iG09tBkjw338/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1530026405186-ed1ea0ac7a63?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Humana: Descriptiva <span class=\"libro-edicion\">PARTE 2</span>", autor: "Henri Rouvière, André Delmas", link: "https://drive.google.com/file/d/1FT-jQN_hQ-CIGEGpYMeNp_qL-yzFh7Yb/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía para el Diagnóstico Radiológico", autor: "Stephanie Ryan", link: "https://drive.google.com/file/d/1vVp2atuNmZuBu1U6Z04YbYUdlLN3Ml-g/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía Radiológica de Moller <span class=\"libro-edicion\">2DA EDICIÓN</span>", autor: "Tostern B. Moller", link: "https://drive.google.com/file/d/1-p8xUSHAAFkAhOgx1hP8uCX4Y2lH--dd/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1583947215259-38e31be0b51f?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía y Fisiología <span class=\"libro-edicion\">6TA EDICIÓN</span>", autor: "Saladin", link: "https://drive.google.com/file/d/1vwTb3CDp4qUIAoLl5CzqqslQKzStVQNW/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía y Fisiología del Cuerpo Humano", autor: "Jesús A. F. Tresguerres", link: "https://drive.google.com/file/d/14ocW7GswbMDAJmh__x_iCTwX2UBGfZ-U/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1583947215259-38e31be0b51f?auto=format&fit=crop&w=300&q=80", titulo: "Anatomía, Fisiología y Fisiopatología", autor: "Sistema Cardiovascular", link: "https://drive.google.com/file/d/18Te64vMFp1vRGHJdBGNwNOn1Cped5f0c/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=300&q=80", titulo: "Atlas de Anatomía Humana <span class=\"libro-edicion\">5TA EDICIÓN</span>", autor: "Frank H. Netter", link: "https://drive.google.com/file/d/1psQJzTVfsNjywduETyCrbHwmS1017a0i/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Atlas de Anatomía Humana por Técnicas de Imagen <span class=\"libro-edicion\">4ª EDICIÓN</span>", autor: "Weir", link: "https://drive.google.com/file/d/1KoHswzuNOtsYiYTd_WDCoYpeMR-O21PD/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Atlas de Anatomía II Órganos Internos <span class=\"libro-edicion\">7ª EDICIÓN</span>", autor: "Werner Platzer", link: "https://drive.google.com/file/d/1kI8MHwE4AeNDJw8VgAC8uU8BBDOcTl1v/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1583947215259-38e31be0b51f?auto=format&fit=crop&w=300&q=80", titulo: "Atlas de Anatomía III Sistema Nervioso <span class=\"libro-edicion\">7ª EDICIÓN</span>", autor: "Werner Platzer", link: "https://drive.google.com/file/d/1Zo9KDVZho2tTCWn_zvac1JOli4MMlh4p/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1559757175-5700efe6732a?auto=format&fit=crop&w=300&q=80", titulo: "Atlas de Anatomía Normal Humana", autor: "V. Ya. Lípchenko, R.P. Sámusev", link: "https://drive.google.com/file/d/1FmVmXNQkwVGyDCNAnWMPrrkTHzzPvFiG/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1559757175-5700efe6732a?auto=format&fit=crop&w=300&q=80", titulo: "Atlas de Anatomía Patológica", autor: "Robbins y Cotran", link: "https://drive.google.com/file/d/10Fb7My3sJ41wEV6CfbWgqT2hg9QXLq7s/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Atlas de Endoscopia Gastrointestinal <span class=\"libro-edicion\">2ª EDICIÓN</span>", autor: "Mel Wilcox", link: "https://drive.google.com/file/d/1jgHq--rq0R9JMAtBHSFvZmQnlGv9KceZ/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=300&q=80", titulo: "Atlas del Cuerpo Humano", autor: "Frederic Martini", link: "https://drive.google.com/file/d/18H9yCvFkYwhwQeE22mdxukUJWehVmk5S/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Atlas Fotográfico de Anatomía", autor: "Autor General", link: "https://drive.google.com/file/d/1Kc3SLgsCNFq6iuEvx29DawbS72wR7WIp/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=300&q=80", titulo: "Bioestadística", autor: "R. Clifford Blair y Richard A. Taylor", link: "https://drive.google.com/file/d/1ZlnQS0RcS8oqH4qU4S2Z83iheTeEIGM5/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "Bioestadística cualitativa", autor: "M. Sc. Esteban Egaña Morales", link: "https://drive.google.com/file/d/1CDcH7BrdRLfA0wwCLkLu_LdqOtP0-qi1/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1527474305487-b87b222841cc?auto=format&fit=crop&w=300&q=80", titulo: "Bioestadística para no estadísticos", autor: "Erik Cobo Valeri, et al.", link: "https://drive.google.com/file/d/1RLUgkVnI3vyQrHm0GpKLRsZaJUxBb0Zz/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=300&q=80", titulo: "CTO - Neurología y Neurocirugía", autor: "CTO Editorial", link: "https://drive.google.com/file/d/1UXXHZljvHuhw15sNpZ_idDU0LNqcqcxy/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=300&q=80", titulo: "Compendio de Robbins y Cotran Patología <span class=\"libro-edicion\">9ª EDICIÓN</span>", autor: "Mitchell, Kumar, Abbas y Aster", link: "https://drive.google.com/file/d/1q0CkAslrcrI1fICQCLTcMl1WITgRpsey/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=300&q=80", titulo: "Compilación de varios autores de Patología", autor: "José Hurtado de Mendoza Amat", link: "https://drive.google.com/file/d/1w4cgcm4VXj7jaYtT-g5SuqVMydf0Vae_/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=300&q=80", titulo: "Cursos Crash: Lo Esencial en Anatomía <span class=\"libro-edicion\">TERCERA EDICIÓN</span>", autor: "Dykes, Watson", link: "https://drive.google.com/file/d/1oYHkBJ0UnO9ry8y0nGqumGDYjKcWMrTs/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=300&q=80", titulo: "Estadística aplicada a las ciencias de la salud", autor: "Joaquín Moncho Vasallo", link: "https://drive.google.com/file/d/1xbcbLVqwZmCkVH3q2EJLegVhXKj04mLY/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1543286386-713bcd26a01b?auto=format&fit=crop&w=300&q=80", titulo: "Fundamentos de Estadística <span class=\"libro-edicion\">4.ª EDICIÓN</span>", autor: "Myra L. Samuels", link: "https://drive.google.com/file/d/1G2xhb1tfTmfKohyzKJDVyR8oUvUTQ9uP/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=300&q=80", titulo: "Gardner - Anatomía (Portugués)", autor: "Ernest Gardner", link: "https://drive.google.com/file/d/1g99Shp5GRi8IuVyNk66irvNMGerW5pl-/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1583947215259-38e31be0b51f?auto=format&fit=crop&w=300&q=80", titulo: "Grant Anatomía para Colorear", autor: "Nicole R. Herring", link: "https://drive.google.com/file/d/1HJJn68ld6jTkZ1wn3WC0a983aSYYJWHu/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Gray Anatomía para Estudiantes <span class=\"libro-edicion\">SEGUNDA EDICIÓN</span>", autor: "Drake Richard", link: "https://drive.google.com/file/d/102tgxldnBkERI4AjAsJjZLt8NtXSuFOZ/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1583947215259-38e31be0b51f?auto=format&fit=crop&w=300&q=80", titulo: "GRAY Anatomía Básica", autor: "Richard L. Drake", link: "https://drive.google.com/file/d/1l9mZDY3mV4qkEYghVyHVFqNXb4LeCuQU/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1559757175-5700efe6732a?auto=format&fit=crop&w=300&q=80", titulo: "GRAY Guía Fotográfica de Disección", autor: "Marios Loukas", link: "https://drive.google.com/file/d/19Nxq3NuHLeLMfe6drGR32Ck8zpyh-n27/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=300&q=80", titulo: "Interpretación fácil de la bioestadística", autor: "Gail F. Dawson", link: "https://drive.google.com/file/d/1R6uxqfXP-TfZMB7MmJkmY3v-cwYqAiMa/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=300&q=80", titulo: "Introducción a la bioestadística", autor: "Mónica Balzarini", link: "https://drive.google.com/file/d/1alblohnVKJKbmlcbdPRjJpUZNByxSPUb/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=300&q=80", titulo: "Libro de Bolsillo de Atención Cardiovascular de Emergencia", autor: "Material de Referencia", link: "https://drive.google.com/file/d/1nmLuXyeQNkTY79iZy0bvYSFSQNxGp9ju/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=300&q=80", titulo: "Manual CTO de Medicina - Endocrinología <span class=\"libro-edicion\">4.ª EDICIÓN</span>", autor: "Manuel Luque Ramírez", link: "https://drive.google.com/file/d/191IFfJMyaATQBYWHd8c3FexRWG9fDBey/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=300&q=80", titulo: "Manual CTO de Medicina - Nefrología <span class=\"libro-edicion\">4.ª EDICIÓN</span>", autor: "CTO Editorial", link: "https://drive.google.com/file/d/1XZms6rFeoRvRpXNT2AMOHo_tgMkKonz5/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=300&q=80", titulo: "Manual CTO de Medicina - Neumología <span class=\"libro-edicion\">4.ª EDICIÓN</span>", autor: "CTO Editorial", link: "https://drive.google.com/file/d/1KcahI9PllYHLhE1kWblWD4aVkJPJLa7u/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=300&q=80", titulo: "Manual CTO de Medicina - Reumatología <span class=\"libro-edicion\">4.ª EDICIÓN</span>", autor: "Luis Cabeza Osorio", link: "https://drive.google.com/file/d/1BLLxetD5vSof5sGVAKF99v9_bgSMimSW/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Miembro Inferior (Imágenes)", autor: "Material Visual", link: "https://drive.google.com/file/d/1yUAL6xa173-jxE6hWpttV_TwmS6nxR6w/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Miembro Superior (Imágenes)", autor: "Material Visual", link: "https://drive.google.com/file/d/1Zqj7W_6FrurKLbDAje8JAGjbZWpv_tzz/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1581591524425-c7e0978865fc?auto=format&fit=crop&w=300&q=80", titulo: "Netter Cuaderno de Anatomía <span class=\"libro-edicion\">2ª EDICIÓN</span>", autor: "John T. Hansen", link: "https://drive.google.com/file/d/1Rl2BrMwtCoQgEmuy2N3PIIOnmHQosTwO/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80", titulo: "Pelvis y Periné", autor: "Material de Estudio", link: "https://drive.google.com/file/d/1INbLrGVu7Ys7Cvb0PEfxx4fxMRx9dmM-/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=300&q=80", titulo: "Principios de Anatomía y Fisiología <span class=\"libro-edicion\">11ª EDICIÓN</span>", autor: "Tortora, Derrickson", link: "https://drive.google.com/file/d/1_qc78NOTCdcR3XixIE8D9-QoJoi9xJnM/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=300&q=80", titulo: "Principios de Anatomía y Fisiología (Variante) <span class=\"libro-edicion\">11ª EDICIÓN</span>", autor: "Tortora", link: "https://drive.google.com/file/d/1evGZk9YmMAZ1BWgcVofP3_FbQFM5Te_i/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1559757175-5700efe6732a?auto=format&fit=crop&w=300&q=80", titulo: "Principios de Anatomía, Fisiología e Higiene", autor: "Gutiérrez Cirlos", link: "https://drive.google.com/file/d/1ZDUiugmqfUOOzNXghXa-w78q1EWck4Nb/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=300&q=80", titulo: "PROMETHEUS Atlas de Anatomía", autor: "Michael Schünke, Erik Schulte", link: "https://drive.google.com/file/d/1z3ORBotSw_Uum7kdVFw1RMBE-4YHcGT8/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=300&q=80", titulo: "Reanimación Cardiopulmonar Avanzada", autor: "Material de Referencia", link: "https://drive.google.com/file/d/1i4v5IhnJg0RXxW44BLUuMysqHjuLoR5n/view?usp=sharing" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=300&q=80", titulo: "ROBBINS Patología Humana <span class=\"libro-edicion\">8VA EDICIÓN</span>", autor: "Kumar, Abbas, Fausto", link: "https://drive.google.com/file/d/1lzPUehewtRX75mEZ_R56MpqBryKqSzYo/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=300&q=80", titulo: "Robbins y Cotran - Repaso de Anatomía Patológica <span class=\"libro-edicion\">4TA EDICIÓN</span>", autor: "Edward C. Klatt y Vinay Kumar", link: "https://drive.google.com/file/d/1YS-5MeLxbxIzBRAYBIlp31n4KrSxgQYP/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1559757175-5700efe6732a?auto=format&fit=crop&w=300&q=80", titulo: "Sobatta Atlas Anatomía Humana <span class=\"libro-edicion\">TOMO 1</span>", autor: "Cabeza, cuello y miembro superior", link: "https://drive.google.com/file/d/10JM9PSDqHtrpoU6NAHZgo-08pJHBjTGC/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=300&q=80", titulo: "Sobatta Atlas Anatomía Humana <span class=\"libro-edicion\">TOMO 2</span>", autor: "Tronco, vísceras, extremidades inferiores", link: "https://drive.google.com/file/d/1-Tox1lzrOtFFGX-GUvuozyKOFg5w3G2M/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=300&q=80", titulo: "Soporte Vital Cardiovascular Avanzado", autor: "Material de Referencia", link: "https://drive.google.com/file/d/1R8LWdGGaCp4MHNM7d37JjWzrivs8y5ud/view" },
+      { carrera: "Medicina", imagen: "https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=300&q=80", titulo: "Tórax", autor: "Material de Estudio", link: "https://drive.google.com/file/d/1KkUn7e6JIHanlWuzJk4ac9gvunvVrzC2/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Matemáticas Avanzadas para Ingeniería <span class=\"libro-edicion\">2DA EDICIÓN</span>", autor: "Glyn James", link: "https://drive.google.com/file/d/10Z6IebFCfm6kyMMigI-1QMhbuUmHWpqG/view?usp=drive_link" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra Lineal <span class=\"libro-edicion\">7MA EDICIÓN</span>", autor: "Stanley I. Grossman", link: "https://drive.google.com/file/d/12ZuIBvcSJxlpvHefOD8T1_4JN_v4YF9H/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra y Trigonometría con Geometría Analítica", autor: "Swokowski & Cole", link: "https://drive.google.com/file/d/17c6r6R78wD5185mHUKZaJOBLTDbf7VDn/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra Superior <span class=\"libro-edicion\">3RA EDICIÓN</span>", autor: "Serie Schaum", link: "https://drive.google.com/file/d/19hCeJVktG5I7rB1o5kS09qjVVH_Q3s-Y/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Introductory Mathematical Analysis for Business...", autor: "Ernest F. Haeussler", link: "https://drive.google.com/file/d/1A2Kn2zYfsVDhfSnis1mkhBrA59M2Vtfp/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra Vectorial en Ejemplos y Problemas", autor: "P.B. Gusiátnikov, S.V. Reznichenko", link: "https://drive.google.com/file/d/1A6FxxgbG6EiWbCeXohtwlg5orMFgA52C/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra Intermedia", autor: "Allen R. Angel", link: "https://drive.google.com/file/d/1A_-fVtNGy_BY4sHVSfQ9XZoGDZdVp4HY/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra y Funciones Elementales", autor: "R. A. Kalnin - MIR", link: "https://drive.google.com/file/d/1DQc53L26mZMgX7Y1rLp1lOiITbX2N88D/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra Extraordinaria", autor: "I. M. Yaglom - MIR", link: "https://drive.google.com/file/d/1Ev6p6xq0etktsRdLbeMxdOJl7a4UsXyR/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra Recreativa", autor: "Y. Perelman - MIR", link: "https://drive.google.com/file/d/1R3ODWwmNpgE8BwYZLZxZnqRudY2wMByE/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra Lineal", autor: "V. V. Voevodin - MIR", link: "https://drive.google.com/file/d/1ffS6Gokm4rR7ZgYd-9SKmXecMC5znqg9/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra de Matrices", autor: "Prof. Mario Azócar Azócar", link: "https://drive.google.com/file/d/1nrpSyEfi745kH65_15NmtNOjoCd6DVui/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Álgebra y Análisis de Funciones Elementales", autor: "M. Potápov, V. Alexándrov, P. Pasichenko", link: "https://drive.google.com/file/d/1shI_DmHCouMGZsa0a2vZCRrEhuMnJpeh/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Polinomios", autor: "Carlos Nakamura", link: "https://drive.google.com/file/d/1-J8Uc5EnhRSEVQMGlEkn4sQIaqtG6afF/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas Matemáticos – Álgebra y Trigonometría", autor: "V. Litvinenko - A. Mordkóvich", link: "https://drive.google.com/file/d/1-MOq5X5Xy4hOidOSFl9SdyYAQFuGrNc4/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Triangulo de Pascal", autor: "Uspensky - V. A. Uspenski", link: "https://drive.google.com/file/d/1-Qa6O-lsfutZ0GFluKdoa8NxNwokAUfd/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Matemática Básica", autor: "Carlos Vera", link: "https://drive.google.com/file/d/10sHEO2lc88asmN8TLF1-FVpcOX8g2xFh/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Leyes de exponentes - Ecuaciones Exponenciales", autor: "Material Educativo", link: "https://drive.google.com/file/d/116XSr1dbZ1zGG2L29gX6VHFeZJRiEkFv/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Sistema de Numeración", autor: "S. V. Fomín", link: "https://drive.google.com/file/d/125AiYDIGeaiNktG5g2F_lg7Vl6BrPQxb/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Ecuaciones Diferenciales en Derivadas Parciales", autor: "V.P. Mijáilov", link: "https://drive.google.com/file/d/12E9ptRHP-r9tziBM1rZ7FFI0sKnpXunW/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Líneas Más Cortas Problemas de Variaciones", autor: "L. A. Liustérnik", link: "https://drive.google.com/file/d/13FdfJvEnNYm0JFWqHkkcFqKkdmWNhJTF/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Método de Montecarlo", autor: "I. M. Sóbol", link: "https://drive.google.com/file/d/13rjyAD1iGKhfw_DglJa9JMX-Qt8JLGDj/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas de Ecuaciones Diferenciales Ordinarias", autor: "Kiseliov - Krasnov - Makarenko", link: "https://drive.google.com/file/d/15EGXzN_hlp5S-6ziMpbIZx62S0vFEzk2/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Fundamentos de la Matemática Discreta", autor: "V. A. Gorbátov", link: "https://drive.google.com/file/d/16A6CSRqp4mqBNYeWmDqMY-h9cTGUwwD_/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Manual de Matemáticas para la Enseñanza Media", autor: "V. Litvinenko - A. G. Tsipkin", link: "https://drive.google.com/file/d/19A2-Z0SyfP9VoaLfcWQ_CxTMfBzELx8H/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Sucesiones y Series", autor: "Moisés Lázaro", link: "https://drive.google.com/file/d/19B6dwk_bVO-Z1v5NlUxXoLbg4UlCXnrc/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Lo Demostrable e Indemostrable", autor: "Yu. I. Manin", link: "https://drive.google.com/file/d/19FAmu04DHJDQ7jLPn5JggSaQoDYlSR53/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "División de figuras en partes menores", autor: "V. Boltianski - I. Gojberg", link: "https://drive.google.com/file/d/1A1B8TSGcClzMlQ5VpUyX2Flga8viL4iQ/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Sucesiones Recurrentes", autor: "A. I. Kostrikin", link: "https://drive.google.com/file/d/1AN6eCyvlx7IpSVyN1qz3J0bMpNzEM1Tm/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Teoría de las Funciones Analíticas - Tomo I", autor: "A. Markushevich", link: "https://drive.google.com/file/d/1AObPYgu5mxJ2aETyRn459GN8OO6qdh-6/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Criterios de Divisibilidad", autor: "N. N. Vorobiov", link: "https://drive.google.com/file/d/1AxG_3MhjhByZnYwM9JGxIfp1AbYeeHXR/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Ecuaciones Algebraicas de Grados Arbitrarios", autor: "A. G. Kúrosch", link: "https://drive.google.com/file/d/1B-6_WS44FfFD9zuyYEYLumtcqkeAaXVq/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas de Álgebra Superior", autor: "D. Faddieev - I. Sominski", link: "https://drive.google.com/file/d/1B72gcRHtEazA54TszrLgr5bJAo2vrOhW/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Fundamentos de la Teoría de los Números", autor: "I. Vinogradov", link: "https://drive.google.com/file/d/1BOq_oUtd_zBzzkNacSapo4tUTkRzmmw5/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Matemáticas Superiores en Ejercicios 1", autor: "P.E. Dankó y otros", link: "https://drive.google.com/file/d/1BPktOCkpJct0rPN55CCjfekHtiXewBDN/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Sucesiones en el cuerpo R", autor: "Mario R. Azocar", link: "https://drive.google.com/file/d/1BlU4YGLTT6aJMjjyiMsuhQmf0qplobUv/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Analisis Matemático I", autor: "Moisés Lazaro", link: "https://drive.google.com/file/d/1CTRjxpVFUS4rPkfJFj6AVyWi3l95wck8/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Desigualdades e inecuaciones", autor: "Alejandro Flores Osorio", link: "https://drive.google.com/file/d/1CuVICLq2b1EMX7lmZdbjKuiNKjkgaDgG/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "El Fracaso de las Paradojas", autor: "I. Radunskaya", link: "https://drive.google.com/file/d/1DE5c6PDtbZvT_qnA-f6MaNcpSoaFEOcZ/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Análisis Matemático III", autor: "Moisés Lazaro", link: "https://drive.google.com/file/d/1DV4WY7CKXVelhVzafjEpmYQIXjyybIW1/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Matrices", autor: "Armando Quispe", link: "https://drive.google.com/file/d/1EQKWDve8gBGSUSG1Yc_k11zN4FqyygE7/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas de Álgebra Lineal", autor: "I. Proskuriakov", link: "https://drive.google.com/file/d/1F-7iW9pLqQbwFscoa_g7LnOHbFyeyWCF/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Resolución de Ecuaciones en Números Enteros", autor: "A. O. Guelfond", link: "https://drive.google.com/file/d/1F0fca5TNEJ9ZnaxfhB47SE_hEP6KYN46/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Procesos Aleatorios", autor: "Y. Rozanov", link: "https://drive.google.com/file/d/1F2evLF-vRvBMPh8dROUq9jyGr9H7hWjf/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Factorización de polinomios", autor: "Carlos Nakamura", link: "https://drive.google.com/file/d/1FRK9fZVaJIDvQBTsWv-z4QVXMwkFFdem/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas de las Matemáticas Superiores II", autor: "A. Efimov - B. Demidovich", link: "https://drive.google.com/file/d/1GGqVtITmp6E9OfYdDwLUvtnUb-TGpy5w/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Introducción a los Métodos Numéricos", autor: "A.A. Samarski", link: "https://drive.google.com/file/d/1HFp-v6HaIZ_I8OOVJpuBwWYTrrL3XZDs/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Division Inexacta", autor: "A. A. Belski - L. A. Kaluzhnin", link: "https://drive.google.com/file/d/1I4C3owgokJrFBG7A7BgYdGyieKu5DptB/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Sistemas de Desigualdades Lineales", autor: "A. S. Solodóvnikov", link: "https://drive.google.com/file/d/1I5L-o9odUSKraNnRh6lYBjjGTG7babkg/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Curvas Maravillosas y Números Complejos", autor: "A. I. Markushévich", link: "https://drive.google.com/file/d/1JA6cvG0GUumwgQb4VmESkKooGFsH-TP2/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Puntos Fijos", autor: "Yu. Shashkin", link: "https://drive.google.com/file/d/1J_IgpcI4C4422tub33uc_7CVZOonDIuO/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Números Complejos", autor: "Lázaro Carrión", link: "https://drive.google.com/file/d/1Jn7H1CmJkL42IUnlQf5ehdnadBXlN6rj/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "División de polinomios", autor: "Carlos Nakamura", link: "https://drive.google.com/file/d/1JqFEk5CjZYOf5EJ419jJcOsIxIZY_Bb9/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Curso de Matemáticas Superiores", autor: "V. A. Kudriávtsev", link: "https://drive.google.com/file/d/1KVmJV1nzgyBYpPaLDpLG9ntbgGNZYUNB/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Inferencia Estadistica", autor: "Moisés Lázaro", link: "https://drive.google.com/file/d/1KXPPXJlTJwne3accAOI7GTL_z9FUj_dL/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "De cuántas formas (Combinatoria)", autor: "N. Vilenkin", link: "https://drive.google.com/file/d/1KkGc_HAyf-ToLoMvHvBHVtZpwAevPl0x/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Sistemas de Ecuaciones Lineales", autor: "L. A. Skorniakov", link: "https://drive.google.com/file/d/1L1aMdTM7aCz-Up7TEmnw5sBDNXJW9_Dk/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Ecuaciones Integrales", autor: "M. Krasnov - KIseliov - Makarenko", link: "https://drive.google.com/file/d/1LE3o4U6jH1DKWQh2EDoYf-jdVmbsawhP/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "ANALISIS MATEMATICO LIMITES Y CONTINUIDAD", autor: "Moises Lazaro", link: "https://drive.google.com/file/d/1Lc6DCiBvq92HFP8clfB8erdnNy3KGVJ6/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Conceptos Fundamentales de Álgebra", autor: "Bruce E. Meserve", link: "https://drive.google.com/file/d/1MdcTyeMcuzZl-d0QJaq4UsGQa1f6aB9V/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Los Algoritmos y la Resolución Automática de Problemas", autor: "B. A. Trajtenbrot", link: "https://drive.google.com/file/d/1MwbV15DF06zl8PkN3mvXfm2Zhrkajmf1/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Números de Fibonacci", autor: "N. N. Vorobiov", link: "https://drive.google.com/file/d/1O4fN5J367mPiebcD9QVVjTCZlQNALfCk/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "División de un Segmento en la Razón Dada", autor: "N. M. Beskin", link: "https://drive.google.com/file/d/1PwBnDOxtNKLYq0Yx29GmMI08Rva5cvnm/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Desigualdades", autor: "P. P. Korovkin", link: "https://drive.google.com/file/d/1R0w9yjmdW1RVxyKMv7EKv7uRCSPtEZJM/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "La Envolvente", autor: "V. G. Boltianski", link: "https://drive.google.com/file/d/1TtG5HvDsZMLAWVy0zVs-bd5jB8fdj41j/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Teoría de las Funciones Analíticas - Tomo II", autor: "A. Markushevich", link: "https://drive.google.com/file/d/1TuYNh2HTQNqwALa3gzszabij662QNyH6/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas y Experimentos Recreativos", autor: "Ya. I. Perelmán", link: "https://drive.google.com/file/d/1UR0WcMzkvoBgtGSZWUELninIC2Ot39Mr/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Máquina de Post", autor: "V. A. Uspenski", link: "https://drive.google.com/file/d/1VnuzkN5r1871Q9stxeAJE0B9TbrB5V3y/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas de Matemáticas Elementales", autor: "V. B. Lidski y Otros", link: "https://drive.google.com/file/d/1W-n738HLO60aw_t7impB_-oqolfxQFQH/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Lecciones sobre Ecuaciones en Derivadas Parciales", autor: "I. G. Petrovski", link: "https://drive.google.com/file/d/1WFwVUixsWQcY2fVyKPlYNsATIwp3qZQV/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Proyección Estereográfica", autor: "B. A. Rosenfeld - N. D. Sergeeva", link: "https://drive.google.com/file/d/1WIejhuSSV1DwzpX_-NXd5bL5agpHn_E3/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Lógica y teoría de conjuntos", autor: "Moisés Lázaro", link: "https://drive.google.com/file/d/1WlduXHp4lnUFfvhwN_GIRgG79_ksTCNe/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Binomio de Newton", autor: "Armando Quispe", link: "https://drive.google.com/file/d/1WltM9Gd4LrLeJXT1VDfQQei3VHYXzpVj/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Método de Inducción Matemática", autor: "I. S. Sominskim", link: "https://drive.google.com/file/d/1XFRmtOI9uWvwl2HvdUwM20gIXZT4r37f/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas de Álgebra Lineal", autor: "J. Ikrámov", link: "https://drive.google.com/file/d/1XL489LrcWNcnBD0y_EUkXfk58JraCwvy/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Productos notables", autor: "Carlos Nakamura", link: "https://drive.google.com/file/d/1_V3Dnm57OkpcgJ-0h3dl9IcMQ5LBVY8q/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas Sobre la Teoría de Funciones", autor: "L. Volkovyski y Otros", link: "https://drive.google.com/file/d/1acZAAOvxJqew_Za1BxXs8gdkf_2u4tWt/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas Elementales de Máximo y Mínimo", autor: "I. P. Natansón", link: "https://drive.google.com/file/d/1ao4FH7KFl2TX4IO3qHpH0JU2uMsPS9LW/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Estadística Matemática", autor: "A. A. Borovkov", link: "https://drive.google.com/file/d/1ba6OHqar04NHSh_c_G3XawdjKQt6RWZU/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Teoría de Conjuntos y temas afines", autor: "Seymour Lipschutz", link: "https://drive.google.com/file/d/1cMbsxKn3cR1BrIDIimsQ0F22vkQ-8Gxa/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Qué es la Programación Lineal", autor: "A. S. Bársov", link: "https://drive.google.com/file/d/1cX5Z1DWORh9hPzBbZiCiV02re50JJAmP/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Números complejos", autor: "Carlos Nakamura R.", link: "https://drive.google.com/file/d/1d97LlsfIXW9nplHzAg78pkpAbEaY-N4N/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Logaritmos", autor: "Armando Quispe Pauyacc", link: "https://drive.google.com/file/d/1dbuOcvOgrdcGiB4cMjzwT8PbWsH-guhm/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Método de Aproximaciones Sucesivas", autor: "N. Ya. Vilenkin", link: "https://drive.google.com/file/d/1eCXh2hWUwfUP_XX7Qm_fb9t39WMGHlq4/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas de Matemática Discreta", autor: "G. Gavrílov - A. Sapozhenko", link: "https://drive.google.com/file/d/1emmzSRC3O04CodOGFYqun0FMO-2j5PF1/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Analisis Matematico IV", autor: "Moisés Lazaro", link: "https://drive.google.com/file/d/1gx6pwa2KwdTJ-r90cSQbAe3k4BjEQq17/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Vectores R2 Y R3", autor: "Moisés Lázaro", link: "https://drive.google.com/file/d/1hHVIhah0-W8wbhO_AjpfOUTp9v92WuEw/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Problemas de las Matemáticas Superiores I", autor: "A. Efimov y Otros", link: "https://drive.google.com/file/d/1iADecCbNZ9fSm56F_8XZ3Ntu0erXEZMI/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Matematica Basica", autor: "Moisés Lazaro", link: "https://drive.google.com/file/d/1iHeBvJOYrQL4Ibkh7XhtwRkvJ8IyVwkE/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Números Reales", autor: "Moisés Lázaro Carrión", link: "https://drive.google.com/file/d/1iSvKMuvfDcA4Km51iV6FMVUYj_IvVRZS/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Fracciones Maravillosas", autor: "N. Beskin", link: "https://drive.google.com/file/d/1ieOzDgE-D6aQJPDsjwNKvWWcFjyXvc0g/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Algebra Radicación y racionalización", autor: "Ing. Luis Manrique L.", link: "https://drive.google.com/file/d/1jAYGybscPHCPFv092W6w5ntVmo8Dsv65/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Fundamentos de Álgebra Lineal", autor: "A. I. Máltsev", link: "https://drive.google.com/file/d/1jdfsR0J_wrmra1g2bQer8Nmu6j1LAaS9/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Series de Fourirr", autor: "Moises Lazaro", link: "https://drive.google.com/file/d/1jjGpr7vkAxL0ZFZ22mL3TcEMk1s_yp41/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Representación de Figuras Espaciales", autor: "N. M. Beskin", link: "https://drive.google.com/file/d/1jpz-7Yr6bEo-V9MBXqmAmaW-fg9PHVjl/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Curso de la Teoría de Problemas Extremales", autor: "E. Galéev - V.Tijomírov", link: "https://drive.google.com/file/d/1k1-4-KSr_i9HDFz50CCS0YbaHuVESrFg/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Ecuaciones Diferenciales y sus Aplicaciones", autor: "Martin Braun", link: "https://drive.google.com/file/d/1kHZh1cjGRSywjxDfnf3kPoyG5gmIqqZP/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Teoría Axiomática de Conjuntos", autor: "Patrick Suppes", link: "https://drive.google.com/file/d/1kTy0ThcBnVWop6Iafxo14EUhfiMwiPt8/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Fundamentos de las Matemáticas Superiores", autor: "V. S. Shipachev", link: "https://drive.google.com/file/d/1l86Eaf0dy_Vo2hDa8fG3Zp4EetjdGojh/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Introducción al Álgebra", autor: "A. I. Kostrikin", link: "https://drive.google.com/file/d/1lA8HZ5DAz6fqHsZNFGKxF-xqVyblAg6J/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Matemáticas Superiores", autor: "I. Suvorov", link: "https://drive.google.com/file/d/1lTxx61yuSc0ZwZSOIfAGAgsFN-ch5bSb/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Característica Euleriana", autor: "Yu. Shashkin", link: "https://drive.google.com/file/d/1lbnutZizZKCwmy5PMvAjfUGn9F_zNX6x/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Teoría de las ecuaciones", autor: "Ing. Armando Quispe P.", link: "https://drive.google.com/file/d/1nIyHsPCeQSh8HcmGVPCLhN4OGeQddP0W/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "El Método de Coordenadas", autor: "I. Gelfand - E. Glagolieva", link: "https://drive.google.com/file/d/1ncf2qqAG2umgajKAnX1GNbuxq3Tkp57Y/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Relaciones y Funciones", autor: "Moisés Lázaro", link: "https://drive.google.com/file/d/1oWSZeoZzMypCdoV007NB5Y2xeCne_xss/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Ecuaciones Diferenciales", autor: "Moisés Lázaro", link: "https://drive.google.com/file/d/1pJ14w4Qneoxy_u1SFnVFf2xGjvDkuzQr/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Temas Selectos de Matemáticas Elementales", autor: "G. Dorofeiev y Otros", link: "https://drive.google.com/file/d/1rBtqlLjKa3RUMlcXPb7H8nuVSMtiweQN/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Teoria De Ecuaciones", autor: "J.V. Uspensky", link: "https://drive.google.com/file/d/1rYQK2jPptoAhFoaYYq2hTJxTYuk8lRSC/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Rectas y Curvas", autor: "N. B. Vasiliev - V. L. Gutenmajer", link: "https://drive.google.com/file/d/1rrrHnCqnmKzqGJmq2UjVDxUVz7UAsKuQ/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Lecciones de Teoría de las Ecuaciones Integrales", autor: "I. Petrovski", link: "https://drive.google.com/file/d/1shLIn6Oimq8QhU0a4xmpYHXP7dYyb6V9/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Introducción Moderna al Álgebra", autor: "John L. Kelley - Ed. Norma", link: "https://drive.google.com/file/d/1sl4ZjjI5Mj1VYb_QV259OC6GKTlZOi0W/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Elementos de Matemáticas Superiores", autor: "I. L. Záitsev", link: "https://drive.google.com/file/d/1svO8fAxREZ5vPq_L5Degza5COuQB7Hk7/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "El Cuerpo de los Complejos", autor: "Mario Azócar", link: "https://drive.google.com/file/d/1t446yE3vbVuWADgV9TxSpIGQjJdhZcrl/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Fundamentos Matemáticos de la Cibernética", autor: "Yu. M. Korshunov", link: "https://drive.google.com/file/d/1xUAG1gotprJMrvhMMCnYX22k9hOQXoRa/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Analisis Matemático II", autor: "Moisés Lazaro", link: "https://drive.google.com/file/d/1xY74qrq9qkzKljJTOicMD2E25IoOUGeJ/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Curso de Álgebra Superior", autor: "A. G. Kurosch", link: "https://drive.google.com/file/d/1xb7eCdIa-j6lutL7xWAy2tVC4JfPA1Kb/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Funciones Hiperbólicas", autor: "V.G. Shervátov", link: "https://drive.google.com/file/d/1xpwssiZCoxE5-LV4tGSiJox17u5hWH3e/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Matemáticas Superiores en Ejercicios 2", autor: "P.E. Dankó y otros", link: "https://drive.google.com/file/d/1xtKspiX5wyBx0ftlIFnmAodhx_iBKgFP/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Teoremas de Configuración", autor: "B. I. Argunov - L. A. Skorniakov", link: "https://drive.google.com/file/d/1yLdvOJMIWRHFsmnCrcvHL9YMCSpOiSAl/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Programación lineal", autor: "Moisés Lázaro", link: "https://drive.google.com/file/d/1zhpRRqfsYCWHStAhzIyo9mFugBpPMu1b/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Algebra de Baldor (2008)", autor: "Grupo Editorial Patria", link: "https://drive.google.com/file/d/1sds0dwYOHhNM-jE389Lfh2-LwNXgdn14/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Geometria Analitica", autor: "Lehmann", link: "https://drive.google.com/file/d/18MO5Qmgyd34AmElEZ4iQBVbi6ZbxSd1M/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Geometria plana y del espacio y trigonometria de Baldor (2011)", autor: "Grupo Editorial Patria", link: "https://drive.google.com/file/d/1nQGzO5JRwuEMoEdoXORocFCksAaKEcRc/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Introducción a la Física Cuántica", autor: "Joaquín Retamosa Granado, Álvaro Tejero Cantero, Pablo Ruiz Múzquiz", link: "https://drive.google.com/file/d/137418QV8qN7VjPqKz_NOw-MdNcUCgx3c/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "Física", autor: "Francis Sears, Mark Zemansky", link: "https://drive.google.com/file/d/1oYCodBv8rFbX9gc0mYfl8CXA2vJRh-eY/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "PROBLEMAS DE VECTORIAL", autor: "Material Académico", link: "https://drive.google.com/file/d/107_FHByCfeas7EAo1EEkgyx2PnAzAczD/view?usp=sharing" },
+      { carrera: "Ingeniería en Informática", imagen: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80", titulo: "PreCalculo Matematicas para el calculo E6", autor: "JAMES STEWART, LOTHAR REDLIN, SALEEM WATSON", link: "https://drive.google.com/file/d/15MSv7uSZYL9fBPeZzAiQ3BrcymRc6Q_S/view?usp=sharing" },
+      { carrera: "Marketing y Gestión Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "FINANZAS CORPORATIVAS", autor: "Stephen A. Ross", link: "https://drive.google.com/file/d/104U0pSwN8B8P7Mqt2eWySBVev9ChYVme/view?usp=sharing" },
+      { carrera: "Marketing y Gestión Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "DIRECCIÓN EN MARKETING", autor: "Kotler y Keller", link: "https://drive.google.com/file/d/10TvRb6AID2IqCCGOuokbniTKQKjo8C2f/view?usp=sharing" },
+      { carrera: "Marketing y Gestión Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "ADMINISTRACIÓN DE OPERACIONES", autor: "Lee Krajewski, Larry Ritzman", link: "https://drive.google.com/file/d/1GnQFHWs0Mi1bJF53rnSa_6oqSqZWilKX/view?usp=sharing" },
+      { carrera: "Marketing y Gestión Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "PRINCIPIOS DE LA ECONOMÍA", autor: "N. Gregory Mankiw", link: "https://drive.google.com/file/d/1Imj6XSx74bfI2NpgJueCogJoZxcC8m7g/view?usp=sharing" },
+      { carrera: "Marketing y Gestión Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "PRINCIPIOS DE FINANZAS CORPORATIVAS <span class=\"libro-edicion\">9ª EDICIÓN</span>", autor: "Stewart Myers, Franklin Allen", link: "https://drive.google.com/file/d/1eqIh1MtXP1orVCcj6Po1Umx77Xon42-u/view?usp=sharing" },
+      { carrera: "Marketing y Gestión Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "ESTRATEGIA COMPETITIVA TÉCNICAS PARA EL ANÁLISIS DE LOS SECTORES INDUSTRIALES Y DE LA COMPETENCIA", autor: "Michael E. Porter", link: "https://drive.google.com/file/d/1sZ_mqHexjzAG5XSTEj7nbX5YhCvBduOa/view?usp=sharing" },
+      { carrera: "Marketing y Gestión Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "Material de Estudio", autor: "Sin especificar", link: "https://drive.google.com/file/d/1z_v4QNTNG1AcUGQHlJRujef5HPG2SQCZ/view?usp=sharing" },
+      { carrera: "Ingeniería Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "FINANZAS CORPORATIVAS", autor: "Stephen A. Ross", link: "https://drive.google.com/file/d/104U0pSwN8B8P7Mqt2eWySBVev9ChYVme/view?usp=sharing" },
+      { carrera: "Ingeniería Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "DIRECCIÓN EN MARKETING", autor: "Kotler y Keller", link: "https://drive.google.com/file/d/10TvRb6AID2IqCCGOuokbniTKQKjo8C2f/view?usp=sharing" },
+      { carrera: "Ingeniería Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "ADMINISTRACIÓN DE OPERACIONES", autor: "Lee Krajewski, Larry Ritzman", link: "https://drive.google.com/file/d/1GnQFHWs0Mi1bJF53rnSa_6oqSqZWilKX/view?usp=sharing" },
+      { carrera: "Ingeniería Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "PRINCIPIOS DE LA ECONOMÍA", autor: "N. Gregory Mankiw", link: "https://drive.google.com/file/d/1Imj6XSx74bfI2NpgJueCogJoZxcC8m7g/view?usp=sharing" },
+      { carrera: "Ingeniería Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "PRINCIPIOS DE FINANZAS CORPORATIVAS <span class=\"libro-edicion\">9ª EDICIÓN</span>", autor: "Stewart Myers, Franklin Allen", link: "https://drive.google.com/file/d/1eqIh1MtXP1orVCcj6Po1Umx77Xon42-u/view?usp=sharing" },
+      { carrera: "Ingeniería Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "ESTRATEGIA COMPETITIVA TÉCNICAS PARA EL ANÁLISIS DE LOS SECTORES INDUSTRIALES Y DE LA COMPETENCIA", autor: "Michael E. Porter", link: "https://drive.google.com/file/d/1sZ_mqHexjzAG5XSTEj7nbX5YhCvBduOa/view?usp=sharing" },
+      { carrera: "Ingeniería Comercial", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "Material de Estudio", autor: "Sin especificar", link: "https://drive.google.com/file/d/1z_v4QNTNG1AcUGQHlJRujef5HPG2SQCZ/view?usp=sharing" },
+      { carrera: "Relaciones Internacionales", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "ORDEN MUNDIAL", autor: "Henry Kissinger", link: "https://drive.google.com/file/d/1JC7R1N_UVaqBP_CBBlCU_DWzb_vqTsVd/view?usp=sharing" },
+      { carrera: "Relaciones Internacionales", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "ESTRATEGIA GLOBAL <span class=\"libro-edicion\">3ª EDICIÓN</span>", autor: "Mike Peng", link: "https://drive.google.com/file/d/1ReoaYTfNxf3U9zlRDoZCoOIbGZkUVQUP/view?usp=sharing" },
+      { carrera: "Relaciones Internacionales", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "CÓMO LLEGAR AL SÍ", autor: "Roger Fisher y William Ury", link: "https://drive.google.com/file/d/1ezdNIfMVtFjhcSCW4z2VQbi4ULbBegPn/view?usp=sharing" },
+      { carrera: "Relaciones Internacionales", imagen: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80", titulo: "NEGOCIOS INTERNACIONALES <span class=\"libro-edicion\">8VA EDICIÓN</span>", autor: "Charles Hill", link: "https://drive.google.com/file/d/1yigYmVsgUjmQHl7YcQDnfWR_r4LA1s6a/view?usp=sharing" }
+    ];
 
-<script>
-    // Config de Firebase del proyecto "biblioteca-unida". Fija en el código
-    // para que cualquier visitante se conecte, sin depender de localStorage.
-    const FIREBASE_CONFIG = {
-        apiKey: "AIzaSyC2wGKllK3fDBuD3tapp6Fn-NelqBX6d-o",
-        authDomain: "biblioteca-unida-304c0.firebaseapp.com",
-        projectId: "biblioteca-unida-304c0",
-        storageBucket: "biblioteca-unida-304c0.firebasestorage.app",
-        messagingSenderId: "672764436400",
-        appId: "1:672764436400:web:fc85f8866f7561bb760075"
+    const ADMIN_PIN = "2026";
+    const FB_STORAGE_KEY = "unida_firebase_config";
+    // Config por defecto del proyecto "biblioteca-unida". Se usa siempre que
+    // no haya una config distinta guardada manualmente en este navegador
+    // (vía el botón "Conectar Firebase"), para no depender de configurar
+    // Firebase a mano en cada compu desde donde se administre.
+    const FIREBASE_CONFIG_DEFAULT = {
+      apiKey: "AIzaSyC2wGKllK3fDBuD3tapp6Fn-NelqBX6d-o",
+      authDomain: "biblioteca-unida-304c0.firebaseapp.com",
+      projectId: "biblioteca-unida-304c0",
+      storageBucket: "biblioteca-unida-304c0.firebasestorage.app",
+      messagingSenderId: "672764436400",
+      appId: "1:672764436400:web:fc85f8866f7561bb760075"
     };
+    
     let db = null;
-    window.catalogoLibros = [];
-    window.simuladoresGlobales = [];
+    let libros = [];
+    let simuladores = [];
+    let chartCarrerasInst = null;
+    let chartFacultadesInst = null;
 
-    async function inicializarDatosCloud() {
-        try {
-            if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-            db = firebase.firestore();
+    const MAPA_FACULTADES = {
+      "Medicina": "Salud", "Nutrición": "Salud", "Enfermería": "Salud", "Kinesiología y Fisioterapia": "Salud",
+      "Ingeniería en Informática": "Ingeniería", "Ingeniería en Sistemas": "Ingeniería", "Ingeniería Industrial": "Ingeniería", "Ingeniería Electrónica": "Ingeniería",
+      "Marketing y Gestión Comercial": "Gestión", "Psicología Organizacional": "Gestión", "Ingeniería Comercial": "Gestión", "Administración de Empresas": "Gestión", "Contaduría Pública": "Gestión", "Comercio Internacional": "Gestión", "Relaciones Internacionales": "Gestión",
+      "Derecho": "Jurídicas_y_Sociales", "Ciencias Políticas": "Jurídicas_y_Sociales", "Educación": "Jurídicas_y_Sociales",
+      "Adm. de Empresas/Pública": "FEADYS", "Adm. Gestión Emprendedora": "FEADYS", "Talento Humano": "FEADYS", "Banca y Finanzas": "FEADYS", "Marketing Digital": "FEADYS", "Sistemas": "FEADYS"
+    };
 
-            // Sincronización en tiempo real de libros desde Firebase
-            db.collection("libros").onSnapshot(snapshot => {
-                window.catalogoLibros = [];
-                snapshot.forEach(doc => window.catalogoLibros.push(doc.data()));
-                if (window.catalogoLibros.length === 0 && typeof catalogoLibros !== 'undefined') {
-                    window.catalogoLibros = [...catalogoLibros];
-                }
-            }, error => {
-                usarRespaldoLocal();
-            });
+    const PORTADAS_PRESET = {
+      "Medicina": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
+      "Nutrición": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=300&q=80",
+      "Enfermería": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
+      "Ingeniería en Informática": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80",
+      "Administración de Empresas": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+      "Derecho": "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=300&q=80",
+      "Educación": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80"
+    };
 
-            // Sincronización en tiempo real de simuladores desde Firebase
-            db.collection("simuladores").onSnapshot(snapshot => {
-                window.simuladoresGlobales = [];
-                snapshot.forEach(doc => window.simuladoresGlobales.push(doc.data()));
-                if (window.simuladoresGlobales.length === 0 && typeof simuladoresGlobales !== 'undefined') {
-                    window.simuladoresGlobales = [...simuladoresGlobales];
-                }
-            }, error => {
-                usarRespaldoLocal();
-            });
-
-        } catch (e) {
-            usarRespaldoLocal();
-        }
+    function validarAcceso(e) {
+      e.preventDefault();
+      if (document.getElementById('auth-pin').value === ADMIN_PIN) {
+        document.getElementById('auth-lock').classList.add('hidden');
+        document.getElementById('dashboard-app').classList.remove('hidden');
+        sessionStorage.setItem('admin_session', 'true');
+        inicializarFirebase();
+        asignarPortadaTematica(true);
+      } else {
+        document.getElementById('auth-error').classList.remove('hidden');
+      }
     }
 
-    function usarRespaldoLocal() {
-        const localData = localStorage.getItem('unida_catalogo_global');
-        if (localData) {
-            window.catalogoLibros = JSON.parse(localData);
-        } else if (typeof catalogoLibros !== 'undefined') {
-            window.catalogoLibros = [...catalogoLibros];
+    function bloquearPanel() {
+      sessionStorage.removeItem('admin_session');
+      document.getElementById('auth-lock').classList.remove('hidden');
+      document.getElementById('dashboard-app').classList.add('hidden');
+    }
+
+    function navegarPestana(id) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        b.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800";
+      });
+      document.getElementById(id).classList.remove('hidden');
+      event.currentTarget.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400";
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      document.getElementById('dark-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    function abrirConfigFirebase() {
+      const saved = localStorage.getItem(FB_STORAGE_KEY);
+      if (saved) document.getElementById('fb-config-text').value = saved;
+      document.getElementById('modal-fb').classList.remove('hidden');
+    }
+
+    function cerrarConfigFirebase() {
+      document.getElementById('modal-fb').classList.add('hidden');
+    }
+
+    function guardarConfigFirebase() {
+      const txt = document.getElementById('fb-config-text').value.trim();
+      try {
+        let configObj = null;
+        if (txt.startsWith('{')) {
+          configObj = JSON.parse(txt);
         } else {
-            window.catalogoLibros = [];
+          const match = txt.match(/\{[\s\S]*\}/);
+          if (match) configObj = JSON.parse(match[0]);
         }
+        if (!configObj || !configObj.projectId) throw new Error("Faltan parámetros.");
 
-        if (typeof simuladoresGlobales !== 'undefined') {
-            window.simuladoresGlobales = [...simuladoresGlobales];
+        localStorage.setItem(FB_STORAGE_KEY, JSON.stringify(configObj, null, 2));
+        cerrarConfigFirebase();
+        location.reload();
+      } catch (err) {
+        alert("Configuración inválida. Asegúrate de pegar el objeto JSON completo.");
+      }
+    }
+
+    function actualizarSistema() {
+      location.reload();
+    }
+
+    function inicializarFirebase() {
+      const savedConfig = localStorage.getItem(FB_STORAGE_KEY);
+      const badge = document.getElementById('cloud-badge');
+      const statusCanal = document.getElementById('kpi-status-canal');
+
+      try {
+        const config = savedConfig ? JSON.parse(savedConfig) : FIREBASE_CONFIG_DEFAULT;
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config);
+        }
+        db = firebase.firestore();
+
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> En Vivo`;
+        badge.className = "text-[11px] font-semibold text-emerald-500 flex items-center gap-1";
+        statusCanal.textContent = "Conectado (Cloud)";
+        statusCanal.className = "text-sm font-bold text-emerald-500 mt-2";
+
+        db.collection("libros").onSnapshot(snapshot => {
+          libros = [];
+          snapshot.forEach(doc => { libros.push({ _id: doc.id, ...doc.data() }); });
+          actualizarTodoUI();
+        }, error => { fallbackLocal(); });
+
+        db.collection("simuladores").onSnapshot(snapshot => {
+          simuladores = [];
+          snapshot.forEach(doc => { simuladores.push({ _id: doc.id, ...doc.data() }); });
+          renderSimuladores();
+        });
+
+      } catch (e) {
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Error`;
+        fallbackLocal();
+      }
+    }
+
+    function fallbackLocal() {
+      if (typeof semillalibrosKuri !== 'undefined' && Array.isArray(semillalibrosKuri)) libros = [...semillalibrosKuri];
+      simuladores = [
+        { facultad: "Facultad de Salud", titulo: "Simulador de Anatomía Humana 3D", autor: "BioDigital Human", link: "https://human.biodigital.com/" },
+        { facultad: "Facultad de Gestión", titulo: "Simulador de Mercados y Bolsa", autor: "Plataforma Financiera", link: "https://www.investopedia.com/simulator/" },
+        { facultad: "Facultad de Ingeniería", titulo: "Simulador de Redes Cisco Packet Tracer", autor: "Laboratorio Informático", link: "https://www.netacad.com/courses/packet-tracer" }
+      ];
+      actualizarTodoUI();
+    }
+
+    // --- PROCESAR IMAGEN DESDE EL EQUIPO ---
+    function procesarImagenLocal(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('inp-imagen').value = e.target.result;
+        actualizarPreview();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- VACIAR BASE DE DATOS EN LA NUBE ---
+    async function vaciarBaseDeDatosNube() {
+      if (!db) return alert("Conecta Firebase primero.");
+      if (!confirm("⚠️ ¿Estás SEGURO de que deseas eliminar TODOS los libros de la nube? Esta acción borrará todo el inventario.")) return;
+
+      const spinner = document.getElementById('sync-spinner');
+      spinner.classList.remove('hidden');
+
+      try {
+        const snapshot = await db.collection("libros").get();
+        const batch = db.batch();
+        snapshot.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+        alert("¡Base de datos en la nube vaciada con éxito!");
+      } catch (err) {
+        alert("Error al vaciar la base de datos: " + err.message);
+      } finally {
+        spinner.classList.add('hidden');
+      }
+    }
+
+    // --- SUBIDA DE SEMILLA LIMPIA (EVITA DUPLICADOS POR TÍTULO) ---
+    async function subirSemillaAFirebase() {
+      if (!db) return alert("Conecta Firebase primero.");
+      
+      const librosRespaldo = (typeof semillalibrosKuri !== 'undefined' && semillalibrosKuri.length > 0) ? semillalibrosKuri : [];
+
+      if (!confirm(`¿Deseas inyectar la semilla limpia (${librosRespaldo.length} libros únicos) a Firestore?`)) return;
+
+      const spinner = document.getElementById('sync-spinner');
+      spinner.classList.remove('hidden');
+
+      try {
+        const snapshot = await db.collection("libros").get();
+        const existentesTitulos = new Set();
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          if (d.titulo) existentesTitulos.add(d.titulo.toLowerCase().trim());
+        });
+
+        const batch = db.batch();
+        let agregados = 0;
+
+        librosRespaldo.forEach(item => {
+          const tituloLimpio = item.titulo.toLowerCase().trim();
+          if (!existentesTitulos.has(tituloLimpio)) {
+            const docRef = db.collection("libros").doc();
+            batch.set(docRef, item);
+            existentesTitulos.add(tituloLimpio);
+            agregados++;
+          }
+        });
+
+        if (agregados > 0) {
+          await batch.commit();
+          alert(`¡Se agregaron ${agregados} libros únicos a la nube con éxito!`);
         } else {
-            window.simuladoresGlobales = [];
+          alert("Todos los libros de la semilla ya existían en la base de datos.");
         }
+      } catch (err) {
+        alert("Error al cargar semilla: " + err.message);
+      } finally {
+        spinner.classList.add('hidden');
+      }
     }
 
-    function showSection(sectionId) {
-        document.getElementById('dashboard-section').style.display = 'none';
-        document.getElementById('facultades-digital-section').style.display = 'none';
-        document.getElementById('facultades-impresa-section').style.display = 'none';
-        document.getElementById('descarga-section').style.display = 'none';
-        document.getElementById('catalogo-section').style.display = 'none';
-        document.getElementById('simuladores-section').style.display = 'none';
-
-        const target = document.getElementById(sectionId + '-section');
-        if (target) target.style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    function asignarPortadaTematica(forzar = false) {
+      const c = document.getElementById('inp-carrera').value;
+      const inp = document.getElementById('inp-imagen');
+      if (!inp.value || forzar) {
+        inp.value = PORTADAS_PRESET[c] || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80";
+        actualizarPreview();
+      }
     }
 
-    function irAtras() {
-        showSection('dashboard');
+    function actualizarPreview() {
+      const carrera = document.getElementById('inp-carrera').value;
+      let titulo = document.getElementById('inp-titulo').value || 'TÍTULO DEL LIBRO';
+      const edicion = document.getElementById('inp-edicion').value;
+      const autor = document.getElementById('inp-autor').value || 'Nombre del Autor';
+      const imagen = document.getElementById('inp-imagen').value || 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80';
+      const link = document.getElementById('inp-link').value || '#';
+
+      if (edicion.trim()) titulo += ` <span class="text-[10px] text-slate-400">(${edicion})</span>`;
+
+      document.getElementById('prev-carrera').textContent = carrera;
+      document.getElementById('prev-titulo').innerHTML = titulo;
+      document.getElementById('prev-autor').textContent = autor;
+      document.getElementById('prev-img').src = imagen;
+      document.getElementById('prev-link').href = link;
     }
 
-    function abrirCatalogo(carrera) {
-        document.getElementById('catalogo-titulo').textContent = 'Catálogo - ' + carrera;
-        mostrarLibros(carrera);
-        showSection('catalogo');
-    }
+    async function guardarLibro(e) {
+      e.preventDefault();
+      const docId = document.getElementById('edit-doc-id').value;
+      let titulo = document.getElementById('inp-titulo').value.trim();
+      const edicion = document.getElementById('inp-edicion').value.trim();
+      
+      if (edicion) titulo = `${titulo} <span class="libro-edicion">${edicion}</span>`;
 
-    function mostrarLibros(carreraFiltrada = null, textoBusqueda = '', filtroTipo = 'todos') {
-        const contenedor = document.getElementById('contenedor-libros');
-        const mensajeVacio = document.getElementById('mensaje-vacio');
-        contenedor.innerHTML = '';
+      const libroObj = {
+        carrera: document.getElementById('inp-carrera').value,
+        titulo: titulo,
+        autor: document.getElementById('inp-autor').value.trim(),
+        imagen: document.getElementById('inp-imagen').value.trim() || PORTADAS_PRESET[document.getElementById('inp-carrera').value],
+        link: document.getElementById('inp-link').value.trim()
+      };
 
-        textoBusqueda = textoBusqueda.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-        let librosFiltrados = window.catalogoLibros || [];
-
-        if (carreraFiltrada) {
-            librosFiltrados = librosFiltrados.filter(libro => libro.carrera === carreraFiltrada);
-        }
-
-        if (textoBusqueda) {
-            librosFiltrados = librosFiltrados.filter(libro => {
-                const titulo = (libro.titulo || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const autor = (libro.autor || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if (filtroTipo === 'autor') return autor.includes(textoBusqueda);
-                if (filtroTipo === 'tema') return titulo.includes(textoBusqueda);
-                return titulo.includes(textoBusqueda) || autor.includes(textoBusqueda);
-            });
-        }
-
-        if (librosFiltrados.length === 0) {
-            mensajeVacio.style.display = 'block';
+      if (db) {
+        if (docId) await db.collection("libros").doc(docId).update(libroObj);
+        else await db.collection("libros").add(libroObj);
+      } else {
+        if (docId) {
+          const idx = libros.findIndex(l => l._id === docId);
+          if (idx >= 0) libros[idx] = libroObj;
         } else {
-            mensajeVacio.style.display = 'none';
-            librosFiltrados.forEach(libro => {
-                const card = document.createElement('div');
-                card.className = 'libro-card';
-                card.innerHTML = `
-                    <div class="libro-cover">
-                        <img src="${libro.imagen || 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80'}" alt="Portada" style="width:100%; height:100%; object-fit:cover;">
-                    </div>
-                    <div class="libro-info">
-                        <h3 class="libro-title">${libro.titulo}</h3>
-                        <p class="libro-author">${libro.autor}</p>
-                    </div>
-                    <div class="libro-action">
-                        <a href="${libro.link}" target="_blank" class="btn-drive-download">
-                            <i class="fab fa-google-drive"></i> Descargar
-                        </a>
-                    </div>
-                `;
-                contenedor.appendChild(card);
-            });
+          libros.unshift(libroObj);
         }
+        actualizarTodoUI();
+      }
+      limpiarFormulario();
     }
 
-    document.getElementById('buscador-libros').addEventListener('input', (e) => {
-        const texto = e.target.value;
-        const filtro = document.getElementById('filtro-libros').value;
-        const tituloActual = document.getElementById('catalogo-titulo').textContent;
-        const carreraActual = tituloActual.replace('Catálogo - ', '');
-        mostrarLibros(tituloActual === 'Catálogo' ? null : carreraActual, texto, filtro);
-    });
+    function editarLibro(i) {
+      const l = libros[i];
+      document.getElementById('edit-doc-id').value = l._id || "";
+      document.getElementById('inp-carrera').value = l.carrera;
+      
+      if (l.titulo.includes('<span class="libro-edicion">')) {
+        const parts = l.titulo.split('<span class="libro-edicion">');
+        document.getElementById('inp-titulo').value = parts[0].trim();
+        document.getElementById('inp-edicion').value = parts[1].replace('</span>', '').trim();
+      } else {
+        document.getElementById('inp-titulo').value = l.titulo;
+        document.getElementById('inp-edicion').value = '';
+      }
 
-    function abrirSimuladores(facultadMap) {
-        document.getElementById('simuladores-titulo').textContent = 'Simuladores - ' + facultadMap;
-        const contenedor = document.getElementById('contenedor-simuladores');
-        contenedor.innerHTML = '';
-
-        const simsFiltrados = (window.simuladoresGlobales || []).filter(s => s.facultad === facultadMap);
-
-        if (simsFiltrados.length === 0) {
-            contenedor.innerHTML = `<div style="text-align: center; padding: 40px; color: #666;">No hay simuladores activos para esta facultad actualmente.</div>`;
-        } else {
-            simsFiltrados.forEach(s => {
-                const card = document.createElement('div');
-                card.className = 'libro-card simulador-card';
-                card.innerHTML = `
-                    <div class="libro-cover simulador-cover"><i class="fas fa-laptop-code"></i></div>
-                    <div class="libro-info">
-                        <h3 class="libro-title">${s.titulo}</h3>
-                        <p class="libro-author">${s.autor}</p>
-                    </div>
-                    <div class="libro-action">
-                        <a href="${s.link}" target="_blank" class="btn-drive-download btn-simular">
-                            <i class="fas fa-external-link-alt"></i> Acceder
-                        </a>
-                    </div>
-                `;
-                contenedor.appendChild(card);
-            });
-        }
-        showSection('simuladores');
+      document.getElementById('inp-autor').value = l.autor;
+      document.getElementById('inp-imagen').value = l.imagen;
+      document.getElementById('inp-link').value = l.link;
+      actualizarPreview();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    inicializarDatosCloud().then(() => {
-        showSection('dashboard');
-    });
-</script>
+    async function eliminarLibro(i) {
+      const l = libros[i];
+      if (confirm(`¿Eliminar definitivamente: ${l.titulo}?`)) {
+        if (db && l._id) await db.collection("libros").doc(l._id).delete();
+        else { libros.splice(i, 1); actualizarTodoUI(); }
+      }
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('edit-doc-id').value = "";
+      document.getElementById('form-libro').reset();
+      document.getElementById('inp-imagen').value = "";
+      asignarPortadaTematica(true);
+    }
+
+    async function guardarSimulador(e) {
+      e.preventDefault();
+      const simObj = {
+        facultad: document.getElementById('sim-facultad').value,
+        titulo: document.getElementById('sim-titulo').value.trim(),
+        autor: document.getElementById('sim-autor').value.trim(),
+        link: document.getElementById('sim-link').value.trim()
+      };
+      if (db) await db.collection("simuladores").add(simObj);
+      else { simuladores.push(simObj); renderSimuladores(); }
+      e.target.reset();
+    }
+
+    async function eliminarSimulador(i) {
+      const s = simuladores[i];
+      if (confirm(`¿Eliminar simulador: ${s.titulo}?`)) {
+        if (db && s._id) await db.collection("simuladores").doc(s._id).delete();
+        else { simuladores.splice(i, 1); renderSimuladores(); }
+      }
+    }
+
+    function generarExcelInventario() {
+      if (libros.length === 0) return alert("No hay libros disponibles.");
+      const wb = XLSX.utils.book_new();
+      const librosPorFacultad = {};
+      const conteoPorFacultad = {};
+      
+      const vistos = new Set();
+      const librosUnicos = libros.filter(l => {
+        const key = (l.titulo + "|" + l.carrera).toLowerCase();
+        if (vistos.has(key)) return false;
+        vistos.add(key);
+        return true;
+      });
+
+      librosUnicos.forEach(l => {
+        const fac = MAPA_FACULTADES[l.carrera] || "Otras Areas";
+        conteoPorFacultad[fac] = (conteoPorFacultad[fac] || 0) + 1;
+        if (!librosPorFacultad[fac]) librosPorFacultad[fac] = {};
+        if (!librosPorFacultad[fac][l.carrera]) librosPorFacultad[fac][l.carrera] = [];
+        librosPorFacultad[fac][l.carrera].push(l);
+      });
+
+      const wsResumenData = [
+        ["INVENTARIO ANUAL DE BIBLIOTECA - UNIDA"],
+        ["Fecha de corte:", new Date().toLocaleDateString()],
+        [],
+        ["FACULTAD", "VOLÚMENES REGISTRADOS"]
+      ];
+      for (const [facultad, cant] of Object.entries(conteoPorFacultad)) {
+        wsResumenData.push([facultad.toUpperCase().replace(/_/g, ' '), cant]);
+      }
+      wsResumenData.push([]);
+      wsResumenData.push(["TOTAL GENERAL", librosUnicos.length]);
+      
+      const wsResumen = XLSX.utils.aoa_to_sheet(wsResumenData);
+      wsResumen['!cols'] = [{wch: 40}, {wch: 30}];
+      XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen Global");
+
+      for (const [facultadRaw, carrerasObj] of Object.entries(librosPorFacultad)) {
+        const facNombre = facultadRaw.replace(/_/g, ' ').substring(0, 31);
+        const sheetData = [
+          [`INVENTARIO: ${facNombre.toUpperCase()}`],
+          ["Biblioteca Central UNIDA - Reporte Anual"],
+          []
+        ];
+
+        for (const [carrera, lista] of Object.entries(carrerasObj)) {
+          sheetData.push([`CARRERA: ${carrera.toUpperCase()}`]);
+          sheetData.push(["Nº", "Título del Material", "Autor / Editorial", "Edición / Tomo", "Enlace de Descarga Drive"]);
+          
+          lista.forEach((l, idx) => {
+            let tituloStr = l.titulo;
+            let edicionStr = "-";
+            if (tituloStr.includes('<span')) {
+              const div = document.createElement('div');
+              div.innerHTML = l.titulo;
+              const span = div.querySelector('span');
+              if (span) { edicionStr = span.textContent.trim(); span.remove(); }
+              tituloStr = div.textContent.trim();
+            }
+            sheetData.push([idx + 1, tituloStr, l.autor, edicionStr, l.link]);
+          });
+          sheetData.push([]);
+        }
+        const ws = XLSX.utils.aoa_to_sheet(sheetData);
+        ws['!cols'] = [{wch: 5}, {wch: 50}, {wch: 35}, {wch: 20}, {wch: 50}];
+        XLSX.utils.book_append_sheet(wb, ws, facNombre);
+      }
+      XLSX.writeFile(wb, `Inventario_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`);
+    }
+
+    function descargarJS() {
+      const vistos = new Set();
+      const librosUnicos = libros.filter(l => {
+        const key = (l.titulo + "|" + l.carrera).toLowerCase();
+        if (vistos.has(key)) return false;
+        vistos.add(key);
+        return true;
+      });
+
+      const librosLimpios = librosUnicos.map(({ _id, ...resto }) => resto);
+      const simsLimpios = simuladores.map(({ _id, ...resto }) => resto);
+      const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent(`const catalogoLibros = ${JSON.stringify(librosLimpios, null, 4)};\n\nconst simuladoresGlobales = ${JSON.stringify(simsLimpios, null, 4)};\n`);
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = "catalogo.js";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function actualizarTodoUI() {
+      document.getElementById('kpi-total').textContent = libros.length;
+      document.getElementById('kpi-simuladores').textContent = simuladores.length;
+      document.getElementById('kpi-carreras').textContent = [...new Set(libros.map(l => l.carrera))].length;
+
+      const filter = document.getElementById('filtro-carrera');
+      const val = filter.value;
+      filter.innerHTML = '<option value="">Todas las Carreras</option>';
+      [...new Set(libros.map(l => l.carrera))].forEach(c => filter.innerHTML += `<option value="${c}">${c}</option>`);
+      filter.value = val;
+      
+      filtrarTabla();
+      renderGraficos();
+      renderSimuladores();
+    }
+
+    function filtrarTabla() {
+      const q = document.getElementById('buscador-tabla').value.toLowerCase();
+      const c = document.getElementById('filtro-carrera').value;
+      const tbody = document.getElementById('tabla-cuerpo');
+      tbody.innerHTML = '';
+
+      libros.forEach((l, i) => {
+        if ((!c || l.carrera === c) && ((l.titulo||'').toLowerCase().includes(q) || (l.autor||'').toLowerCase().includes(q))) {
+          tbody.innerHTML += `
+            <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition border-b border-slate-100 dark:border-slate-800">
+              <td class="p-3 truncate max-w-[200px] font-semibold text-slate-800 dark:text-slate-200">${l.titulo}</td>
+              <td class="p-3"><span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-300 rounded text-[10px] font-bold">${l.carrera}</span></td>
+              <td class="p-3 truncate max-w-[150px]">${l.autor}</td>
+              <td class="p-3"><a href="${l.link}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"><i class="fab fa-google-drive"></i> Link</a></td>
+              <td class="p-3 text-right flex justify-end gap-2">
+                <button onclick="editarLibro(${i})" class="text-blue-500 p-1.5 hover:bg-blue-100 rounded"><i class="fas fa-pen"></i></button>
+                <button onclick="eliminarLibro(${i})" class="text-rose-500 p-1.5 hover:bg-rose-100 rounded"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          `;
+        }
+      });
+    }
+
+    function renderSimuladores() {
+      const boxSim = document.getElementById('lista-simuladores-admin');
+      if (!boxSim) return;
+      boxSim.innerHTML = '';
+      simuladores.forEach((s, i) => {
+        boxSim.innerHTML += `
+          <div class="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-800/40">
+            <div>
+              <span class="text-[10px] font-bold text-amber-600 uppercase">${s.facultad}</span>
+              <h5 class="text-xs font-bold text-slate-800 dark:text-white mt-0.5">${s.titulo}</h5>
+              <p class="text-[11px] text-slate-500">${s.autor}</p>
+            </div>
+            <button onclick="eliminarSimulador(${i})" class="text-rose-500 hover:text-rose-700 bg-white dark:bg-slate-800 p-2 rounded shadow-sm"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+      });
+    }
+
+    function renderGraficos() {
+      const carr = {}; libros.forEach(l => carr[l.carrera] = (carr[l.carrera] || 0) + 1);
+      if (chartCarrerasInst) chartCarrerasInst.destroy();
+      const ctx1 = document.getElementById('chartCarreras');
+      if (ctx1) {
+        chartCarrerasInst = new Chart(ctx1, {
+          type: 'doughnut', 
+          data: { labels: Object.keys(carr), datasets: [{ data: Object.values(carr), backgroundColor: ['#1e3c6e', '#2980b9', '#e67e22', '#10b981', '#6366f1', '#ec4899', '#f59e0b'] }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { size: 9 } } } } }
+        });
+      }
+
+      const fac = { "Salud":0, "Ingeniería":0, "Gestión":0, "Jurídicas":0, "FEADYS":0 };
+      libros.forEach(l => {
+        const fm = MAPA_FACULTADES[l.carrera];
+        if (fm && fac[fm] !== undefined) fac[fm]++;
+        else if (fm && fm.substring(0,9) && fac[fm.substring(0,9)]) fac[fm.substring(0,9)]++;
+      });
+      if (chartFacultadesInst) chartFacultadesInst.destroy();
+      const ctx2 = document.getElementById('chartFacultades');
+      if (ctx2) {
+        chartFacultadesInst = new Chart(ctx2, {
+          type: 'bar', 
+          data: { labels: Object.keys(fac), datasets: [{ data: Object.values(fac), backgroundColor: '#2980b9', borderRadius: 4 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+    }
+
+    if (sessionStorage.getItem('admin_session') === 'true') {
+      document.getElementById('auth-lock').classList.add('hidden');
+      document.getElementById('dashboard-app').classList.remove('hidden');
+      inicializarFirebase();
+    }
+  </script>
 </body>
 </html>
