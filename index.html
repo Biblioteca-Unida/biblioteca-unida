@@ -296,22 +296,23 @@
 <script src="catalogo.js"></script>
 
 <script>
-    const FB_STORAGE_KEY = "unida_firebase_config";
+    // Config de Firebase del proyecto "biblioteca-unida". Fija en el código
+    // para que cualquier visitante se conecte, sin depender de localStorage.
+    const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyC2wGKllK3fDBuD3tapp6Fn-NelqBX6d-o",
+        authDomain: "biblioteca-unida-304c0.firebaseapp.com",
+        projectId: "biblioteca-unida-304c0",
+        storageBucket: "biblioteca-unida-304c0.firebasestorage.app",
+        messagingSenderId: "672764436400",
+        appId: "1:672764436400:web:fc85f8866f7561bb760075"
+    };
     let db = null;
     window.catalogoLibros = [];
     window.simuladoresGlobales = [];
 
     async function inicializarDatosCloud() {
-        const savedConfig = localStorage.getItem(FB_STORAGE_KEY);
-        
-        if (!savedConfig) {
-            usarRespaldoLocal();
-            return;
-        }
-
         try {
-            const config = JSON.parse(savedConfig);
-            if (!firebase.apps.length) firebase.initializeApp(config);
+            if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
             db = firebase.firestore();
 
             // Sincronización en tiempo real de libros desde Firebase
