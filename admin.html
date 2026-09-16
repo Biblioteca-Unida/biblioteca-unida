@@ -27,6 +27,7 @@
   <!-- Librerías de Datos y Gráficos CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1201,75 +1202,194 @@
       }
     }
 
-    function generarExcelInventario() {
+    async function generarExcelInventario() {
       if (libros.length === 0) return alert("No hay libros disponibles.");
-      const wb = XLSX.utils.book_new();
-      const librosPorFacultad = {};
-      const conteoPorFacultad = {};
-      
-      const vistos = new Set();
-      const librosUnicos = libros.filter(l => {
-        const key = (l.titulo + "|" + l.carrera).toLowerCase();
-        if (vistos.has(key)) return false;
-        vistos.add(key);
-        return true;
-      });
+      if (typeof ExcelJS === 'undefined') return alert("No se pudo cargar el motor avanzado de Excel. Verificá tu conexión a Internet e intentá nuevamente.");
 
-      librosUnicos.forEach(l => {
-        const fac = MAPA_FACULTADES[l.carrera] || "Otras Areas";
-        conteoPorFacultad[fac] = (conteoPorFacultad[fac] || 0) + 1;
-        if (!librosPorFacultad[fac]) librosPorFacultad[fac] = {};
-        if (!librosPorFacultad[fac][l.carrera]) librosPorFacultad[fac][l.carrera] = [];
-        librosPorFacultad[fac][l.carrera].push(l);
-      });
+      const btn = document.querySelector('button[onclick="generarExcelInventario()"]');
+      const textoOriginal = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando informe...'; }
 
-      const wsResumenData = [
-        ["INVENTARIO ANUAL DE BIBLIOTECA - UNIDA"],
-        ["Fecha de corte:", new Date().toLocaleDateString()],
-        [],
-        ["FACULTAD", "VOLÚMENES REGISTRADOS"]
-      ];
-      for (const [facultad, cant] of Object.entries(conteoPorFacultad)) {
-        wsResumenData.push([facultad.toUpperCase().replace(/_/g, ' '), cant]);
-      }
-      wsResumenData.push([]);
-      wsResumenData.push(["TOTAL GENERAL", librosUnicos.length]);
-      
-      const wsResumen = XLSX.utils.aoa_to_sheet(wsResumenData);
-      wsResumen['!cols'] = [{wch: 40}, {wch: 30}];
-      XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen Global");
+      try {
+        const limpiarHtml = (valor) => {
+          const div = document.createElement('div');
+          div.innerHTML = valor || '';
+          return (div.textContent || div.innerText || '').trim();
+        };
+        const extraerTituloEdicion = (libro) => {
+          const div = document.createElement('div');
+          div.innerHTML = libro.titulo || '';
+          const span = div.querySelector('span');
+          let edicion = libro.edicion || '-';
+          if (span) { edicion = span.textContent.trim() || edicion; span.remove(); }
+          return { titulo: (div.textContent || '').trim(), edicion };
+        };
+        const nombreVisible = (fac) => ({
+          'Jurídicas_y_Sociales': 'Jurídicas y Sociales',
+          'Club_de_Lectura': 'Club de Lectura'
+        }[fac] || fac.replace(/_/g, ' '));
 
-      for (const [facultadRaw, carrerasObj] of Object.entries(librosPorFacultad)) {
-        const facNombre = facultadRaw.replace(/_/g, ' ').substring(0, 31);
-        const sheetData = [
-          [`INVENTARIO: ${facNombre.toUpperCase()}`],
-          ["Biblioteca Central UNIDA - Reporte Anual"],
-          []
+        // Deduplicación consistente con el inventario actual.
+        const vistos = new Set();
+        const registrosUnicos = libros.filter(l => {
+          const key = `${limpiarHtml(l.titulo)}|${l.carrera || ''}`.toLowerCase();
+          if (vistos.has(key)) return false;
+          vistos.add(key); return true;
+        });
+        const librosNormales = registrosUnicos.filter(l => l.carrera !== 'PPT');
+        const materialesClub = registrosUnicos.filter(l => l.carrera === 'PPT');
+
+        const porFacultad = {};
+        librosNormales.forEach(l => {
+          const fac = MAPA_FACULTADES[l.carrera] || 'Otras Areas';
+          porFacultad[fac] ||= {};
+          porFacultad[fac][l.carrera] ||= [];
+          porFacultad[fac][l.carrera].push(l);
+        });
+
+        const ordenFacultades = ['Salud','FEADYS','Ingeniería','Jurídicas_y_Sociales','Gestión','Otras Areas'];
+        const facultades = ordenFacultades.filter(f => porFacultad[f]);
+        Object.keys(porFacultad).forEach(f => { if (!facultades.includes(f)) facultades.push(f); });
+        const carrerasActivas = new Set(librosNormales.map(l => l.carrera).filter(Boolean));
+        const totalSimuladores = simuladores.length;
+
+        const wb = new ExcelJS.Workbook();
+        wb.creator = 'Biblioteca Central UNIDA';
+        wb.company = 'Universidad de la Integración de las Américas';
+        wb.subject = 'Inventario de recursos bibliográficos';
+        wb.created = new Date();
+
+        const AZUL = 'FF1E3C6E', CELESTE = 'FF2980B9', VERDE = 'FF10B981', NARANJA = 'FFE67E22';
+        const GRIS = 'FFF1F5F9', BLANCO = 'FFFFFFFF', OSCURO = 'FF0F172A', BORDE = 'FFCBD5E1';
+        const fill = (argb) => ({ type:'pattern', pattern:'solid', fgColor:{argb} });
+        const border = { top:{style:'thin',color:{argb:BORDE}}, left:{style:'thin',color:{argb:BORDE}}, bottom:{style:'thin',color:{argb:BORDE}}, right:{style:'thin',color:{argb:BORDE}} };
+
+        // ---------- DASHBOARD ----------
+        const dash = wb.addWorksheet('Dashboard', { views:[{showGridLines:false}] });
+        dash.columns = [
+          {width:4},{width:22},{width:22},{width:22},{width:4},{width:22},{width:22},{width:22},{width:4},{width:22},{width:22},{width:22}
         ];
+        dash.mergeCells('B2:L3');
+        const titulo = dash.getCell('B2');
+        titulo.value = 'BIBLIOTECA CENTRAL UNIDA'; titulo.font = {bold:true,size:24,color:{argb:BLANCO}};
+        titulo.fill = fill(AZUL); titulo.alignment = {horizontal:'center',vertical:'middle'};
+        dash.mergeCells('B4:L4');
+        dash.getCell('B4').value = 'INFORME EJECUTIVO DE RECURSOS BIBLIOGRÁFICOS';
+        dash.getCell('B4').font = {bold:true,size:13,color:{argb:AZUL}}; dash.getCell('B4').alignment={horizontal:'center'};
+        dash.mergeCells('B5:L5');
+        dash.getCell('B5').value = `Fecha de corte: ${new Date().toLocaleDateString('es-PY')}  •  Generado desde el Panel Central UNIDA`;
+        dash.getCell('B5').font = {italic:true,size:10,color:{argb:'FF64748B'}}; dash.getCell('B5').alignment={horizontal:'center'};
 
-        for (const [carrera, lista] of Object.entries(carrerasObj)) {
-          sheetData.push([`CARRERA: ${carrera.toUpperCase()}`]);
-          sheetData.push(["Nº", "Título del Material", "Autor / Editorial", "Edición / Tomo", "Enlace de Descarga Drive"]);
-          
-          lista.forEach((l, idx) => {
-            let tituloStr = l.titulo;
-            let edicionStr = "-";
-            if (tituloStr.includes('<span')) {
-              const div = document.createElement('div');
-              div.innerHTML = l.titulo;
-              const span = div.querySelector('span');
-              if (span) { edicionStr = span.textContent.trim(); span.remove(); }
-              tituloStr = div.textContent.trim();
-            }
-            sheetData.push([idx + 1, tituloStr, l.autor, edicionStr, l.link]);
-          });
-          sheetData.push([]);
+        const kpis = [
+          ['B7:D9','LIBROS DIGITALES',librosNormales.length,AZUL],
+          ['F7:H9','CARRERAS ACTIVAS',carrerasActivas.size,CELESTE],
+          ['J7:L9','FACULTADES',facultades.filter(f=>f!=='Otras Areas').length,VERDE],
+          ['B11:D13','CLUB DE LECTURA',materialesClub.length,'FF9333EA'],
+          ['F11:H13','SIMULADORES',totalSimuladores,NARANJA],
+          ['J11:L13','TOTAL RECURSOS',registrosUnicos.length + totalSimuladores,'FF475569']
+        ];
+        kpis.forEach(([rango,label,valor,color]) => {
+          dash.mergeCells(rango); const c=dash.getCell(rango.split(':')[0]);
+          c.value = `${label}\n${valor.toLocaleString('es-PY')}`; c.fill=fill(color);
+          c.font={bold:true,size:15,color:{argb:BLANCO}}; c.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+        });
+
+        dash.mergeCells('B15:F15'); dash.getCell('B15').value='RESUMEN POR FACULTAD';
+        dash.getCell('B15').fill=fill(AZUL); dash.getCell('B15').font={bold:true,color:{argb:BLANCO}}; dash.getCell('B15').alignment={horizontal:'center'};
+        const encabezados = ['FACULTAD','LIBROS','CARRERAS'];
+        ['B16','D16','F16'].forEach((c,i)=>{dash.getCell(c).value=encabezados[i];dash.getCell(c).fill=fill(CELESTE);dash.getCell(c).font={bold:true,color:{argb:BLANCO}};dash.getCell(c).alignment={horizontal:'center'};dash.getCell(c).border=border;});
+        let fila=17;
+        const resumenChartLabels=[], resumenChartData=[];
+        facultades.forEach(fac => {
+          const carreras = Object.keys(porFacultad[fac]);
+          const cantidad = carreras.reduce((n,c)=>n+porFacultad[fac][c].length,0);
+          resumenChartLabels.push(nombreVisible(fac)); resumenChartData.push(cantidad);
+          dash.mergeCells(`B${fila}:C${fila}`); dash.getCell(`B${fila}`).value=nombreVisible(fac);
+          dash.mergeCells(`D${fila}:E${fila}`); dash.getCell(`D${fila}`).value=cantidad;
+          dash.getCell(`F${fila}`).value=carreras.length;
+          ['B','D','F'].forEach(col=>{const c=dash.getCell(`${col}${fila}`);c.border=border;c.alignment={vertical:'middle',horizontal:col==='B'?'left':'center'}; if(fila%2===1)c.fill=fill(GRIS);});
+          fila++;
+        });
+        if (materialesClub.length) {
+          dash.mergeCells(`B${fila}:C${fila}`); dash.getCell(`B${fila}`).value='Club de Lectura';
+          dash.mergeCells(`D${fila}:E${fila}`); dash.getCell(`D${fila}`).value=materialesClub.length; dash.getCell(`F${fila}`).value='—';
+          ['B','D','F'].forEach(col=>{const c=dash.getCell(`${col}${fila}`);c.border=border;c.alignment={horizontal:col==='B'?'left':'center'};c.fill=fill('FFF3E8FF');});
+          fila++;
         }
-        const ws = XLSX.utils.aoa_to_sheet(sheetData);
-        ws['!cols'] = [{wch: 5}, {wch: 50}, {wch: 35}, {wch: 20}, {wch: 50}];
-        XLSX.utils.book_append_sheet(wb, ws, facNombre);
+        dash.mergeCells(`B${fila}:C${fila}`); dash.getCell(`B${fila}`).value='TOTAL';
+        dash.mergeCells(`D${fila}:E${fila}`); dash.getCell(`D${fila}`).value=librosNormales.length + materialesClub.length;
+        dash.getCell(`F${fila}`).value=carrerasActivas.size;
+        ['B','D','F'].forEach(col=>{const c=dash.getCell(`${col}${fila}`);c.fill=fill(AZUL);c.font={bold:true,color:{argb:BLANCO}};c.border=border;c.alignment={horizontal:col==='B'?'left':'center'};});
+
+        // Gráfico como imagen (Chart.js -> PNG -> Excel), compatible con ExcelJS.
+        if (resumenChartLabels.length) {
+          const canvas=document.createElement('canvas'); canvas.width=900; canvas.height=480;
+          const grafico=new Chart(canvas.getContext('2d'), {type:'bar',data:{labels:resumenChartLabels,datasets:[{label:'Libros',data:resumenChartData,backgroundColor:'#2980b9',borderRadius:6}]},options:{responsive:false,animation:false,plugins:{legend:{display:false},title:{display:true,text:'Distribución de libros por facultad',font:{size:18}}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+          grafico.update();
+          const imgId=wb.addImage({base64:grafico.toBase64Image(),extension:'png'});
+          dash.addImage(imgId,{tl:{col:6,row:14},ext:{width:610,height:325}});
+          grafico.destroy();
+        }
+        dash.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:1,paperSize:9,margins:{left:0.25,right:0.25,top:0.4,bottom:0.4,header:0.2,footer:0.2}};
+        dash.headerFooter.oddFooter='&L Biblioteca Central UNIDA&C Página &P de &N&R Inventario institucional';
+
+        // ---------- HOJAS POR FACULTAD ----------
+        const crearHojaFacultad = (fac, carrerasObj) => {
+          let nombre = nombreVisible(fac).substring(0,31);
+          const ws=wb.addWorksheet(nombre,{views:[{state:'frozen',ySplit:5,showGridLines:false}]});
+          ws.columns=[{key:'n',width:7},{key:'titulo',width:55},{key:'autor',width:36},{key:'edicion',width:20},{key:'link',width:28}];
+          ws.mergeCells('A1:E2'); const h=ws.getCell('A1'); h.value=`BIBLIOTECA CENTRAL UNIDA\n${nombre.toUpperCase()}`; h.fill=fill(AZUL); h.font={bold:true,size:18,color:{argb:BLANCO}}; h.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+          ws.mergeCells('A3:E3'); ws.getCell('A3').value=`Inventario bibliográfico • Fecha de corte: ${new Date().toLocaleDateString('es-PY')}`; ws.getCell('A3').font={italic:true,color:{argb:'FF64748B'}}; ws.getCell('A3').alignment={horizontal:'center'};
+          let r=5;
+          Object.keys(carrerasObj).sort((a,b)=>a.localeCompare(b,'es')).forEach(carrera=>{
+            const lista=[...carrerasObj[carrera]].sort((a,b)=>limpiarHtml(a.titulo).localeCompare(limpiarHtml(b.titulo),'es'));
+            ws.mergeCells(`A${r}:E${r}`); const c=ws.getCell(`A${r}`); c.value=`CARRERA: ${carrera.toUpperCase()}  •  ${lista.length} REGISTROS`; c.fill=fill(CELESTE); c.font={bold:true,color:{argb:BLANCO},size:12}; c.alignment={vertical:'middle'}; ws.getRow(r).height=24; r++;
+            const headers=['Nº','TÍTULO DEL MATERIAL','AUTOR / EDITORIAL','EDICIÓN / TOMO','ENLACE DRIVE'];
+            headers.forEach((v,i)=>{const x=ws.getCell(r,i+1);x.value=v;x.fill=fill(OSCURO);x.font={bold:true,color:{argb:BLANCO}};x.alignment={horizontal:'center',vertical:'middle'};x.border=border;}); ws.getRow(r).height=22; r++;
+            lista.forEach((l,i)=>{
+              const {titulo,edicion}=extraerTituloEdicion(l);
+              const vals=[i+1,titulo,l.autor||'-',edicion||'-','Abrir recurso'];
+              vals.forEach((v,j)=>{const x=ws.getCell(r,j+1);x.value=v;x.border=border;x.alignment={vertical:'top',wrapText:j===1||j===2};if(i%2===1)x.fill=fill('FFF8FAFC');});
+              if(l.link){const x=ws.getCell(r,5);x.value={text:'Abrir en Drive',hyperlink:l.link};x.font={color:{argb:'FF0563C1'},underline:true,bold:true};x.alignment={horizontal:'center'};}
+              r++;
+            });
+            r+=2;
+          });
+          ws.autoFilter={from:'A5',to:'E5'}; // Excel mantiene filtros; cada carrera sigue visualmente agrupada.
+          ws.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9,margins:{left:0.25,right:0.25,top:0.5,bottom:0.5,header:0.2,footer:0.2}};
+          ws.headerFooter.oddFooter=`&L${nombre}&C Página &P de &N&R Biblioteca Central UNIDA`;
+        };
+        facultades.forEach(f=>crearHojaFacultad(f,porFacultad[f]));
+
+        // ---------- CLUB DE LECTURA ----------
+        if(materialesClub.length){
+          const clubObj={'Materiales PPT':materialesClub};
+          crearHojaFacultad('Club_de_Lectura',clubObj);
+        }
+
+        // ---------- ÍNDICE ----------
+        const indice=wb.addWorksheet('Índice', {views:[{showGridLines:false}]});
+        indice.columns=[{width:5},{width:38},{width:22},{width:22}];
+        indice.mergeCells('B2:D3'); indice.getCell('B2').value='ÍNDICE DEL INFORME'; indice.getCell('B2').fill=fill(AZUL); indice.getCell('B2').font={bold:true,size:20,color:{argb:BLANCO}}; indice.getCell('B2').alignment={horizontal:'center',vertical:'middle'};
+        let ir=5;
+        ['Dashboard',...facultades.map(nombreVisible),...(materialesClub.length?['Club de Lectura']:[])].forEach((nombre,i)=>{
+          indice.getCell(ir,2).value=i===0?'Resumen ejecutivo':nombre;
+          indice.getCell(ir,3).value={text:'Ir a la hoja',hyperlink:`#'${nombre}'!A1`}; indice.getCell(ir,3).font={color:{argb:'FF0563C1'},underline:true,bold:true};
+          indice.getCell(ir,2).border=border; indice.getCell(ir,3).border=border; if(ir%2===1){indice.getCell(ir,2).fill=fill(GRIS);indice.getCell(ir,3).fill=fill(GRIS);} ir++;
+        });
+        // Dejar Dashboard como primera hoja e Índice como segunda.
+        wb._worksheets.splice(1,0,wb._worksheets.pop());
+
+        const buffer=await wb.xlsx.writeBuffer();
+        const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+        const url=URL.createObjectURL(blob); const a=document.createElement('a');
+        a.href=url; a.download=`Inventario_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+      } catch(err) {
+        console.error('Error generando Excel:',err);
+        alert('No se pudo generar el informe Excel: '+err.message);
+      } finally {
+        if(btn){btn.disabled=false;btn.innerHTML=textoOriginal;}
       }
-      XLSX.writeFile(wb, `Inventario_Biblioteca_UNIDA_${new Date().getFullYear()}.xlsx`);
     }
 
     function descargarJS() {
