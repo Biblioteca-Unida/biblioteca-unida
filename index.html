@@ -100,10 +100,7 @@
 </header>
 
 <nav>
-    <a onclick="showSection('dashboard')">Inicio</a>
-    <a onclick="showSection('facultades-digital')">Biblioteca Digital</a>
-    <a onclick="showSection('facultades-impresa')">Biblioteca Impresa</a>
-    <a onclick="showSection('descarga')">Descargas</a>
+    <a onclick="irAtras()"><i class="fas fa-home"></i> Inicio</a>
 </nav>
 
 <div id="dashboard-section">
@@ -153,23 +150,25 @@
                 <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Salud')"><i class="fas fa-laptop-medical"></i> Ver Simuladores</button>
             </div>
         </div>
-        <!-- 2. FEADYS -->
+        
+        <!-- 2. FEADYS (Ahora con las carreras que antes eran de Gestión) -->
         <div class="facultad-card">
             <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/economia-ql474wuhitr21icq2cdwj1yin6v2n4ab3pwbydxqs0.webp" alt="FEADYS">
             <div class="overlay">
                 <h2>FEADYS</h2>
                 <ul class="carreras-list" style="font-size: 0.75rem;">
-                    <li onclick="abrirCatalogo('Adm. de Empresas/Pública')">Adm. de Empresas/Pública</li>
-                    <li onclick="abrirCatalogo('Adm. Gestión Emprendedora')">Adm. Gestión Emprendedora</li>
-                    <li onclick="abrirCatalogo('Talento Humano')">Talento Humano</li>
-                    <li onclick="abrirCatalogo('Banca y Finanzas')">Banca y Finanzas</li>
-                    <li onclick="abrirCatalogo('Educación')">Educación</li>
-                    <li onclick="abrirCatalogo('Marketing Digital')">Marketing Digital</li>
-                    <li onclick="abrirCatalogo('Sistemas')">Sistemas</li>
+                    <li onclick="abrirCatalogo('Administración de Empresas')">Administración de Empresas</li>
+                    <li onclick="abrirCatalogo('Comercio Internacional')">Comercio Internacional</li>
+                    <li onclick="abrirCatalogo('Contaduría Pública')">Contaduría Pública</li>
+                    <li onclick="abrirCatalogo('Ingeniería Comercial')">Ingeniería Comercial</li>
+                    <li onclick="abrirCatalogo('Marketing y Gestión Comercial')">Marketing y Gestión Comercial</li>
+                    <li onclick="abrirCatalogo('Relaciones Internacionales')">Relaciones Internacionales</li>
+                    <li onclick="abrirCatalogo('Psicología Organizacional')">Psicología Organizacional</li>
                 </ul>
                 <button class="btn-simulador" onclick="abrirSimuladores('FEADYS')"><i class="fas fa-globe"></i> Ver Simuladores</button>
             </div>
         </div>
+
         <!-- 3. Facultad de Ingeniería -->
         <div class="facultad-card">
             <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80" alt="Facultad de Ingeniería">
@@ -184,6 +183,7 @@
                 <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Ingeniería')"><i class="fas fa-cogs"></i> Ver Simuladores</button>
             </div>
         </div>
+
         <!-- 4. Facultad de C. Jurídicas y Sociales -->
         <div class="facultad-card">
             <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=80" alt="C. Jurídicas">
@@ -196,21 +196,33 @@
                 <button class="btn-simulador" onclick="abrirSimuladores('Facultad de C. JURÍDICAS Y SOCIALES')"><i class="fas fa-balance-scale"></i> Ver Simuladores</button>
             </div>
         </div>
-        <!-- 5. Facultad de Gestión -->
+
+        <!-- 5. Facultad de Gestión (Ahora con las carreras que antes eran de FEADYS) -->
         <div class="facultad-card">
             <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/st_403991497-qfymca815zkjkmjzj5zfgkhhp3a2fdpawj6koah7m8.png" alt="Facultad de Gestión">
             <div class="overlay">
                 <h2>Facultad de Gestión</h2>
-                <ul class="carreras-list">
-                    <li onclick="abrirCatalogo('Administración de Empresas')">Administración de Empresas</li>
-                    <li onclick="abrirCatalogo('Comercio Internacional')">Comercio Internacional</li>
-                    <li onclick="abrirCatalogo('Contaduría Pública')">Contaduría Pública</li>
-                    <li onclick="abrirCatalogo('Ingeniería Comercial')">Ingeniería Comercial</li>
-                    <li onclick="abrirCatalogo('Marketing y Gestión Comercial')">Marketing y Gestión Comercial</li>
-                    <li onclick="abrirCatalogo('Relaciones Internacionales')">Relaciones Internacionales</li>
-                    <li onclick="abrirCatalogo('Psicología Organizacional')">Psicología Organizacional</li>
+                <ul class="carreras-list" style="font-size: 0.75rem;">
+                    <li onclick="abrirCatalogo('Adm. de Empresas/Pública')">Adm. de Empresas/Pública</li>
+                    <li onclick="abrirCatalogo('Adm. Gestión Emprendedora')">Adm. Gestión Emprendedora</li>
+                    <li onclick="abrirCatalogo('Talento Humano')">Talento Humano</li>
+                    <li onclick="abrirCatalogo('Banca y Finanzas')">Banca y Finanzas</li>
+                    <li onclick="abrirCatalogo('Educación')">Educación</li>
+                    <li onclick="abrirCatalogo('Marketing Digital')">Marketing Digital</li>
+                    <li onclick="abrirCatalogo('Sistemas')">Sistemas</li>
                 </ul>
                 <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Gestión')"><i class="fas fa-chart-line"></i> Ver Simuladores</button>
+            </div>
+        </div>
+
+        <!-- 6. Nueva Tarjeta: Club de Lectura -->
+        <div class="facultad-card">
+            <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80" alt="Club de Lectura">
+            <div class="overlay">
+                <h2>Club de Lectura</h2>
+                <ul class="carreras-list">
+                    <li onclick="abrirCatalogo('PPT')">Catálogo de Materiales PPT</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -235,7 +247,7 @@
     <div class="libros-list">
         <div id="mensaje-vacio" style="text-align: center; padding: 40px 20px; display: none;">
             <i class="fas fa-book-open" style="font-size: 50px; color: #ccc; margin-bottom: 15px;"></i>
-            <h3 style="color: #666; font-family: 'Poppins', sans-serif;">La biblioteca digital de esta carrera está en construcción</h3>
+            <h3 style="color: #666; font-family: 'Poppins', sans-serif;">La biblioteca digital de esta categoría está vacía</h3>
             <p style="color: #999;">Próximamente se agregará el catálogo de libros y materiales de estudio correspondientes.</p>
         </div>
         
