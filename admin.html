@@ -103,6 +103,12 @@
           <button onclick="navegarPestana('tab-club')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-book-open-reader w-5 text-center"></i> Club de Lectura
           </button>
+          <button onclick="navegarPestana('tab-auditoria')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-clipboard-check w-5 text-center"></i> Auditoría del Catálogo
+          </button>
+          <button onclick="navegarPestana('tab-historial')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-clock-rotate-left w-5 text-center"></i> Historial de Cambios
+          </button>
           <button onclick="navegarPestana('tab-database')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-file-excel w-5 text-center"></i> Base de Datos & Excel
           </button>
@@ -193,6 +199,12 @@
               <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">Distribución por Facultad</h4>
               <div class="h-64 flex items-center justify-center"><canvas id="chartFacultades"></canvas></div>
             </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Completitud del catálogo</span><div class="flex items-end gap-2 mt-2"><strong id="kpi-completitud" class="text-2xl text-emerald-600">0%</strong><span class="text-[10px] text-slate-400 mb-1">sin incidencias</span></div></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Sin portada</span><div class="flex items-end gap-2 mt-2"><strong id="kpi-sin-portada" class="text-2xl text-rose-600">0</strong><span class="text-[10px] text-slate-400 mb-1">registros</span></div></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Posibles duplicados</span><div class="flex items-end gap-2 mt-2"><strong id="kpi-duplicados" class="text-2xl text-amber-600">0</strong><span class="text-[10px] text-slate-400 mb-1">registros</span></div></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Cambios registrados</span><div class="flex items-end gap-2 mt-2"><strong id="kpi-cambios" class="text-2xl text-indigo-600">0</strong><span class="text-[10px] text-slate-400 mb-1">bitácora</span></div></div>
           </div>
         </section>
 
@@ -319,11 +331,11 @@
                 <h4 class="text-sm font-bold text-slate-800 dark:text-white">Inventario en la Nube</h4>
                 <p class="text-xs text-slate-400">Listado sincronizado en tiempo real</p>
               </div>
-              <div class="flex items-center gap-3">
-                <input type="text" id="buscador-tabla" oninput="filtrarTabla()" placeholder="Buscar título o autor..." class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none focus:ring-2 focus:ring-blue-500 w-56">
-                <select id="filtro-carrera" onchange="filtrarTabla()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none">
-                  <option value="">Todas las Carreras</option>
-                </select>
+              <div class="flex flex-wrap items-center gap-2">
+                <input type="text" id="buscador-tabla" oninput="reiniciarPaginacion();filtrarTabla()" placeholder="Buscar título o autor..." class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none focus:ring-2 focus:ring-blue-500 w-52">
+                <select id="filtro-facultad" onchange="actualizarFiltroCarreras();reiniciarPaginacion();filtrarTabla()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none"><option value="">Todas las Facultades</option><option value="Salud">Salud</option><option value="FEADYS">FEADYS</option><option value="Ingeniería">Ingeniería</option><option value="Jurídicas_y_Sociales">Jurídicas y Sociales</option><option value="Gestión">Gestión</option></select>
+                <select id="filtro-carrera" onchange="reiniciarPaginacion();filtrarTabla()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none"><option value="">Todas las Carreras</option></select>
+                <select id="orden-tabla" onchange="reiniciarPaginacion();filtrarTabla()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none"><option value="titulo-asc">Título A–Z</option><option value="titulo-desc">Título Z–A</option><option value="autor-asc">Autor A–Z</option><option value="carrera-asc">Carrera A–Z</option></select>
               </div>
             </div>
 
@@ -340,6 +352,10 @@
                 </thead>
                 <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
               </table>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span id="tabla-contador" class="text-xs text-slate-500">0 resultados</span>
+              <div class="flex items-center gap-2"><button id="btn-pag-ant" onclick="cambiarPaginaTabla(-1)" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs disabled:opacity-40"><i class="fas fa-chevron-left"></i></button><span id="tabla-pagina" class="text-xs font-bold text-slate-600 dark:text-slate-300">Página 1 de 1</span><button id="btn-pag-sig" onclick="cambiarPaginaTabla(1)" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-xs disabled:opacity-40"><i class="fas fa-chevron-right"></i></button></div>
             </div>
           </div>
         </section>
@@ -433,6 +449,26 @@
           </div>
         </section>
 
+        <!-- AUDITORÍA DEL CATÁLOGO -->
+        <section id="tab-auditoria" class="tab-content space-y-6 hidden">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4"><div><h3 class="text-lg font-bold text-slate-800 dark:text-white">Auditoría del Catálogo</h3><p class="text-xs text-slate-500">Detecta incidencias sin modificar automáticamente ningún registro.</p></div><button onclick="renderAuditoriaCalidad()" class="bg-[#1e3c6e] text-white px-4 py-2.5 rounded-xl text-xs font-bold"><i class="fas fa-rotate mr-1"></i> Analizar ahora</button></div>
+          <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
+            <button onclick="filtrarAuditoria('todos')" class="bg-white dark:bg-slate-900 p-4 rounded-xl border text-left"><span class="text-[10px] uppercase text-slate-400 font-bold">Analizados</span><strong id="audit-total" class="block text-2xl mt-1">0</strong></button>
+            <button onclick="filtrarAuditoria('sin_portada')" class="bg-white dark:bg-slate-900 p-4 rounded-xl border text-left"><span class="text-[10px] uppercase text-slate-400 font-bold">Sin portada</span><strong id="audit-portada" class="block text-2xl mt-1 text-rose-600">0</strong></button>
+            <button onclick="filtrarAuditoria('portada_generica')" class="bg-white dark:bg-slate-900 p-4 rounded-xl border text-left"><span class="text-[10px] uppercase text-slate-400 font-bold">Portada genérica</span><strong id="audit-generica" class="block text-2xl mt-1 text-fuchsia-600">0</strong></button>
+            <button onclick="filtrarAuditoria('sin_autor')" class="bg-white dark:bg-slate-900 p-4 rounded-xl border text-left"><span class="text-[10px] uppercase text-slate-400 font-bold">Sin autor</span><strong id="audit-autor" class="block text-2xl mt-1 text-amber-600">0</strong></button>
+            <button onclick="filtrarAuditoria('sin_link')" class="bg-white dark:bg-slate-900 p-4 rounded-xl border text-left"><span class="text-[10px] uppercase text-slate-400 font-bold">Sin enlace</span><strong id="audit-link" class="block text-2xl mt-1 text-orange-600">0</strong></button>
+            <button onclick="filtrarAuditoria('duplicado')" class="bg-white dark:bg-slate-900 p-4 rounded-xl border text-left"><span class="text-[10px] uppercase text-slate-400 font-bold">Duplicados</span><strong id="audit-duplicados" class="block text-2xl mt-1 text-indigo-600">0</strong></button>
+          </div>
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border overflow-hidden"><div class="p-4 border-b flex flex-wrap gap-2"><select id="audit-facultad" onchange="renderAuditoriaCalidad()" class="px-3 py-2 border rounded-lg text-xs dark:bg-slate-800"><option value="">Todas las Facultades</option><option value="Salud">Salud</option><option value="FEADYS">FEADYS</option><option value="Ingeniería">Ingeniería</option><option value="Jurídicas_y_Sociales">Jurídicas y Sociales</option><option value="Gestión">Gestión</option></select><input id="audit-buscar" oninput="renderAuditoriaCalidad()" placeholder="Buscar título/autor..." class="px-3 py-2 border rounded-lg text-xs dark:bg-slate-800 w-64"><span id="audit-filtro-activo" class="ml-auto text-xs text-slate-500 self-center">Todos los problemas</span></div><div class="overflow-x-auto max-h-[520px] custom-scroll"><table class="w-full text-xs"><thead class="sticky top-0 bg-slate-50 dark:bg-slate-800"><tr><th class="p-3 text-left">Título</th><th class="p-3 text-left">Carrera</th><th class="p-3 text-left">Autor</th><th class="p-3 text-left">Incidencias</th><th class="p-3 text-right">Acción</th></tr></thead><tbody id="audit-cuerpo"></tbody></table></div></div>
+        </section>
+
+        <!-- HISTORIAL -->
+        <section id="tab-historial" class="tab-content space-y-6 hidden">
+          <div><h3 class="text-lg font-bold text-slate-800 dark:text-white">Historial de Cambios</h3><p class="text-xs text-slate-500">Bitácora privada registrada en Firestore. Los registros no se editan ni eliminan desde el panel.</p></div>
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border overflow-hidden"><div class="p-4 border-b flex gap-3"><input id="historial-buscar" oninput="renderHistorial()" placeholder="Buscar usuario, título o acción..." class="px-3 py-2 border rounded-lg text-xs dark:bg-slate-800 w-72"><span id="historial-contador" class="ml-auto text-xs text-slate-500 self-center">0 eventos</span></div><div class="overflow-x-auto max-h-[600px] custom-scroll"><table class="w-full text-xs"><thead class="sticky top-0 bg-slate-50 dark:bg-slate-800"><tr><th class="p-3 text-left">Fecha</th><th class="p-3 text-left">Administrador</th><th class="p-3 text-left">Acción</th><th class="p-3 text-left">Tipo</th><th class="p-3 text-left">Recurso</th></tr></thead><tbody id="historial-cuerpo"></tbody></table></div></div>
+        </section>
+
         <!-- PESTAÑA 5: BASE DE DATOS Y EXCEL -->
         <section id="tab-database" class="tab-content space-y-6 hidden">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -466,7 +502,10 @@
                 <i class="fas fa-download"></i> Descargar catalogo.js Final
               </button>
             </div>
-
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+              <div><div class="w-14 h-14 bg-violet-50 dark:bg-violet-900/30 text-violet-600 rounded-2xl flex items-center justify-center text-2xl mb-4"><i class="fas fa-database"></i></div><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">Backup completo (.json)</h3><p class="text-xs text-slate-500 leading-relaxed mb-4">Descarga una copia de libros, simuladores y bitácora de auditoría. No modifica Firestore.</p></div>
+              <button onclick="descargarBackupCompleto()" class="w-full bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold px-4 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-shield-halved"></i> Generar Backup</button>
+            </div>
           </div>
         </section>
 
@@ -746,6 +785,11 @@
     let db = null;
     let libros = [];
     let simuladores = [];
+    let historialAuditoria = [];
+    let paginaTabla = 1;
+    const FILAS_POR_PAGINA = 50;
+    let filtroAuditoriaActivo = 'todos';
+    let resultadosAuditoria = [];
     let chartCarrerasInst = null;
     let chartFacultadesInst = null;
 
@@ -903,6 +947,13 @@
           renderSimuladores();
         });
 
+        db.collection("auditoria").orderBy("fecha", "desc").limit(500).onSnapshot(snapshot => {
+          historialAuditoria = [];
+          snapshot.forEach(doc => historialAuditoria.push({ _id: doc.id, ...doc.data() }));
+          renderHistorial();
+          const kc=document.getElementById('kpi-cambios'); if(kc) kc.textContent=historialAuditoria.length;
+        }, err => console.warn('No se pudo cargar auditoría:', err));
+
       } catch (e) {
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Error`;
         fallbackLocal();
@@ -1025,6 +1076,49 @@
       document.getElementById('prev-link').href = link;
     }
 
+    function textoPlano(v='') { const d=document.createElement('div'); d.innerHTML=v||''; return (d.textContent||'').trim(); }
+    function normalizarClave(v='') { return textoPlano(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim(); }
+    function usuarioActual() { const u=firebase.apps.length ? firebase.auth().currentUser : null; return u ? {uid:u.uid,email:u.email||'Administrador'} : {uid:'local',email:'Modo local'}; }
+    async function registrarAuditoria(accion,tipo,recursoId,titulo,detalle={}) {
+      if(!db) return;
+      const u=usuarioActual();
+      try { await db.collection('auditoria').add({accion,tipo,recursoId:recursoId||'',titulo:textoPlano(titulo||''),usuario:u.email,uid:u.uid,detalle,fecha:firebase.firestore.FieldValue.serverTimestamp()}); }
+      catch(e){ console.warn('No se pudo registrar auditoría',e); }
+    }
+    function esPortadaGenerica(l){ const img=(l.imagen||'').trim(); return !!img && (Object.values(PORTADAS_PRESET).includes(img) || img===CLUB_PORTADA_DEFAULT); }
+    function analizarCalidad(){
+      const normales=libros.filter(l=>l.carrera!=='PPT'); const grupos={};
+      normales.forEach(l=>{ const k=normalizarClave(l.titulo)+'|'+normalizarClave(l.autor); (grupos[k] ||= []).push(l); });
+      return normales.map(l=>{
+        const issues=[]; const img=(l.imagen||'').trim(); const link=(l.link||'').trim();
+        if(!img) issues.push('sin_portada'); else if(esPortadaGenerica(l)) issues.push('portada_generica');
+        if(!String(l.autor||'').trim()) issues.push('sin_autor');
+        if(!link) issues.push('sin_link'); else { try{ new URL(link); }catch{ issues.push('link_invalido'); } }
+        if(!l.carrera || !MAPA_FACULTADES[l.carrera]) issues.push('carrera_desconocida');
+        const k=normalizarClave(l.titulo)+'|'+normalizarClave(l.autor); if(k!=='|' && (grupos[k]||[]).length>1) issues.push('duplicado');
+        return {libro:l,issues};
+      });
+    }
+    function filtrarAuditoria(tipo){ filtroAuditoriaActivo=tipo; renderAuditoriaCalidad(); }
+    function renderAuditoriaCalidad(){
+      resultadosAuditoria=analizarCalidad(); const counts=t=>resultadosAuditoria.filter(x=>x.issues.includes(t)).length;
+      const ids={ 'audit-total':resultadosAuditoria.length,'audit-portada':counts('sin_portada'),'audit-generica':counts('portada_generica'),'audit-autor':counts('sin_autor'),'audit-link':counts('sin_link')+counts('link_invalido'),'audit-duplicados':counts('duplicado')}; Object.entries(ids).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=v;});
+      const fac=document.getElementById('audit-facultad')?.value||''; const q=normalizarClave(document.getElementById('audit-buscar')?.value||'');
+      let rows=resultadosAuditoria.filter(x=>x.issues.length); if(filtroAuditoriaActivo!=='todos') rows=rows.filter(x=>x.issues.includes(filtroAuditoriaActivo)); if(fac) rows=rows.filter(x=>MAPA_FACULTADES[x.libro.carrera]===fac); if(q) rows=rows.filter(x=>normalizarClave(x.libro.titulo+' '+x.libro.autor).includes(q));
+      const labels={sin_portada:'Sin portada',portada_generica:'Portada genérica',sin_autor:'Sin autor',sin_link:'Sin enlace',link_invalido:'Enlace inválido',duplicado:'Posible duplicado',carrera_desconocida:'Carrera no reconocida'};
+      const fa=document.getElementById('audit-filtro-activo'); if(fa) fa.textContent=filtroAuditoriaActivo==='todos'?'Todos los problemas':(labels[filtroAuditoriaActivo]||filtroAuditoriaActivo)+` · ${rows.length}`;
+      const tb=document.getElementById('audit-cuerpo'); if(!tb)return; tb.innerHTML=rows.length?'':'<tr><td colspan="5" class="p-10 text-center text-emerald-600 font-bold">✓ No hay registros para este filtro</td></tr>';
+      rows.slice(0,1000).forEach(x=>{const l=x.libro; const idx=libros.indexOf(l); tb.innerHTML+=`<tr class="border-b dark:border-slate-800"><td class="p-3 font-semibold max-w-[300px]">${textoPlano(l.titulo)}</td><td class="p-3">${l.carrera||'-'}</td><td class="p-3">${l.autor||'<span class="text-rose-500">Sin autor</span>'}</td><td class="p-3">${x.issues.map(i=>`<span class="inline-block mr-1 mb-1 px-2 py-1 rounded bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-[10px]">${labels[i]||i}</span>`).join('')}</td><td class="p-3 text-right"><button onclick="editarDesdeAuditoria(${idx})" class="text-blue-600 font-bold"><i class="fas fa-pen mr-1"></i>Editar</button></td></tr>`;});
+    }
+    function editarDesdeAuditoria(i){ navegarPestana('tab-libros'); editarLibro(i); document.getElementById('form-libro')?.scrollIntoView({behavior:'smooth'}); }
+    function fechaAuditoria(f){ if(!f)return 'Pendiente'; try{const d=f.toDate?f.toDate():new Date(f);return d.toLocaleString('es-PY');}catch{return '-';} }
+    function renderHistorial(){ const tb=document.getElementById('historial-cuerpo'); if(!tb)return; const q=normalizarClave(document.getElementById('historial-buscar')?.value||''); const arr=historialAuditoria.filter(h=>!q||normalizarClave(`${h.usuario} ${h.accion} ${h.tipo} ${h.titulo}`).includes(q)); document.getElementById('historial-contador').textContent=`${arr.length} eventos`; tb.innerHTML=arr.length?'':'<tr><td colspan="5" class="p-10 text-center text-slate-400">Todavía no hay acciones registradas.</td></tr>'; arr.forEach(h=>{const color=h.accion==='eliminar'?'text-rose-600':h.accion==='crear'?'text-emerald-600':'text-blue-600';tb.innerHTML+=`<tr class="border-b dark:border-slate-800"><td class="p-3 whitespace-nowrap">${fechaAuditoria(h.fecha)}</td><td class="p-3">${h.usuario||'-'}</td><td class="p-3 font-bold ${color}">${(h.accion||'').toUpperCase()}</td><td class="p-3">${h.tipo||'-'}</td><td class="p-3 font-semibold">${h.titulo||'-'}</td></tr>`;}); }
+    async function descargarBackupCompleto(){
+      if(!db) return alert('Conectá Firebase para generar un backup completo.');
+      const btn=document.querySelector('button[onclick="descargarBackupCompleto()"]'); const old=btn?.innerHTML; if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Preparando backup...';}
+      try{ const [lb,sm,au]=await Promise.all([db.collection('libros').get(),db.collection('simuladores').get(),db.collection('auditoria').get()]); const conv=s=>s.docs.map(d=>({id:d.id,...d.data(),fecha:d.data().fecha?.toDate?d.data().fecha.toDate().toISOString():d.data().fecha||null})); const data={formato:'UNIDA-BACKUP-1',generado:new Date().toISOString(),generadoPor:usuarioActual().email,conteos:{libros:lb.size,simuladores:sm.size,auditoria:au.size},libros:conv(lb),simuladores:conv(sm),auditoria:conv(au)}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Backup_UNIDA_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);await registrarAuditoria('crear','backup','',`Backup ${data.generado}`,data.conteos); }catch(e){alert('No se pudo generar el backup: '+e.message);}finally{if(btn){btn.disabled=false;btn.innerHTML=old;}}
+    }
+
     async function guardarLibro(e) {
       e.preventDefault();
       const docId = document.getElementById('edit-doc-id').value;
@@ -1042,8 +1136,8 @@
       };
 
       if (db) {
-        if (docId) await db.collection("libros").doc(docId).update(libroObj);
-        else await db.collection("libros").add(libroObj);
+        if (docId) { await db.collection("libros").doc(docId).update(libroObj); await registrarAuditoria('editar','libro',docId,libroObj.titulo,{carrera:libroObj.carrera}); }
+        else { const ref=await db.collection("libros").add(libroObj); await registrarAuditoria('crear','libro',ref.id,libroObj.titulo,{carrera:libroObj.carrera}); }
       } else {
         if (docId) {
           const idx = libros.findIndex(l => l._id === docId);
@@ -1080,7 +1174,7 @@
     async function eliminarLibro(i) {
       const l = libros[i];
       if (confirm(`¿Eliminar definitivamente: ${l.titulo}?`)) {
-        if (db && l._id) await db.collection("libros").doc(l._id).delete();
+        if (db && l._id) { await db.collection("libros").doc(l._id).delete(); await registrarAuditoria('eliminar','libro',l._id,l.titulo,{carrera:l.carrera}); }
         else { libros.splice(i, 1); actualizarTodoUI(); }
       }
     }
@@ -1109,8 +1203,8 @@
         imagen: document.getElementById('club-imagen').value.trim() || CLUB_PORTADA_DEFAULT
       };
       if (db) {
-        if (docId) await db.collection('libros').doc(docId).update(material);
-        else await db.collection('libros').add(material);
+        if (docId) { await db.collection('libros').doc(docId).update(material); await registrarAuditoria('editar','club',docId,material.titulo); }
+        else { const ref=await db.collection('libros').add(material); await registrarAuditoria('crear','club',ref.id,material.titulo); }
       } else {
         if (docId) {
           const idx = libros.findIndex(l => l._id === docId);
@@ -1137,7 +1231,7 @@
       const m = libros.find(l => l._id === docId);
       if (!m) return;
       if (!confirm(`¿Eliminar del Club de Lectura: ${m.titulo.replace(/<[^>]*>/g, '')}?`)) return;
-      if (db && m._id) await db.collection('libros').doc(m._id).delete();
+      if (db && m._id) { await db.collection('libros').doc(m._id).delete(); await registrarAuditoria('eliminar','club',m._id,m.titulo); }
       else {
         const idx = libros.findIndex(l => l._id === docId);
         if (idx >= 0) libros.splice(idx, 1);
@@ -1189,7 +1283,7 @@
         autor: document.getElementById('sim-autor').value.trim(),
         link: document.getElementById('sim-link').value.trim()
       };
-      if (db) await db.collection("simuladores").add(simObj);
+      if (db) { const ref=await db.collection("simuladores").add(simObj); await registrarAuditoria('crear','simulador',ref.id,simObj.titulo,{facultad:simObj.facultad}); }
       else { simuladores.push(simObj); renderSimuladores(); }
       e.target.reset();
     }
@@ -1197,7 +1291,7 @@
     async function eliminarSimulador(i) {
       const s = simuladores[i];
       if (confirm(`¿Eliminar simulador: ${s.titulo}?`)) {
-        if (db && s._id) await db.collection("simuladores").doc(s._id).delete();
+        if (db && s._id) { await db.collection("simuladores").doc(s._id).delete(); await registrarAuditoria('eliminar','simulador',s._id,s.titulo,{facultad:s.facultad}); }
         else { simuladores.splice(i, 1); renderSimuladores(); }
       }
     }
@@ -1367,12 +1461,30 @@
           crearHojaFacultad('Club_de_Lectura',clubObj);
         }
 
+        // ---------- CALIDAD DEL CATÁLOGO (EXCEL PRO V2) ----------
+        const calidadExcel=analizarCalidad();
+        const incidenciasExcel=calidadExcel.filter(x=>x.issues.length);
+        const cq=wb.addWorksheet('Calidad del Catálogo',{views:[{state:'frozen',ySplit:5,showGridLines:false}]});
+        cq.columns=[{width:48},{width:28},{width:30},{width:42}];
+        cq.mergeCells('A1:D2'); cq.getCell('A1').value='AUDITORÍA DE CALIDAD DEL CATÁLOGO'; cq.getCell('A1').fill=fill(AZUL); cq.getCell('A1').font={bold:true,size:18,color:{argb:BLANCO}}; cq.getCell('A1').alignment={horizontal:'center',vertical:'middle'};
+        cq.mergeCells('A3:D3'); cq.getCell('A3').value=`Registros analizados: ${calidadExcel.length} • Con incidencias: ${incidenciasExcel.length} • Completitud: ${calidadExcel.length?Math.round((1-incidenciasExcel.length/calidadExcel.length)*100):100}%`; cq.getCell('A3').font={bold:true,color:{argb:'FF475569'}};
+        ['TÍTULO','CARRERA','AUTOR','INCIDENCIAS'].forEach((v,i)=>{const c=cq.getCell(5,i+1);c.value=v;c.fill=fill(OSCURO);c.font={bold:true,color:{argb:BLANCO}};c.border=border;});
+        const qlabels={sin_portada:'Sin portada',portada_generica:'Portada genérica',sin_autor:'Sin autor',sin_link:'Sin enlace',link_invalido:'Enlace inválido',duplicado:'Posible duplicado',carrera_desconocida:'Carrera no reconocida'};
+        let qr=6; incidenciasExcel.forEach(x=>{[textoPlano(x.libro.titulo),x.libro.carrera||'-',x.libro.autor||'-',x.issues.map(i=>qlabels[i]||i).join(', ')].forEach((v,i)=>{const c=cq.getCell(qr,i+1);c.value=v;c.border=border;c.alignment={vertical:'top',wrapText:true};if(qr%2)c.fill=fill('FFF8FAFC');});qr++;}); cq.autoFilter={from:'A5',to:'D5'};
+
+        // ---------- HISTORIAL DE CAMBIOS (EXCEL PRO V2) ----------
+        const hs=wb.addWorksheet('Historial de Cambios',{views:[{state:'frozen',ySplit:4,showGridLines:false}]});
+        hs.columns=[{width:22},{width:36},{width:16},{width:18},{width:55}];
+        hs.mergeCells('A1:E2'); hs.getCell('A1').value='BITÁCORA ADMINISTRATIVA'; hs.getCell('A1').fill=fill(AZUL); hs.getCell('A1').font={bold:true,size:18,color:{argb:BLANCO}}; hs.getCell('A1').alignment={horizontal:'center',vertical:'middle'};
+        ['FECHA','ADMINISTRADOR','ACCIÓN','TIPO','RECURSO'].forEach((v,i)=>{const c=hs.getCell(4,i+1);c.value=v;c.fill=fill(OSCURO);c.font={bold:true,color:{argb:BLANCO}};c.border=border;});
+        let hr=5; historialAuditoria.forEach(h=>{[fechaAuditoria(h.fecha),h.usuario||'-',(h.accion||'').toUpperCase(),h.tipo||'-',h.titulo||'-'].forEach((v,i)=>{const c=hs.getCell(hr,i+1);c.value=v;c.border=border;if(hr%2)c.fill=fill('FFF8FAFC');});hr++;});
+
         // ---------- ÍNDICE ----------
         const indice=wb.addWorksheet('Índice', {views:[{showGridLines:false}]});
         indice.columns=[{width:5},{width:38},{width:22},{width:22}];
         indice.mergeCells('B2:D3'); indice.getCell('B2').value='ÍNDICE DEL INFORME'; indice.getCell('B2').fill=fill(AZUL); indice.getCell('B2').font={bold:true,size:20,color:{argb:BLANCO}}; indice.getCell('B2').alignment={horizontal:'center',vertical:'middle'};
         let ir=5;
-        ['Dashboard',...facultades.map(nombreVisible),...(materialesClub.length?['Club de Lectura']:[])].forEach((nombre,i)=>{
+        ['Dashboard','Calidad del Catálogo','Historial de Cambios',...facultades.map(nombreVisible),...(materialesClub.length?['Club de Lectura']:[])].forEach((nombre,i)=>{
           indice.getCell(ir,2).value=i===0?'Resumen ejecutivo':nombre;
           indice.getCell(ir,3).value={text:'Ir a la hoja',hyperlink:`#'${nombre}'!A1`}; indice.getCell(ir,3).font={color:{argb:'FF0563C1'},underline:true,bold:true};
           indice.getCell(ir,2).border=border; indice.getCell(ir,3).border=border; if(ir%2===1){indice.getCell(ir,2).fill=fill(GRIS);indice.getCell(ir,3).fill=fill(GRIS);} ir++;
@@ -1418,41 +1530,30 @@
       document.getElementById('kpi-carreras').textContent = [...new Set(libros.filter(l => l.carrera !== 'PPT').map(l => l.carrera))].length;
       document.getElementById('kpi-club').textContent = materialesClub().length;
 
-      const filter = document.getElementById('filtro-carrera');
-      const val = filter.value;
-      filter.innerHTML = '<option value="">Todas las Carreras</option>';
-      [...new Set(libros.filter(l => l.carrera !== 'PPT').map(l => l.carrera))].forEach(c => filter.innerHTML += `<option value="${c}">${c}</option>`);
-      filter.value = val;
-      
+      actualizarFiltroCarreras();
+      const calidad=analizarCalidad(); const conProblemas=calidad.filter(x=>x.issues.length).length; const totalCal=calidad.length||1;
+      const comp=document.getElementById('kpi-completitud'); if(comp) comp.textContent=`${Math.round((1-conProblemas/totalCal)*100)}%`;
+      const sp=document.getElementById('kpi-sin-portada'); if(sp) sp.textContent=calidad.filter(x=>x.issues.includes('sin_portada')).length;
+      const du=document.getElementById('kpi-duplicados'); if(du) du.textContent=calidad.filter(x=>x.issues.includes('duplicado')).length;
       filtrarTabla();
+      renderAuditoriaCalidad();
       renderGraficos();
       renderSimuladores();
       renderClub();
     }
 
-    function filtrarTabla() {
-      const q = document.getElementById('buscador-tabla').value.toLowerCase();
-      const c = document.getElementById('filtro-carrera').value;
-      const tbody = document.getElementById('tabla-cuerpo');
-      tbody.innerHTML = '';
-
-      libros.forEach((l, i) => {
-        if (l.carrera === 'PPT') return;
-        if ((!c || l.carrera === c) && ((l.titulo||'').toLowerCase().includes(q) || (l.autor||'').toLowerCase().includes(q))) {
-          tbody.innerHTML += `
-            <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition border-b border-slate-100 dark:border-slate-800">
-              <td class="p-3 truncate max-w-[200px] font-semibold text-slate-800 dark:text-slate-200">${l.titulo}</td>
-              <td class="p-3"><span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-300 rounded text-[10px] font-bold">${l.carrera}</span></td>
-              <td class="p-3 truncate max-w-[150px]">${l.autor}</td>
-              <td class="p-3"><a href="${l.link}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"><i class="fab fa-google-drive"></i> Link</a></td>
-              <td class="p-3 text-right flex justify-end gap-2">
-                <button onclick="editarLibro(${i})" class="text-blue-500 p-1.5 hover:bg-blue-100 rounded"><i class="fas fa-pen"></i></button>
-                <button onclick="eliminarLibro(${i})" class="text-rose-500 p-1.5 hover:bg-rose-100 rounded"><i class="fas fa-trash"></i></button>
-              </td>
-            </tr>
-          `;
-        }
-      });
+    function reiniciarPaginacion(){ paginaTabla=1; }
+    function actualizarFiltroCarreras(){
+      const fac=document.getElementById('filtro-facultad')?.value||''; const sel=document.getElementById('filtro-carrera'); if(!sel)return; const actual=sel.value; const carreras=[...new Set(libros.filter(l=>l.carrera!=='PPT'&&(!fac||MAPA_FACULTADES[l.carrera]===fac)).map(l=>l.carrera).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es')); sel.innerHTML='<option value="">Todas las Carreras</option>'+carreras.map(c=>`<option value="${c}">${c}</option>`).join(''); if(carreras.includes(actual))sel.value=actual;
+    }
+    function cambiarPaginaTabla(delta){ paginaTabla=Math.max(1,paginaTabla+delta); filtrarTabla(false); }
+    function filtrarTabla(reset=false) {
+      if(reset) paginaTabla=1; const q=normalizarClave(document.getElementById('buscador-tabla')?.value||''); const c=document.getElementById('filtro-carrera')?.value||''; const fac=document.getElementById('filtro-facultad')?.value||''; const orden=document.getElementById('orden-tabla')?.value||'titulo-asc';
+      let arr=libros.filter(l=>l.carrera!=='PPT').filter(l=>(!c||l.carrera===c)&&(!fac||MAPA_FACULTADES[l.carrera]===fac)&&(!q||normalizarClave(`${l.titulo} ${l.autor}`).includes(q)));
+      const val=l=>orden.startsWith('autor')?(l.autor||''):orden.startsWith('carrera')?(l.carrera||''):textoPlano(l.titulo); arr.sort((a,b)=>val(a).localeCompare(val(b),'es',{sensitivity:'base'})*(orden.endsWith('desc')?-1:1));
+      const totalPag=Math.max(1,Math.ceil(arr.length/FILAS_POR_PAGINA)); paginaTabla=Math.min(paginaTabla,totalPag); const ini=(paginaTabla-1)*FILAS_POR_PAGINA; const page=arr.slice(ini,ini+FILAS_POR_PAGINA); const tbody=document.getElementById('tabla-cuerpo'); tbody.innerHTML='';
+      page.forEach(l=>{const i=libros.indexOf(l);tbody.innerHTML+=`<tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition border-b border-slate-100 dark:border-slate-800"><td class="p-3 truncate max-w-[260px] font-semibold text-slate-800 dark:text-slate-200">${textoPlano(l.titulo)}</td><td class="p-3"><span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-[#1e3c6e] dark:text-blue-300 rounded text-[10px] font-bold">${l.carrera||'-'}</span></td><td class="p-3 truncate max-w-[180px]">${l.autor||'-'}</td><td class="p-3">${l.link?`<a href="${l.link}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold"><i class="fab fa-google-drive"></i> Link</a>`:'<span class="text-rose-500">Sin enlace</span>'}</td><td class="p-3 text-right"><div class="flex justify-end gap-2"><button onclick="editarLibro(${i})" class="text-blue-500 p-1.5 hover:bg-blue-100 rounded"><i class="fas fa-pen"></i></button><button onclick="eliminarLibro(${i})" class="text-rose-500 p-1.5 hover:bg-rose-100 rounded"><i class="fas fa-trash"></i></button></div></td></tr>`;});
+      const cont=document.getElementById('tabla-contador'); if(cont)cont.textContent=`${arr.length.toLocaleString('es-PY')} resultados · mostrando ${arr.length?ini+1:0}–${Math.min(ini+FILAS_POR_PAGINA,arr.length)}`; const pag=document.getElementById('tabla-pagina');if(pag)pag.textContent=`Página ${paginaTabla} de ${totalPag}`; const ba=document.getElementById('btn-pag-ant'),bs=document.getElementById('btn-pag-sig');if(ba)ba.disabled=paginaTabla<=1;if(bs)bs.disabled=paginaTabla>=totalPag;
     }
 
     function renderSimuladores() {
