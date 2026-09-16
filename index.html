@@ -76,6 +76,14 @@
         .btn-drive-download.btn-simular:hover { background: #d35400; }
         .download-box { background: white; padding: 50px; border-radius: 20px; text-align: center; max-width: 600px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .btn-download { background: #1e3c6e; color: white; padding: 18px 40px; border-radius: 12px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 25px; transition: 0.3s; }
+        
+        /* Estilos de Paginación */
+        .paginacion-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; }
+        .btn-pag { background: #1e3c6e; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-family: 'Poppins', sans-serif; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-pag:hover:not(:disabled) { background: #2980b9; }
+        .btn-pag:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pag-info { font-family: 'Poppins', sans-serif; font-weight: 600; color: #555; }
+        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -131,6 +139,7 @@
 
 <div id="facultades-digital-section" class="container">
     <div class="facultades-grid">
+        <!-- 1. Facultad de Salud -->
         <div class="facultad-card">
             <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/enfermeria_unida-ql44yi55fcezki8uwy991c9ar3btk20dbmt7sg6ztc.webp" alt="Facultad de Salud">
             <div class="overlay">
@@ -144,22 +153,24 @@
                 <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Salud')"><i class="fas fa-laptop-medical"></i> Ver Simuladores</button>
             </div>
         </div>
+        <!-- 2. FEADYS -->
         <div class="facultad-card">
-            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/economia-ql474wuhitr21icq2cdwj1yin6v2n4ab3pwbydxqs0.webp" alt="Facultad de Gestión">
+            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/economia-ql474wuhitr21icq2cdwj1yin6v2n4ab3pwbydxqs0.webp" alt="FEADYS">
             <div class="overlay">
-                <h2>Facultad de Gestión</h2>
-                <ul class="carreras-list">
-                    <li onclick="abrirCatalogo('Administración de Empresas')">Administración de Empresas</li>
-                    <li onclick="abrirCatalogo('Comercio Internacional')">Comercio Internacional</li>
-                    <li onclick="abrirCatalogo('Contaduría Pública')">Contaduría Pública</li>
-                    <li onclick="abrirCatalogo('Ingeniería Comercial')">Ingeniería Comercial</li>
-                    <li onclick="abrirCatalogo('Marketing y Gestión Comercial')">Marketing y Gestión Comercial</li>
-                    <li onclick="abrirCatalogo('Relaciones Internacionales')">Relaciones Internacionales</li>
-                    <li onclick="abrirCatalogo('Psicología Organizacional')">Psicología Organizacional</li>
+                <h2>FEADYS</h2>
+                <ul class="carreras-list" style="font-size: 0.75rem;">
+                    <li onclick="abrirCatalogo('Adm. de Empresas/Pública')">Adm. de Empresas/Pública</li>
+                    <li onclick="abrirCatalogo('Adm. Gestión Emprendedora')">Adm. Gestión Emprendedora</li>
+                    <li onclick="abrirCatalogo('Talento Humano')">Talento Humano</li>
+                    <li onclick="abrirCatalogo('Banca y Finanzas')">Banca y Finanzas</li>
+                    <li onclick="abrirCatalogo('Educación')">Educación</li>
+                    <li onclick="abrirCatalogo('Marketing Digital')">Marketing Digital</li>
+                    <li onclick="abrirCatalogo('Sistemas')">Sistemas</li>
                 </ul>
-                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Gestión')"><i class="fas fa-chart-line"></i> Ver Simuladores</button>
+                <button class="btn-simulador" onclick="abrirSimuladores('FEADYS')"><i class="fas fa-globe"></i> Ver Simuladores</button>
             </div>
         </div>
+        <!-- 3. Facultad de Ingeniería -->
         <div class="facultad-card">
             <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=800&q=80" alt="Facultad de Ingeniería">
             <div class="overlay">
@@ -173,6 +184,7 @@
                 <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Ingeniería')"><i class="fas fa-cogs"></i> Ver Simuladores</button>
             </div>
         </div>
+        <!-- 4. Facultad de C. Jurídicas y Sociales -->
         <div class="facultad-card">
             <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=80" alt="C. Jurídicas">
             <div class="overlay">
@@ -184,20 +196,21 @@
                 <button class="btn-simulador" onclick="abrirSimuladores('Facultad de C. JURÍDICAS Y SOCIALES')"><i class="fas fa-balance-scale"></i> Ver Simuladores</button>
             </div>
         </div>
+        <!-- 5. Facultad de Gestión -->
         <div class="facultad-card">
-            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/st_403991497-qfymca815zkjkmjzj5zfgkhhp3a2fdpawj6koah7m8.png" alt="FEADYS">
+            <img src="https://www.unida.edu.py/v4/wp-content/uploads/elementor/thumbs/st_403991497-qfymca815zkjkmjzj5zfgkhhp3a2fdpawj6koah7m8.png" alt="Facultad de Gestión">
             <div class="overlay">
-                <h2>FEADYS</h2>
-                <ul class="carreras-list" style="font-size: 0.75rem;">
-                    <li onclick="abrirCatalogo('Adm. de Empresas/Pública')">Adm. de Empresas/Pública</li>
-                    <li onclick="abrirCatalogo('Adm. Gestión Emprendedora')">Adm. Gestión Emprendedora</li>
-                    <li onclick="abrirCatalogo('Talento Humano')">Talento Humano</li>
-                    <li onclick="abrirCatalogo('Banca y Finanzas')">Banca y Finanzas</li>
-                    <li onclick="abrirCatalogo('Educación')">Educación</li>
-                    <li onclick="abrirCatalogo('Marketing Digital')">Marketing Digital</li>
-                    <li onclick="abrirCatalogo('Sistemas')">Sistemas</li>
+                <h2>Facultad de Gestión</h2>
+                <ul class="carreras-list">
+                    <li onclick="abrirCatalogo('Administración de Empresas')">Administración de Empresas</li>
+                    <li onclick="abrirCatalogo('Comercio Internacional')">Comercio Internacional</li>
+                    <li onclick="abrirCatalogo('Contaduría Pública')">Contaduría Pública</li>
+                    <li onclick="abrirCatalogo('Ingeniería Comercial')">Ingeniería Comercial</li>
+                    <li onclick="abrirCatalogo('Marketing y Gestión Comercial')">Marketing y Gestión Comercial</li>
+                    <li onclick="abrirCatalogo('Relaciones Internacionales')">Relaciones Internacionales</li>
+                    <li onclick="abrirCatalogo('Psicología Organizacional')">Psicología Organizacional</li>
                 </ul>
-                <button class="btn-simulador" onclick="abrirSimuladores('FEADYS')"><i class="fas fa-globe"></i> Ver Simuladores</button>
+                <button class="btn-simulador" onclick="abrirSimuladores('Facultad de Gestión')"><i class="fas fa-chart-line"></i> Ver Simuladores</button>
             </div>
         </div>
     </div>
@@ -225,7 +238,15 @@
             <h3 style="color: #666; font-family: 'Poppins', sans-serif;">La biblioteca digital de esta carrera está en construcción</h3>
             <p style="color: #999;">Próximamente se agregará el catálogo de libros y materiales de estudio correspondientes.</p>
         </div>
+        
         <div class="libros-grid-container" id="contenedor-libros"></div>
+        
+        <!-- CONTROLES DE PAGINACIÓN -->
+        <div id="paginacion-controles" class="paginacion-container" style="display: none;">
+            <button id="btn-prev-page" class="btn-pag" onclick="cambiarPagina(-1)"><i class="fas fa-chevron-left"></i> Anterior</button>
+            <span id="text-page-info" class="pag-info">Página 1 de 1</span>
+            <button id="btn-next-page" class="btn-pag" onclick="cambiarPagina(1)">Siguiente <i class="fas fa-chevron-right"></i></button>
+        </div>
     </div>
 </div>
 
@@ -296,8 +317,6 @@
 <script src="catalogo.js"></script>
 
 <script>
-    // Config de Firebase del proyecto "biblioteca-unida". Fija en el código
-    // para que cualquier visitante se conecte, sin depender de localStorage.
     const FIREBASE_CONFIG = {
         apiKey: "AIzaSyC2wGKllK3fDBuD3tapp6Fn-NelqBX6d-o",
         authDomain: "biblioteca-unida-304c0.firebaseapp.com",
@@ -306,9 +325,16 @@
         messagingSenderId: "672764436400",
         appId: "1:672764436400:web:fc85f8866f7561bb760075"
     };
+    
     let db = null;
     window.catalogoLibros = [];
     window.simuladoresGlobales = [];
+
+    // --- VARIABLES DE PAGINACIÓN Y ESTADO GLOBAL ---
+    const LIBROS_POR_PAGINA = 12;
+    let paginaActual = 1;
+    let librosFiltradosGlobal = [];
+    let timeoutBusqueda;
 
     async function inicializarDatosCloud() {
         try {
@@ -321,6 +347,15 @@
                 snapshot.forEach(doc => window.catalogoLibros.push(doc.data()));
                 if (window.catalogoLibros.length === 0 && typeof catalogoLibros !== 'undefined') {
                     window.catalogoLibros = [...catalogoLibros];
+                }
+                
+                // Si el usuario está viendo el catálogo, actualizarlo en vivo sin romper la página
+                if(document.getElementById('catalogo-section').style.display === 'block'){
+                    const tituloActual = document.getElementById('catalogo-titulo').textContent;
+                    const carreraActual = tituloActual.replace('Catálogo - ', '');
+                    const texto = document.getElementById('buscador-libros').value;
+                    const filtro = document.getElementById('filtro-libros').value;
+                    mostrarLibros(tituloActual === 'Catálogo' ? null : carreraActual, texto, filtro, false);
                 }
             }, error => {
                 usarRespaldoLocal();
@@ -378,15 +413,15 @@
 
     function abrirCatalogo(carrera) {
         document.getElementById('catalogo-titulo').textContent = 'Catálogo - ' + carrera;
+        document.getElementById('buscador-libros').value = ''; // Limpiar buscador
         mostrarLibros(carrera);
         showSection('catalogo');
     }
 
-    function mostrarLibros(carreraFiltrada = null, textoBusqueda = '', filtroTipo = 'todos') {
-        const contenedor = document.getElementById('contenedor-libros');
+    // --- FUNCIÓN CENTRAL DE FILTRADO Y PAGINACIÓN ---
+    function mostrarLibros(carreraFiltrada = null, textoBusqueda = '', filtroTipo = 'todos', resetPagina = true) {
         const mensajeVacio = document.getElementById('mensaje-vacio');
-        contenedor.innerHTML = '';
-
+        
         textoBusqueda = textoBusqueda.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         let librosFiltrados = window.catalogoLibros || [];
@@ -405,38 +440,87 @@
             });
         }
 
-        if (librosFiltrados.length === 0) {
+        librosFiltradosGlobal = librosFiltrados;
+        if (resetPagina) paginaActual = 1;
+
+        if (librosFiltradosGlobal.length === 0) {
+            document.getElementById('contenedor-libros').innerHTML = '';
+            document.getElementById('paginacion-controles').style.display = 'none';
             mensajeVacio.style.display = 'block';
         } else {
             mensajeVacio.style.display = 'none';
-            librosFiltrados.forEach(libro => {
-                const card = document.createElement('div');
-                card.className = 'libro-card';
-                card.innerHTML = `
-                    <div class="libro-cover">
-                        <img src="${libro.imagen || 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80'}" alt="Portada" style="width:100%; height:100%; object-fit:cover;">
-                    </div>
-                    <div class="libro-info">
-                        <h3 class="libro-title">${libro.titulo}</h3>
-                        <p class="libro-author">${libro.autor}</p>
-                    </div>
-                    <div class="libro-action">
-                        <a href="${libro.link}" target="_blank" class="btn-drive-download">
-                            <i class="fab fa-google-drive"></i> Descargar
-                        </a>
-                    </div>
-                `;
-                contenedor.appendChild(card);
-            });
+            document.getElementById('paginacion-controles').style.display = 'flex';
+            renderizarPaginaActiva();
         }
     }
 
+    // --- RENDERIZADO DE LA PÁGINA ESPECÍFICA ---
+    function renderizarPaginaActiva() {
+        const contenedor = document.getElementById('contenedor-libros');
+        contenedor.innerHTML = '';
+        
+        const inicio = (paginaActual - 1) * LIBROS_POR_PAGINA;
+        const fin = inicio + LIBROS_POR_PAGINA;
+        const librosPagina = librosFiltradosGlobal.slice(inicio, fin);
+
+        librosPagina.forEach(libro => {
+            const card = document.createElement('div');
+            card.className = 'libro-card';
+            
+            // LAZY LOADING activado en el <img>
+            card.innerHTML = `
+                <div class="libro-cover">
+                    <img src="${libro.imagen || 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80'}" alt="Portada" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div class="libro-info">
+                    <h3 class="libro-title">${libro.titulo}</h3>
+                    <p class="libro-author">${libro.autor}</p>
+                </div>
+                <div class="libro-action">
+                    <a href="${libro.link}" target="_blank" class="btn-drive-download">
+                        <i class="fab fa-google-drive"></i> Descargar
+                    </a>
+                </div>
+            `;
+            contenedor.appendChild(card);
+        });
+        
+        actualizarBotonesPaginacion();
+    }
+
+    function cambiarPagina(delta) {
+        const totalPaginas = Math.ceil(librosFiltradosGlobal.length / LIBROS_POR_PAGINA);
+        paginaActual += delta;
+        if (paginaActual < 1) paginaActual = 1;
+        if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+        
+        renderizarPaginaActiva();
+        // Deslizar suavemente hacia arriba
+        document.getElementById('catalogo-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function actualizarBotonesPaginacion() {
+        const totalPaginas = Math.ceil(librosFiltradosGlobal.length / LIBROS_POR_PAGINA);
+        const btnAnt = document.getElementById('btn-prev-page');
+        const btnSig = document.getElementById('btn-next-page');
+        const textPag = document.getElementById('text-page-info');
+
+        textPag.textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
+        
+        btnAnt.disabled = paginaActual === 1;
+        btnSig.disabled = paginaActual >= totalPaginas;
+    }
+
+    // --- DEBOUNCE (RETRASO INTELIGENTE) EN BÚSQUEDA ---
     document.getElementById('buscador-libros').addEventListener('input', (e) => {
-        const texto = e.target.value;
-        const filtro = document.getElementById('filtro-libros').value;
-        const tituloActual = document.getElementById('catalogo-titulo').textContent;
-        const carreraActual = tituloActual.replace('Catálogo - ', '');
-        mostrarLibros(tituloActual === 'Catálogo' ? null : carreraActual, texto, filtro);
+        clearTimeout(timeoutBusqueda);
+        timeoutBusqueda = setTimeout(() => {
+            const texto = e.target.value;
+            const filtro = document.getElementById('filtro-libros').value;
+            const tituloActual = document.getElementById('catalogo-titulo').textContent;
+            const carreraActual = tituloActual.replace('Catálogo - ', '');
+            mostrarLibros(tituloActual === 'Catálogo' ? null : carreraActual, texto, filtro, true);
+        }, 300); // Espera 300ms después de que el usuario deje de teclear
     });
 
     function abrirSimuladores(facultadMap) {
