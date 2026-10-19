@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Administrativo Cloud - UNIDA</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="favicon-biblioteca.png">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -54,9 +55,9 @@
         <h2 class="text-xl font-bold text-slate-800 dark:text-white">Panel Central UNIDA</h2>
         <p id="auth-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">Acceso exclusivo para administradores autorizados</p>
       </div>
-      <form id="login-form" onsubmit="iniciarSesion(event)" class="space-y-3">
-        <input type="email" id="auth-email" autocomplete="username" placeholder="Correo electrónico" required class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white">
-        <input type="password" id="auth-password" autocomplete="current-password" placeholder="Contraseña" required class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white">
+      <form id="login-form" onsubmit="iniciarSesion(event)" autocomplete="off" class="space-y-3">
+        <input type="email" id="auth-email" autocomplete="off" placeholder="Correo electrónico" required class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white">
+        <input type="password" id="auth-password" autocomplete="off" placeholder="Contraseña" required class="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-white">
         <p id="login-error" class="text-rose-500 text-xs font-semibold hidden"></p>
         <button id="btn-login" type="submit" class="w-full bg-[#1e3c6e] hover:bg-[#2980b9] text-white font-medium py-3 rounded-xl transition duration-200 shadow-md">
           <i class="fas fa-right-to-bracket mr-2"></i>Iniciar sesión
@@ -91,25 +92,34 @@
             <i class="fas fa-plug w-5 text-center"></i> Conectar Firebase
           </button>
           <hr class="border-slate-200 dark:border-slate-800 my-2">
-          <button onclick="navegarPestana('tab-metricas')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400">
+          <button onclick="navegarPestana('tab-metricas', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400">
             <i class="fas fa-chart-pie w-5 text-center"></i> Métricas & KPIs
           </button>
-          <button onclick="navegarPestana('tab-libros')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onclick="navegarPestana('tab-libros', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-book-medical w-5 text-center"></i> Gestión de Libros
           </button>
-          <button onclick="navegarPestana('tab-simuladores')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onclick="abrirTabCatalogosImpresos(this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-book-bookmark w-5 text-center"></i> Catálogos Impresos
+          </button>
+          <button onclick="navegarPestana('tab-simuladores', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-laptop-code w-5 text-center"></i> Simuladores 3D
           </button>
-          <button onclick="navegarPestana('tab-club')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onclick="navegarPestana('tab-club', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-book-open-reader w-5 text-center"></i> Club de Lectura
           </button>
-          <button onclick="navegarPestana('tab-auditoria')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onclick="navegarPestana('tab-auditoria', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-clipboard-check w-5 text-center"></i> Auditoría del Catálogo
           </button>
-          <button onclick="navegarPestana('tab-historial')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onclick="navegarPestana('tab-historial', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-clock-rotate-left w-5 text-center"></i> Historial de Cambios
           </button>
-          <button onclick="navegarPestana('tab-database')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <button onclick="navegarPestana('tab-descargas', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-download w-5 text-center"></i> Descargas & Uso
+          </button>
+          <button onclick="navegarPestana('tab-seguridad', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i class="fas fa-shield-halved w-5 text-center"></i> Seguridad & Alertas
+          </button>
+          <button onclick="navegarPestana('tab-database', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
             <i class="fas fa-file-excel w-5 text-center"></i> Base de Datos & Excel
           </button>
         </nav>
@@ -208,8 +218,65 @@
           </div>
         </section>
 
+
+        <!-- NUEVO: Catálogos de biblioteca impresa, documentos de Google Drive -->
+        <section id="tab-catalogos-impresos" class="tab-content hidden space-y-6">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-7 space-y-4">
+            <h3 class="text-lg font-bold">Catálogos de Biblioteca Impresa</h3>
+            <p class="text-xs text-slate-500">Registrá aquí los PDF o PowerPoint almacenados en Google Drive. No se cargan archivos al sitio ni se mezclan con los libros digitales.</p>
+            <form id="form-catalogo-impreso" onsubmit="guardarCatalogoImpreso(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="hidden" id="imp-id">
+              <label class="text-xs font-semibold">Facultad *
+                <select id="imp-facultad" required onchange="actualizarCarrerasImpresasAdmin()" class="mt-1 w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></select>
+              </label>
+              <label class="text-xs font-semibold">Carrera *
+                <select id="imp-carrera" required class="mt-1 w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></select>
+              </label>
+              <label class="text-xs font-semibold md:col-span-2">Nombre del catálogo *
+                <input id="imp-titulo" required maxlength="180" placeholder="Ej.: Catálogo impreso Bioquímica 2026" class="mt-1 w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+              </label>
+              <label class="text-xs font-semibold md:col-span-2">Enlace Google Drive del PDF o PPT *
+                <input id="imp-link" type="url" required placeholder="https://drive.google.com/file/d/.../view" class="mt-1 w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+              </label>
+              <label class="text-xs font-semibold flex items-center gap-2"><input type="checkbox" id="imp-activo" checked> Visible en el catálogo público</label>
+              <div class="flex gap-2 md:col-span-2">
+                <button id="imp-guardar" type="submit" class="px-5 py-3 bg-[#1e3c6e] text-white rounded-xl text-xs font-semibold">Guardar catálogo</button>
+                <button type="button" onclick="limpiarCatalogoImpresoAdmin()" class="px-5 py-3 bg-slate-200 dark:bg-slate-800 rounded-xl text-xs">Cancelar / Nuevo</button>
+              </div>
+            </form>
+            <p id="imp-estado" class="text-xs text-slate-500" role="status"></p>
+          </div>
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+            <h4 class="font-bold mb-4">Catálogos registrados</h4>
+            <div id="imp-listado" class="space-y-3 text-xs">Abrí este apartado para consultar los catálogos.</div>
+          </div>
+        </section>
+
         <!-- PESTAÑA 2: GESTIÓN DE LIBROS -->
         <section id="tab-libros" class="tab-content space-y-8 hidden">
+<!-- IMPORTACIÓN BIOQUÍMICA: NO ESCRIBE HASTA CONFIRMACIÓN EXPLÍCITA -->
+<section id="bio-importacion" class="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+  <div>
+    <h3 class="font-bold text-base text-[#1e3c6e] dark:text-blue-300"><i class="fas fa-file-import mr-2"></i>Importación de Bioquímica (prueba controlada)</h3>
+    <p class="text-xs text-slate-500 mt-2">Seleccioná el CSV final de 418 registros. Primero se realiza una vista previa y una consulta actualizada a Firestore. No se reemplazan libros existentes.</p>
+  </div>
+  <input id="bio-csv" type="file" accept=".csv,text/csv" class="block w-full text-xs p-3 rounded-xl border border-slate-300 dark:border-slate-700" onchange="bioLeerCSV(this)">
+  <div class="flex flex-wrap gap-3">
+    <button type="button" onclick="bioPrevisualizar()" class="px-4 py-2 rounded-xl bg-blue-700 text-white text-xs font-semibold"><i class="fas fa-magnifying-glass mr-1"></i>Analizar duplicados y previsualizar</button>
+    <button type="button" onclick="descargarBackupCompleto()" class="px-4 py-2 rounded-xl bg-slate-700 text-white text-xs font-semibold"><i class="fas fa-shield-halved mr-1"></i>Descargar backup antes de importar</button>
+  </div>
+  <div id="bio-estado" role="status" aria-live="polite" class="text-xs text-slate-600 dark:text-slate-300">Esperando el CSV.</div>
+  <div id="bio-preview" class="hidden overflow-x-auto max-h-80 custom-scroll"></div>
+  <div id="bio-confirmacion" class="hidden space-y-3 border-t border-slate-200 dark:border-slate-700 pt-4">
+    <label class="text-xs flex items-start gap-2"><input type="checkbox" id="bio-backup-ok"> Confirmo que descargué y conservé un backup completo de Firestore antes de importar.</label>
+    <label class="text-xs block">Escribí <b>IMPORTAR</b> para habilitar la carga:
+      <input id="bio-frase" autocomplete="off" placeholder="IMPORTAR" class="mt-1 block w-full max-w-xs p-2 border rounded-lg bg-white text-slate-900 dark:bg-slate-800 dark:text-white dark:border-slate-600">
+    </label>
+    <button id="bio-importar" type="button" onclick="bioImportar()" class="px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold">Confirmar carga SOLO de libros nuevos</button>
+    <p class="text-xs text-slate-500">No interrumpas la página durante la importación. Se crean documentos nuevos por lotes pequeños. Los fallos se pueden reintentar: el sistema vuelve a comprobar duplicados.</p>
+  </div>
+</section>
+
           <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800 mb-6">
               <div>
@@ -230,7 +297,8 @@
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Carrera / Área *</label>
                     <select id="inp-carrera" onchange="asignarPortadaTematica(); actualizarPreview();" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
                       <optgroup label="Facultad de Salud">
-                        <option value="Medicina">Medicina</option>
+                        <option value="Bioquímica">Bioquímica</option>
+                         <option value="Medicina">Medicina</option>
                         <option value="Nutrición">Nutrición</option>
                         <option value="Enfermería">Enfermería</option>
                         <option value="Kinesiología y Fisioterapia">Kinesiología y Fisioterapia</option>
@@ -250,16 +318,25 @@
                         <option value="Comercio Internacional">Comercio Internacional</option>
                         <option value="Relaciones Internacionales">Relaciones Internacionales</option>
                       </optgroup>
-                      <optgroup label="Ciencias Jurídicas y FEADYS">
+                      <optgroup label="Facultad de C. Jurídicas y Sociales">
                         <option value="Derecho">Derecho</option>
                         <option value="Ciencias Políticas">Ciencias Políticas</option>
-                        <option value="Educación">Educación</option>
+                      </optgroup>
+                      <optgroup label="FEADYS">
                         <option value="Adm. de Empresas/Pública">Adm. de Empresas/Pública</option>
                         <option value="Adm. Gestión Emprendedora">Adm. Gestión Emprendedora</option>
-                        <option value="Talento Humano">Talento Humano</option>
+                        <option value="Gestión de Talento Humano">Gestión de Talento Humano</option>
                         <option value="Banca y Finanzas">Banca y Finanzas</option>
+                        <option value="Ciencias de la Educación">Ciencias de la Educación</option>
+                        <option value="Comunicación y Publicidad">Comunicación y Publicidad</option>
+                        <option value="Economía">Economía</option>
+                        <option value="Economía y Finanzas">Economía y Finanzas</option>
+                        <option value="Economía y Negocios Internacionales">Economía y Negocios Internacionales</option>
+                        <option value="Ingeniería en Logística Global">Ingeniería en Logística Global</option>
+                        <option value="Inteligencia Artificial y Robótica">Inteligencia Artificial y Robótica</option>
                         <option value="Marketing Digital">Marketing Digital</option>
                         <option value="Sistemas">Sistemas</option>
+                        <option value="Relaciones Internacionales">Relaciones Internacionales</option>
                       </optgroup>
                     </select>
                   </div>
@@ -467,6 +544,110 @@
         <section id="tab-historial" class="tab-content space-y-6 hidden">
           <div><h3 class="text-lg font-bold text-slate-800 dark:text-white">Historial de Cambios</h3><p class="text-xs text-slate-500">Bitácora privada registrada en Firestore. Los registros no se editan ni eliminan desde el panel.</p></div>
           <div class="bg-white dark:bg-slate-900 rounded-2xl border overflow-hidden"><div class="p-4 border-b flex gap-3"><input id="historial-buscar" oninput="renderHistorial()" placeholder="Buscar usuario, título o acción..." class="px-3 py-2 border rounded-lg text-xs dark:bg-slate-800 w-72"><span id="historial-contador" class="ml-auto text-xs text-slate-500 self-center">0 eventos</span></div><div class="overflow-x-auto max-h-[600px] custom-scroll"><table class="w-full text-xs"><thead class="sticky top-0 bg-slate-50 dark:bg-slate-800"><tr><th class="p-3 text-left">Fecha</th><th class="p-3 text-left">Administrador</th><th class="p-3 text-left">Acción</th><th class="p-3 text-left">Tipo</th><th class="p-3 text-left">Recurso</th></tr></thead><tbody id="historial-cuerpo"></tbody></table></div></div>
+        </section>
+
+        <!-- ANALÍTICA DE DESCARGAS -->
+        <section id="tab-descargas" class="tab-content space-y-6 hidden">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white">Descargas & Analítica de Uso</h3>
+              <p class="text-xs text-slate-500">Consulta quién descargó cada recurso, analiza el uso por carrera y exporta los registros a Excel.</p>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="recargarDescargas()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition"><i class="fas fa-rotate mr-1"></i> Actualizar</button>
+              <button onclick="exportarDescargasExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-md"><i class="fas fa-file-excel mr-1"></i> Exportar Excel</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Descargas registradas</span><strong id="desc-kpi-total" class="block text-3xl text-[#1e3c6e] dark:text-blue-400 mt-2">0</strong></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Descargas hoy</span><strong id="desc-kpi-hoy" class="block text-3xl text-emerald-600 mt-2">0</strong></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Usuarios únicos</span><strong id="desc-kpi-usuarios" class="block text-3xl text-indigo-600 mt-2">0</strong></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Libro más descargado</span><strong id="desc-kpi-libro" class="block text-sm text-fuchsia-600 mt-2 leading-snug">—</strong></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Carrera con más uso</span><strong id="desc-kpi-carrera" class="block text-sm text-amber-600 mt-2 leading-snug">—</strong></div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">Descargas por carrera del recurso</h4>
+              <div class="h-72"><canvas id="chartDescargasCarrera"></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-4">Top 10 libros descargados</h4>
+              <div class="h-72"><canvas id="chartDescargasLibros"></canvas></div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 dark:border-slate-800 space-y-3">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-800 dark:text-white">Registro de descargas</h4>
+                  <p id="descargas-estado" class="text-[11px] text-slate-400">Abrí esta pestaña para cargar los registros.</p>
+                </div>
+                <span id="descargas-contador" class="text-xs font-semibold text-slate-500">0 registros</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+                <input id="desc-buscar" oninput="renderDescargas()" placeholder="Buscar nombre, matrícula, libro..." class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="desc-ocupacion" onchange="renderDescargas()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"><option value="">Todas las ocupaciones</option><option>Estudiante UNIDA</option><option>Docente UNIDA</option><option>Externo</option></select>
+                <select id="desc-carrera" onchange="renderDescargas()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"><option value="">Todas las carreras</option></select>
+                <input id="desc-desde" type="date" onchange="renderDescargas()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs" title="Desde">
+                <input id="desc-hasta" type="date" onchange="renderDescargas()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs" title="Hasta">
+              </div>
+            </div>
+            <div class="overflow-x-auto max-h-[620px] custom-scroll">
+              <table class="w-full text-xs min-w-[1250px]">
+                <thead class="sticky top-0 bg-slate-50 dark:bg-slate-800 z-10">
+                  <tr>
+                    <th class="p-3 text-left">Fecha</th><th class="p-3 text-left">Nombre</th><th class="p-3 text-left">Apellidos</th><th class="p-3 text-left">Matrícula</th><th class="p-3 text-left">Correo</th><th class="p-3 text-left">Ocupación</th><th class="p-3 text-left">Carrera usuario</th><th class="p-3 text-left">Libro</th><th class="p-3 text-left">Carrera libro</th>
+                  </tr>
+                </thead>
+                <tbody id="descargas-cuerpo"><tr><td colspan="9" class="p-10 text-center text-slate-400">Sin datos cargados.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SEGURIDAD Y ALERTAS -->
+        <section id="tab-seguridad" class="tab-content space-y-6 hidden">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white">Seguridad & Alertas</h3>
+              <p class="text-xs text-slate-500">
+              Eventos de seguridad detectados automáticamente en accesos, autenticaciones y actividad del sistema.
+              </p>
+            </div>
+            <button onclick="recargarSeguridad()" class="bg-[#1e3c6e] hover:bg-[#2980b9] text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition">
+              <i class="fas fa-rotate mr-1"></i> Recargar
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Eventos totales</span><strong id="seg-kpi-total" class="block text-2xl mt-2 text-[#1e3c6e] dark:text-white">0</strong></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Hoy</span><strong id="seg-kpi-hoy" class="block text-2xl mt-2 text-indigo-600">0</strong></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Alta / Crítica</span><strong id="seg-kpi-altas" class="block text-2xl mt-2 text-rose-600">0</strong></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Telegram enviados</span><strong id="seg-kpi-telegram" class="block text-2xl mt-2 text-sky-600">0</strong></div>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">Último evento</span><strong id="seg-kpi-ultimo" class="block text-sm mt-2 text-slate-700 dark:text-slate-200">—</strong></div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center gap-3">
+              <div>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-white">Eventos de seguridad</h4>
+                <p id="seguridad-estado" class="text-[11px] text-slate-400">Abrí esta pestaña para cargar los eventos.</p>
+              </div>
+              <div class="lg:ml-auto flex flex-wrap gap-2">
+                <input id="seg-buscar" oninput="renderSeguridad()" placeholder="Buscar usuario, libro o detalle..." class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs outline-none w-64">
+                <select id="seg-nivel" onchange="renderSeguridad()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"><option value="">Todos los niveles</option><option value="CRITICO">Crítico</option><option value="ALTO">Alto</option><option value="MEDIO">Medio</option><option value="INFO">Info</option></select>
+              </div>
+            </div>
+            <div class="overflow-x-auto max-h-[620px] custom-scroll">
+              <table class="w-full text-xs min-w-[1150px]">
+                <thead class="sticky top-0 bg-slate-50 dark:bg-slate-800 z-10"><tr><th class="p-3 text-left">Fecha</th><th class="p-3 text-left">Nivel</th><th class="p-3 text-left">Tipo</th><th class="p-3 text-left">Usuario</th><th class="p-3 text-left">Matrícula</th><th class="p-3 text-left">Libro</th><th class="p-3 text-left">Detalle</th><th class="p-3 text-left">Telegram</th></tr></thead>
+                <tbody id="seguridad-cuerpo"><tr><td colspan="8" class="p-10 text-center text-slate-400">Sin eventos cargados.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
         </section>
 
         <!-- PESTAÑA 5: BASE DE DATOS Y EXCEL -->
@@ -769,6 +950,12 @@
       "dluJBFMgXuQSKGka65Hz00EA3Bl2"
     ]);
     const FB_STORAGE_KEY = "unida_firebase_config";
+
+    // --- ALERTA DE ACCESO AL ADMIN ---
+    // Pegá aquí la URL /exec del Web App de Google Apps Script cuando lo publiques.
+    const ALERTA_ACCESO_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx6SMYyRS-8mX-UhTP0JT8OPLPptDYbFmUnkZ_DWxxmEGnaq4fhgm598-euAmGDF4Wf/exec";
+    const ALERTA_SESSION_KEY = "unida_alerta_acceso_enviada_v1";
+    let accesoPorLoginExplicito = false;
     // Config por defecto del proyecto "biblioteca-unida". Se usa siempre que
     // no haya una config distinta guardada manualmente en este navegador
     // (vía el botón "Conectar Firebase"), para no depender de configurar
@@ -784,6 +971,8 @@
     
     let db = null;
     let libros = [];
+    let catalogosImpresosAdmin = [];
+    let unsubscribeCatalogosImpresos = null;
     let simuladores = [];
     let historialAuditoria = [];
     let paginaTabla = 1;
@@ -793,23 +982,58 @@
     let chartCarrerasInst = null;
     let chartFacultadesInst = null;
 
+    // --- CONTROL DE CONEXIONES FIREBASE (evita listeners duplicados) ---
+    let firebaseDataInicializada = false;
+    let auditoriaInicializada = false;
+    let unsubscribeLibros = null;
+    let unsubscribeSimuladores = null;
+    let unsubscribeAuditoria = null;
+    let descargas = [];
+    let descargasInicializadas = false;
+    let unsubscribeDescargas = null;
+    let chartDescargasCarreraInst = null;
+    let chartDescargasLibrosInst = null;
+    let eventosSeguridad = [];
+    let seguridadInicializada = false;
+    let unsubscribeSeguridad = null;
+
     const MAPA_FACULTADES = {
-      "Medicina": "Salud", "Nutrición": "Salud", "Enfermería": "Salud", "Kinesiología y Fisioterapia": "Salud",
+      "Bioquímica": "Salud", "Medicina": "Salud", "Nutrición": "Salud", "Enfermería": "Salud", "Kinesiología y Fisioterapia": "Salud",
       "Ingeniería en Informática": "Ingeniería", "Ingeniería en Sistemas": "Ingeniería", "Ingeniería Industrial": "Ingeniería", "Ingeniería Electrónica": "Ingeniería",
-      "Marketing y Gestión Comercial": "FEADYS", "Psicología Organizacional": "FEADYS", "Ingeniería Comercial": "FEADYS", "Administración de Empresas": "FEADYS", "Contaduría Pública": "FEADYS", "Comercio Internacional": "FEADYS", "Relaciones Internacionales": "FEADYS",
+      "Marketing y Gestión Comercial": "Gestión", "Psicología Organizacional": "Gestión", "Ingeniería Comercial": "Gestión", "Administración de Empresas": "Gestión", "Contaduría Pública": "Gestión", "Comercio Internacional": "Gestión", "Relaciones Internacionales y Negocios Globales": "Gestión",
       "Derecho": "Jurídicas_y_Sociales", "Ciencias Políticas": "Jurídicas_y_Sociales",
-      "Adm. de Empresas/Pública": "Gestión", "Adm. Gestión Emprendedora": "Gestión", "Talento Humano": "Gestión", "Banca y Finanzas": "Gestión", "Educación": "Gestión", "Marketing Digital": "Gestión", "Sistemas": "Gestión",
+      "Adm. de Empresas/Pública": "FEADYS", "Administración Pública": "FEADYS", "Adm. Gestión Emprendedora": "FEADYS", "Administración y Gestión Emprendedora": "FEADYS", "Talento Humano": "FEADYS", "Gestión de Talento Humano": "FEADYS", "Administración y Gestión del Talento Humano": "FEADYS", "Banca y Finanzas": "FEADYS", "Educación": "FEADYS", "Ciencias de la Educación": "FEADYS", "Comunicación y Publicidad": "FEADYS", "Economía": "FEADYS", "Economía y Finanzas": "FEADYS", "Economía y Negocios Internacionales": "FEADYS", "Ingeniería en Logística Global": "FEADYS", "Inteligencia Artificial y Robótica": "FEADYS", "Marketing Digital": "FEADYS", "Sistemas": "FEADYS", "Relaciones Internacionales": "FEADYS",
       "PPT": "Club_de_Lectura"
     };
 
+    const ALIAS_CARRERAS_ADMIN = {
+      "Talento Humano": "Gestión de Talento Humano",
+      "Administración y Gestión del Talento Humano": "Gestión de Talento Humano",
+      "Educación": "Ciencias de la Educación",
+      "Administración y Gestión Emprendedora": "Adm. Gestión Emprendedora",
+      "Administración Pública": "Adm. de Empresas/Pública"
+    };
+
+    function carreraCanonica(carrera) {
+      return ALIAS_CARRERAS_ADMIN[carrera] || carrera;
+    }
+
     const PORTADAS_PRESET = {
+      "Bioquímica": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
       "Medicina": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
       "Nutrición": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=300&q=80",
       "Enfermería": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=300&q=80",
       "Ingeniería en Informática": "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=300&q=80",
       "Administración de Empresas": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
       "Derecho": "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=300&q=80",
-      "Educación": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80"
+      "Ciencias de la Educación": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80",
+      "Gestión de Talento Humano": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=300&q=80",
+      "Comunicación y Publicidad": "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=300&q=80",
+      "Economía": "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=300&q=80",
+      "Economía y Finanzas": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=300&q=80",
+      "Economía y Negocios Internacionales": "https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=300&q=80",
+      "Ingeniería en Logística Global": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=300&q=80",
+      "Inteligencia Artificial y Robótica": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=300&q=80"
     };
 
     function obtenerConfigFirebase() {
@@ -818,8 +1042,14 @@
     }
 
     function asegurarFirebase() {
-      if (!firebase.apps.length) firebase.initializeApp(obtenerConfigFirebase());
-      if (!db) db = firebase.firestore();
+      if (!firebase.apps.length) {
+        console.time('[UNIDA] Firebase app init');
+        firebase.initializeApp(obtenerConfigFirebase());
+        console.timeEnd('[UNIDA] Firebase app init');
+      }
+      if (!db) {
+        db = firebase.firestore();
+      }
       return firebase.auth();
     }
 
@@ -841,42 +1071,315 @@
       err.classList.add('hidden');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Verificando...';
+
+      const inicioAuth = performance.now();
+      console.log('[UNIDA] Iniciando Firebase Auth...');
       try {
         const auth = asegurarFirebase();
+
+        // La sesión solo se conserva durante la sesión actual del navegador.
+        // Al cerrar completamente el navegador, Firebase deberá pedir autenticación nuevamente.
+        await auth.setPersistence(
+          firebase.auth.Auth.Persistence.SESSION
+        );
+
         const cred = await auth.signInWithEmailAndPassword(email, password);
+        console.log(`[UNIDA] Auth completado en ${Math.round(performance.now() - inicioAuth)} ms`);
+
         if (!ADMIN_UIDS.has(cred.user.uid)) {
           await auth.signOut();
           throw new Error('Esta cuenta no está autorizada para administrar la biblioteca.');
         }
-        document.getElementById('auth-lock').classList.add('hidden');
-        document.getElementById('dashboard-app').classList.remove('hidden');
-        inicializarFirebase();
-        asignarPortadaTematica(true);
+
+        // Marcamos que este acceso provino de un login manual, no solo de una sesión restaurada.
+        accesoPorLoginExplicito = true;
+
+        // IMPORTANTE: no inicializamos Firestore aquí.
+        // onAuthStateChanged es la única ruta que abre el panel y crea listeners.
       } catch (error) {
-        const msg = error.message.includes('autorizada') ? error.message : 'Correo o contraseña incorrectos, o acceso no disponible.';
-        err.textContent = msg;
-        err.classList.remove('hidden');
+        console.warn(
+    `[UNIDA] Auth falló tras ${Math.round(performance.now() - inicioAuth)} ms`,
+    error
+  );
+
+  // Aviso externo de intento fallido.
+  // Nunca se envía la contraseña.
+  notificarLoginFallido(
+    email,
+    error
+  );
+
+  const msg =
+    error.message.includes('autorizada')
+      ? error.message
+      : 'Correo o contraseña incorrectos, o acceso no disponible.';
+
+  err.textContent = msg;
+  err.classList.remove('hidden');
+
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-right-to-bracket mr-2"></i>Iniciar sesión';
       }
     }
 
+    async function notificarAccesoAdmin(user, tipoAcceso = 'sesion_restaurada') {
+      if (!user || !ADMIN_UIDS.has(user.uid)) return;
+
+      // Para sesiones restauradas evitamos avisos repetidos por simples recargas.
+      // Los inicios de sesión manuales SIEMPRE generan alerta.
+      if (tipoAcceso !== 'inicio_sesion' && sessionStorage.getItem(ALERTA_SESSION_KEY) === '1') return;
+
+      if (!ALERTA_ACCESO_WEBAPP_URL || ALERTA_ACCESO_WEBAPP_URL.includes('PEGAR_AQUI')) {
+        console.info('[UNIDA] Alerta de acceso pendiente: falta configurar la URL de Apps Script.');
+        return;
+      }
+
+      try {
+        const idToken = await user.getIdToken(true);
+        const sessionId = (window.crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+        const payload = {
+          idToken,
+          tipoAcceso,
+          sessionId,
+          pagina: location.href,
+          userAgent: navigator.userAgent || '',
+          plataforma: navigator.platform || '',
+          idioma: navigator.language || '',
+          fechaCliente: new Date().toISOString()
+        };
+
+        // Apps Script suele redirigir las respuestas de Web Apps y fetch/no-cors
+        // puede terminar en 404 sin poder inspeccionar la respuesta.
+        // Enviamos el POST con un formulario oculto apuntando a un iframe.
+        const frameName = `unida_alerta_frame_${Date.now()}`;
+        const iframe = document.createElement('iframe');
+        iframe.name = frameName;
+        iframe.style.display = 'none';
+        iframe.setAttribute('aria-hidden', 'true');
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = ALERTA_ACCESO_WEBAPP_URL;
+        form.target = frameName;
+        form.style.display = 'none';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'payload';
+        input.value = JSON.stringify(payload);
+
+        form.appendChild(input);
+        document.body.appendChild(iframe);
+        document.body.appendChild(form);
+
+        form.submit();
+
+        if (tipoAcceso !== 'inicio_sesion') {
+          sessionStorage.setItem(ALERTA_SESSION_KEY, '1');
+        }
+
+        console.log('[UNIDA] Solicitud de alerta de acceso enviada a Apps Script.');
+
+        setTimeout(() => {
+          try { form.remove(); } catch (_) {}
+          try { iframe.remove(); } catch (_) {}
+        }, 15000);
+
+      } catch (error) {
+        console.warn('[UNIDA] No se pudo preparar/enviar la alerta de acceso:', error);
+      }
+    }
+
+    async function notificarLoginFallido(
+  email,
+  error
+) {
+
+  if (
+    !ALERTA_ACCESO_WEBAPP_URL ||
+    ALERTA_ACCESO_WEBAPP_URL.includes(
+      'PEGAR_AQUI'
+    )
+  ) {
+    console.info(
+      '[UNIDA] Alerta de login fallido no enviada: Web App no configurada.'
+    );
+    return;
+  }
+
+
+  try {
+
+    const sessionId =
+      window.crypto &&
+      crypto.randomUUID
+
+        ? crypto.randomUUID()
+
+        : `${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2)}`;
+
+
+    const payload = {
+
+      tipoEvento:
+        'login_fallido',
+
+      email:
+        String(email || '')
+          .trim()
+          .toLowerCase(),
+
+      errorCode:
+        error &&
+        error.code
+          ? String(error.code)
+          : 'desconocido',
+
+      sessionId,
+
+      pagina:
+        location.href,
+
+      userAgent:
+        navigator.userAgent || '',
+
+      plataforma:
+        navigator.platform || '',
+
+      idioma:
+        navigator.language || '',
+
+      fechaCliente:
+        new Date().toISOString()
+    };
+
+
+    const frameName =
+      `unida_fallo_frame_${Date.now()}`;
+
+
+    const iframe =
+      document.createElement(
+        'iframe'
+      );
+
+    iframe.name =
+      frameName;
+
+    iframe.style.display =
+      'none';
+
+    iframe.setAttribute(
+      'aria-hidden',
+      'true'
+    );
+
+
+    const form =
+      document.createElement(
+        'form'
+      );
+
+    form.method =
+      'POST';
+
+    form.action =
+      ALERTA_ACCESO_WEBAPP_URL;
+
+    form.target =
+      frameName;
+
+    form.style.display =
+      'none';
+
+
+    const input =
+      document.createElement(
+        'input'
+      );
+
+    input.type =
+      'hidden';
+
+    input.name =
+      'payload';
+
+    input.value =
+      JSON.stringify(payload);
+
+
+    form.appendChild(input);
+
+    document.body.appendChild(
+      iframe
+    );
+
+    document.body.appendChild(
+      form
+    );
+
+
+    form.submit();
+
+
+    console.log(
+      '[UNIDA] Alerta de login fallido enviada.'
+    );
+
+
+    setTimeout(() => {
+
+      try {
+        form.remove();
+      } catch (_) {}
+
+      try {
+        iframe.remove();
+      } catch (_) {}
+
+    }, 15000);
+
+
+  } catch (errorEnvio) {
+
+    console.warn(
+      '[UNIDA] No se pudo enviar alerta de login fallido:',
+      errorEnvio
+    );
+  }
+}
+
     async function cerrarSesion() {
+      limpiarListenersFirebase();
       try { if (firebase.apps.length) await firebase.auth().signOut(); } catch (_) {}
       document.getElementById('auth-password').value = '';
+      sessionStorage.removeItem(ALERTA_SESSION_KEY);
+      accesoPorLoginExplicito = false;
       mostrarLogin();
     }
 
     function bloquearPanel() { cerrarSesion(); }
 
-    function navegarPestana(id) {
+    function navegarPestana(id, boton = null) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(b => {
         b.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800";
       });
       document.getElementById(id).classList.remove('hidden');
-      event.currentTarget.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400";
+      const activo = boton || [...document.querySelectorAll('.nav-btn')]
+        .find(b => (b.getAttribute('onclick') || '').includes(`'${id}'`));
+      if (activo) activo.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition text-[#1e3c6e] bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400";
+
+      // La bitácora puede crecer mucho: se conecta recién cuando el usuario la necesita.
+      if (id === 'tab-historial') inicializarAuditoriaBajoDemanda();
+      if (id === 'tab-descargas') inicializarDescargasBajoDemanda();
+      if (id === 'tab-seguridad') inicializarSeguridadBajoDemanda();
     }
 
     function toggleDarkMode() {
@@ -920,44 +1423,423 @@
 
     function inicializarFirebase() {
       const user = firebase.apps.length ? firebase.auth().currentUser : null;
-      if (!user || !ADMIN_UIDS.has(user.uid)) {
+      if (!user || !ADMIN_UIDS.has(user.uid)) return;
+
+      // Segunda barrera contra inicializaciones duplicadas.
+      if (firebaseDataInicializada) {
+        console.log('[UNIDA] Firestore ya estaba inicializado; se evita crear listeners duplicados.');
         return;
       }
+      firebaseDataInicializada = true;
+
       const badge = document.getElementById('cloud-badge');
       const statusCanal = document.getElementById('kpi-status-canal');
+      const inicioFirestore = performance.now();
 
       try {
         asegurarFirebase();
-        db = firebase.firestore();
 
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> En Vivo`;
-        badge.className = "text-[11px] font-semibold text-emerald-500 flex items-center gap-1";
-        statusCanal.textContent = "Conectado (Cloud)";
-        statusCanal.className = "text-sm font-bold text-emerald-500 mt-2";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Conectando...`;
+        badge.className = "text-[11px] font-semibold text-amber-500 flex items-center gap-1";
+        statusCanal.textContent = "Conectando...";
+        statusCanal.className = "text-sm font-bold text-amber-500 mt-2";
 
-        db.collection("libros").onSnapshot(snapshot => {
+        let primeraCargaLibros = true;
+        let primeraCargaSimuladores = true;
+
+        unsubscribeLibros = db.collection('libros').onSnapshot(snapshot => {
           libros = [];
           snapshot.forEach(doc => { libros.push({ _id: doc.id, ...doc.data() }); });
           actualizarTodoUI();
-        }, error => { fallbackLocal(); });
 
-        db.collection("simuladores").onSnapshot(snapshot => {
+          if (primeraCargaLibros) {
+            primeraCargaLibros = false;
+            console.log(`[UNIDA] Primera carga de libros: ${snapshot.size} docs en ${Math.round(performance.now() - inicioFirestore)} ms`);
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> En Vivo`;
+            badge.className = "text-[11px] font-semibold text-emerald-500 flex items-center gap-1";
+            statusCanal.textContent = "Conectado (Cloud)";
+            statusCanal.className = "text-sm font-bold text-emerald-500 mt-2";
+          }
+        }, error => {
+          console.warn('[UNIDA] Error listener libros:', error);
+          firebaseDataInicializada = false;
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Modo local`;
+          statusCanal.textContent = "Respaldo local";
+          fallbackLocal();
+        });
+
+        unsubscribeSimuladores = db.collection('simuladores').onSnapshot(snapshot => {
           simuladores = [];
           snapshot.forEach(doc => { simuladores.push({ _id: doc.id, ...doc.data() }); });
           renderSimuladores();
-        });
+          if (primeraCargaSimuladores) {
+            primeraCargaSimuladores = false;
+            console.log(`[UNIDA] Primera carga de simuladores: ${snapshot.size} docs en ${Math.round(performance.now() - inicioFirestore)} ms`);
+          }
+        }, error => console.warn('[UNIDA] Error listener simuladores:', error));
 
-        db.collection("auditoria").orderBy("fecha", "desc").limit(500).onSnapshot(snapshot => {
-          historialAuditoria = [];
-          snapshot.forEach(doc => historialAuditoria.push({ _id: doc.id, ...doc.data() }));
-          renderHistorial();
-          const kc=document.getElementById('kpi-cambios'); if(kc) kc.textContent=historialAuditoria.length;
-        }, err => console.warn('No se pudo cargar auditoría:', err));
-
+        // Auditoría NO se carga en el arranque. Se inicializa al abrir Historial.
       } catch (e) {
+        firebaseDataInicializada = false;
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Error`;
+        statusCanal.textContent = "Error de conexión";
+        console.error('[UNIDA] Error inicializando Firestore:', e);
         fallbackLocal();
       }
+    }
+
+    function inicializarAuditoriaBajoDemanda() {
+      const user = firebase.apps.length ? firebase.auth().currentUser : null;
+      if (!user || !ADMIN_UIDS.has(user.uid) || auditoriaInicializada) return;
+
+      auditoriaInicializada = true;
+      const inicio = performance.now();
+      const contador = document.getElementById('historial-contador');
+      if (contador) contador.textContent = 'Cargando historial...';
+
+      try {
+        asegurarFirebase();
+        unsubscribeAuditoria = db.collection('auditoria')
+          .orderBy('fecha', 'desc')
+          .limit(500)
+          .onSnapshot(snapshot => {
+            historialAuditoria = [];
+            snapshot.forEach(doc => historialAuditoria.push({ _id: doc.id, ...doc.data() }));
+            renderHistorial();
+            const kc = document.getElementById('kpi-cambios');
+            if (kc) kc.textContent = historialAuditoria.length;
+            console.log(`[UNIDA] Auditoría bajo demanda: ${snapshot.size} eventos en ${Math.round(performance.now() - inicio)} ms`);
+          }, err => {
+            auditoriaInicializada = false;
+            console.warn('[UNIDA] No se pudo cargar auditoría:', err);
+            if (contador) contador.textContent = 'Error al cargar historial';
+          });
+      } catch (err) {
+        auditoriaInicializada = false;
+        console.warn('[UNIDA] Error preparando auditoría:', err);
+      }
+    }
+
+    function inicializarDescargasBajoDemanda(forzar = false) {
+      const user = firebase.apps.length ? firebase.auth().currentUser : null;
+      if (!user || !ADMIN_UIDS.has(user.uid)) return;
+      if (descargasInicializadas && !forzar) { renderDescargas(); return; }
+
+      if (forzar && typeof unsubscribeDescargas === 'function') {
+        try { unsubscribeDescargas(); } catch (_) {}
+        unsubscribeDescargas = null;
+        descargasInicializadas = false;
+      }
+
+      descargasInicializadas = true;
+      const inicio = performance.now();
+      const estado = document.getElementById('descargas-estado');
+      if (estado) estado.textContent = 'Cargando registros desde Firestore...';
+
+      try {
+        asegurarFirebase();
+        unsubscribeDescargas = db.collection('descargas').orderBy('fecha', 'desc').onSnapshot(snapshot => {
+          descargas = [];
+          snapshot.forEach(doc => descargas.push({ _id: doc.id, ...doc.data() }));
+          actualizarFiltroCarrerasDescargas();
+          renderDescargas();
+          if (estado) estado.textContent = `Sincronizado con Firestore · ${snapshot.size} registros`;
+          console.log(`[UNIDA] Descargas bajo demanda: ${snapshot.size} registros en ${Math.round(performance.now() - inicio)} ms`);
+        }, err => {
+          descargasInicializadas = false;
+          console.warn('[UNIDA] No se pudieron cargar descargas:', err);
+          if (estado) estado.textContent = 'Error al cargar descargas. Revisá permisos/reglas de Firestore.';
+        });
+      } catch (err) {
+        descargasInicializadas = false;
+        console.warn('[UNIDA] Error preparando descargas:', err);
+        if (estado) estado.textContent = 'No se pudo iniciar la consulta de descargas.';
+      }
+    }
+
+    function recargarDescargas() {
+      inicializarDescargasBajoDemanda(true);
+    }
+
+    function fechaDescargaDate(f) {
+      if (!f) return null;
+      try {
+        const d = f.toDate ? f.toDate() : new Date(f);
+        return Number.isNaN(d.getTime()) ? null : d;
+      } catch (_) { return null; }
+    }
+
+    function fechaDescargaTexto(f) {
+      const d = fechaDescargaDate(f);
+      return d ? d.toLocaleString('es-PY') : '-';
+    }
+
+    function claveUsuarioDescarga(d) {
+      const matricula = String(d.matricula || '').trim().toLowerCase();
+      if (matricula) return `mat:${matricula}`;
+      const correo = String(d.correo || '').trim().toLowerCase();
+      if (correo) return `mail:${correo}`;
+      return `nom:${normalizarClave(`${d.nombres || ''} ${d.apellidos || ''}`)}`;
+    }
+
+    function contarPor(arr, getter) {
+      const out = {};
+      arr.forEach(x => {
+        const k = String(getter(x) || 'Sin especificar').trim() || 'Sin especificar';
+        out[k] = (out[k] || 0) + 1;
+      });
+      return out;
+    }
+
+    function mayorConteo(obj) {
+      const e = Object.entries(obj).sort((a,b) => b[1] - a[1])[0];
+      return e || ['—', 0];
+    }
+
+    function actualizarFiltroCarrerasDescargas() {
+      const sel = document.getElementById('desc-carrera');
+      if (!sel) return;
+      const actual = sel.value;
+      const carreras = [...new Set(descargas.map(d => d.carreraLibro || d.carrera).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'es'));
+      sel.innerHTML = '<option value="">Todas las carreras</option>' + carreras.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      if (carreras.includes(actual)) sel.value = actual;
+    }
+
+    function escapeHtml(v) {
+      return String(v ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    }
+
+    function obtenerDescargasFiltradas() {
+      const q = normalizarClave(document.getElementById('desc-buscar')?.value || '');
+      const ocupacion = document.getElementById('desc-ocupacion')?.value || '';
+      const carrera = document.getElementById('desc-carrera')?.value || '';
+      const desde = document.getElementById('desc-desde')?.value || '';
+      const hasta = document.getElementById('desc-hasta')?.value || '';
+      const dDesde = desde ? new Date(desde + 'T00:00:00') : null;
+      const dHasta = hasta ? new Date(hasta + 'T23:59:59.999') : null;
+
+      return descargas.filter(d => {
+        const fecha = fechaDescargaDate(d.fecha);
+        if (ocupacion && d.ocupacion !== ocupacion) return false;
+        const carreraRegistro = d.carreraLibro || d.carrera || '';
+        if (carrera && carreraRegistro !== carrera) return false;
+        if (dDesde && (!fecha || fecha < dDesde)) return false;
+        if (dHasta && (!fecha || fecha > dHasta)) return false;
+        if (q) {
+          const bolsa = normalizarClave(`${d.nombres || ''} ${d.apellidos || ''} ${d.matricula || ''} ${d.correo || ''} ${d.tituloLibro || ''} ${d.autorLibro || ''} ${d.carrera || ''} ${d.carreraLibro || ''} ${d.ocupacion || ''}`);
+          if (!bolsa.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderDescargas() {
+      const arr = obtenerDescargasFiltradas();
+      const tb = document.getElementById('descargas-cuerpo');
+      const contador = document.getElementById('descargas-contador');
+      if (contador) contador.textContent = `${arr.length} de ${descargas.length} registros`;
+
+      const hoy = new Date();
+      const hoyY = hoy.getFullYear(), hoyM = hoy.getMonth(), hoyD = hoy.getDate();
+      const totalHoy = descargas.filter(x => {
+        const d = fechaDescargaDate(x.fecha); return d && d.getFullYear()===hoyY && d.getMonth()===hoyM && d.getDate()===hoyD;
+      }).length;
+      const usuarios = new Set(descargas.map(claveUsuarioDescarga).filter(Boolean));
+      const porLibro = contarPor(descargas, d => textoPlano(d.tituloLibro || 'Sin título'));
+      const porCarrera = contarPor(descargas, d => d.carreraLibro || 'Sin especificar');
+      const [topLibro, topLibroN] = mayorConteo(porLibro);
+      const [topCarrera, topCarreraN] = mayorConteo(porCarrera);
+
+      const setText = (id,v) => { const e=document.getElementById(id); if(e)e.textContent=v; };
+      setText('desc-kpi-total', descargas.length);
+      setText('desc-kpi-hoy', totalHoy);
+      setText('desc-kpi-usuarios', usuarios.size);
+      setText('desc-kpi-libro', descargas.length ? `${topLibro} (${topLibroN})` : '—');
+      setText('desc-kpi-carrera', descargas.length ? `${topCarrera} (${topCarreraN})` : '—');
+
+      renderGraficosDescargas(porCarrera, porLibro);
+
+      if (!tb) return;
+      if (!arr.length) {
+        tb.innerHTML = '<tr><td colspan="9" class="p-10 text-center text-slate-400">No hay registros para los filtros seleccionados.</td></tr>';
+        return;
+      }
+      tb.innerHTML = arr.map(d => `
+        <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+          <td class="p-3 whitespace-nowrap">${escapeHtml(fechaDescargaTexto(d.fecha))}</td>
+          <td class="p-3 font-semibold">${escapeHtml(d.nombres || '-')}</td>
+          <td class="p-3 font-semibold">${escapeHtml(d.apellidos || '-')}</td>
+          <td class="p-3 font-mono">${escapeHtml(d.matricula || '-')}</td>
+          <td class="p-3">${escapeHtml(d.correo || '-')}</td>
+          <td class="p-3">${escapeHtml(d.ocupacion || '-')}</td>
+          <td class="p-3">${escapeHtml(d.carrera || '-')}</td>
+          <td class="p-3 font-semibold max-w-[300px]">${escapeHtml(textoPlano(d.tituloLibro || '-'))}<div class="text-[10px] font-normal text-slate-400 mt-1">${escapeHtml(d.autorLibro || '')}</div></td>
+          <td class="p-3">${escapeHtml(d.carreraLibro || '-')}</td>
+        </tr>`).join('');
+    }
+
+    function renderGraficosDescargas(porCarrera, porLibro) {
+      const carreraEntries = Object.entries(porCarrera).sort((a,b)=>b[1]-a[1]).slice(0,12);
+      const libroEntries = Object.entries(porLibro).sort((a,b)=>b[1]-a[1]).slice(0,10).reverse();
+      const c1 = document.getElementById('chartDescargasCarrera');
+      const c2 = document.getElementById('chartDescargasLibros');
+      if (chartDescargasCarreraInst) chartDescargasCarreraInst.destroy();
+      if (chartDescargasLibrosInst) chartDescargasLibrosInst.destroy();
+      if (c1) chartDescargasCarreraInst = new Chart(c1, { type:'bar', data:{labels:carreraEntries.map(x=>x[0]),datasets:[{label:'Descargas',data:carreraEntries.map(x=>x[1]),backgroundColor:'#2980b9',borderRadius:4}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}} });
+      if (c2) chartDescargasLibrosInst = new Chart(c2, { type:'bar', data:{labels:libroEntries.map(x=>x[0]),datasets:[{label:'Descargas',data:libroEntries.map(x=>x[1]),backgroundColor:'#6366f1',borderRadius:4}]}, options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}} });
+    }
+
+    async function exportarDescargasExcel() {
+      const arr = obtenerDescargasFiltradas();
+      if (!arr.length) return alert('No hay registros de descarga para exportar con los filtros actuales.');
+      if (typeof ExcelJS === 'undefined') return alert('No se pudo cargar ExcelJS. Recargá la página e intentá de nuevo.');
+
+      const wb = new ExcelJS.Workbook();
+      wb.creator = 'Biblioteca Central UNIDA';
+      wb.created = new Date();
+
+      const ws = wb.addWorksheet('Descargas');
+      ws.columns = [
+        {header:'Fecha',key:'fecha',width:22},{header:'Nombre(s)',key:'nombres',width:20},{header:'Apellidos',key:'apellidos',width:28},{header:'Matrícula',key:'matricula',width:18},{header:'Correo',key:'correo',width:30},{header:'Ocupación',key:'ocupacion',width:20},{header:'Carrera / Área usuario',key:'carrera',width:30},{header:'Institución',key:'institucion',width:26},{header:'Libro',key:'libro',width:45},{header:'Autor',key:'autor',width:35},{header:'Carrera del libro',key:'carreraLibro',width:30},{header:'ID libro',key:'libroId',width:24},{header:'Origen',key:'origen',width:18}
+      ];
+      ws.getRow(1).font = {bold:true,color:{argb:'FFFFFFFF'}};
+      ws.getRow(1).fill = {type:'pattern',pattern:'solid',fgColor:{argb:'FF1E3C6E'}};
+      ws.views = [{state:'frozen',ySplit:1}];
+      ws.autoFilter = {from:'A1',to:'M1'};
+      arr.forEach(d => ws.addRow({
+        fecha: fechaDescargaTexto(d.fecha), nombres:d.nombres||'', apellidos:d.apellidos||'', matricula:d.matricula||'', correo:d.correo||'', ocupacion:d.ocupacion||'', carrera:d.carrera||'', institucion:d.institucion||'', libro:textoPlano(d.tituloLibro||''), autor:d.autorLibro||'', carreraLibro:d.carreraLibro||'', libroId:d.libroId||'', origen:d.origen||''
+      }));
+
+      const resumen = wb.addWorksheet('Resumen');
+      const porLibro = contarPor(arr, d => textoPlano(d.tituloLibro || 'Sin título'));
+      const porCarrera = contarPor(arr, d => d.carreraLibro || 'Sin especificar');
+      const usuarios = new Set(arr.map(claveUsuarioDescarga).filter(Boolean));
+      resumen.addRows([
+        ['Indicador','Valor'],['Descargas exportadas',arr.length],['Usuarios únicos',usuarios.size],['Libro más descargado',mayorConteo(porLibro)[0]],['Descargas del libro más descargado',mayorConteo(porLibro)[1]],['Carrera con más descargas',mayorConteo(porCarrera)[0]],['Descargas de esa carrera',mayorConteo(porCarrera)[1]]
+      ]);
+      resumen.columns = [{width:38},{width:35}];
+      resumen.getRow(1).font = {bold:true,color:{argb:'FFFFFFFF'}};
+      resumen.getRow(1).fill = {type:'pattern',pattern:'solid',fgColor:{argb:'FF1E3C6E'}};
+
+      const buf = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Descargas_Biblioteca_UNIDA_${new Date().toISOString().slice(0,10)}.xlsx`;
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    }
+
+    // --- SEGURIDAD & ALERTAS ---
+    function inicializarSeguridadBajoDemanda(forzar = false) {
+      const user = firebase.apps.length ? firebase.auth().currentUser : null;
+      if (!user || !ADMIN_UIDS.has(user.uid)) return;
+      if (seguridadInicializada && !forzar) { renderSeguridad(); return; }
+
+      if (forzar && typeof unsubscribeSeguridad === 'function') {
+        try { unsubscribeSeguridad(); } catch (_) {}
+        unsubscribeSeguridad = null;
+        seguridadInicializada = false;
+      }
+
+      seguridadInicializada = true;
+      const estado = document.getElementById('seguridad-estado');
+      const inicio = performance.now();
+      if (estado) estado.textContent = 'Cargando eventos de seguridad desde Firestore...';
+
+      try {
+        asegurarFirebase();
+        unsubscribeSeguridad = db.collection('eventos_seguridad').orderBy('fecha', 'desc').limit(500).onSnapshot(snapshot => {
+          eventosSeguridad = [];
+          snapshot.forEach(doc => eventosSeguridad.push({ _id: doc.id, ...doc.data() }));
+          renderSeguridad();
+          if (estado) estado.textContent = `Sincronizado con Firestore · ${snapshot.size} eventos`;
+          console.log(`[UNIDA] Seguridad bajo demanda: ${snapshot.size} eventos en ${Math.round(performance.now() - inicio)} ms`);
+        }, err => {
+          seguridadInicializada = false;
+          console.warn('[UNIDA] No se pudieron cargar eventos de seguridad:', err);
+          if (estado) estado.textContent = 'No se pudieron cargar eventos. Revisá las reglas de Firestore.';
+        });
+      } catch (err) {
+        seguridadInicializada = false;
+        console.warn('[UNIDA] Error preparando seguridad:', err);
+        if (estado) estado.textContent = 'No se pudo iniciar la consulta de seguridad.';
+      }
+    }
+
+    function recargarSeguridad() { inicializarSeguridadBajoDemanda(true); }
+
+    function nivelBadgeSeguridad(nivel) {
+      const n = String(nivel || 'INFO').toUpperCase();
+      const map = {
+        CRITICO: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+        ALTO: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+        MEDIO: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+        INFO: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300'
+      };
+      return `<span class="px-2 py-1 rounded-lg text-[10px] font-bold ${map[n] || map.INFO}">${escapeHtml(n)}</span>`;
+    }
+
+    function renderSeguridad() {
+      const tb = document.getElementById('seguridad-cuerpo');
+      const q = normalizarClave(document.getElementById('seg-buscar')?.value || '');
+      const nivel = document.getElementById('seg-nivel')?.value || '';
+      const arr = eventosSeguridad.filter(e => {
+        if (nivel && String(e.nivel || '').toUpperCase() !== nivel) return false;
+        if (q) {
+          const u = e.usuario || {}, l = e.libro || {};
+          const bolsa = normalizarClave(`${e.tipo || ''} ${e.titulo || ''} ${e.detalle || ''} ${u.nombres || ''} ${u.apellidos || ''} ${u.matricula || ''} ${u.correo || ''} ${l.titulo || ''} ${l.autor || ''}`);
+          if (!bolsa.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const hoy = new Date();
+      const totalHoy = eventosSeguridad.filter(e => {
+        const d = fechaDescargaDate(e.fecha);
+        return d && d.getFullYear() === hoy.getFullYear() && d.getMonth() === hoy.getMonth() && d.getDate() === hoy.getDate();
+      }).length;
+      const altas = eventosSeguridad.filter(e => ['ALTO','CRITICO'].includes(String(e.nivel || '').toUpperCase())).length;
+      const telegram = eventosSeguridad.filter(e => e.telegramEnviado === true).length;
+      const ultimo = eventosSeguridad.length ? fechaDescargaTexto(eventosSeguridad[0].fecha) : '—';
+      const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+      setText('seg-kpi-total', eventosSeguridad.length);
+      setText('seg-kpi-hoy', totalHoy);
+      setText('seg-kpi-altas', altas);
+      setText('seg-kpi-telegram', telegram);
+      setText('seg-kpi-ultimo', ultimo);
+
+      if (!tb) return;
+      if (!arr.length) {
+        tb.innerHTML = '<tr><td colspan="8" class="p-10 text-center text-slate-400">No hay eventos para los filtros seleccionados.</td></tr>';
+        return;
+      }
+      tb.innerHTML = arr.map(e => {
+        const u=e.usuario||{}, l=e.libro||{};
+        return `<tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+          <td class="p-3 whitespace-nowrap">${escapeHtml(fechaDescargaTexto(e.fecha))}</td>
+          <td class="p-3">${nivelBadgeSeguridad(e.nivel)}</td>
+          <td class="p-3 font-semibold">${escapeHtml(e.tipo || '-')}</td>
+          <td class="p-3">${escapeHtml(`${u.nombres || ''} ${u.apellidos || ''}`.trim() || '-')}<div class="text-[10px] text-slate-400 mt-1">${escapeHtml(u.correo || '')}</div></td>
+          <td class="p-3 font-mono">${escapeHtml(u.matricula || '-')}</td>
+          <td class="p-3 max-w-[260px]">${escapeHtml(textoPlano(l.titulo || '-'))}<div class="text-[10px] text-slate-400 mt-1">${escapeHtml(l.autor || '')}</div></td>
+          <td class="p-3 max-w-[360px]">${escapeHtml(e.detalle || e.titulo || '-')}<div class="text-[10px] text-slate-400 mt-1">${e.conteo ? `${escapeHtml(e.conteo)} eventos / ${escapeHtml(e.ventanaMinutos || 2)} min` : ''}</div></td>
+          <td class="p-3">${e.telegramEnviado === true ? '<span class="text-emerald-600 font-bold">Enviado</span>' : (e.telegramError ? '<span class="text-rose-600" title="'+escapeHtml(e.telegramError)+'">Error</span>' : '<span class="text-slate-400">Pendiente</span>')}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function limpiarListenersFirebase() {
+      [unsubscribeLibros, unsubscribeSimuladores, unsubscribeAuditoria, unsubscribeDescargas, unsubscribeSeguridad].forEach(unsub => {
+        try { if (typeof unsub === 'function') unsub(); } catch (_) {}
+      });
+      unsubscribeLibros = unsubscribeSimuladores = unsubscribeAuditoria = unsubscribeDescargas = unsubscribeSeguridad = null;
+      firebaseDataInicializada = false;
+      auditoriaInicializada = false;
+      descargasInicializadas = false;
+      seguridadInicializada = false;
+      descargas = [];
+      eventosSeguridad = [];
     }
 
     function fallbackLocal() {
@@ -974,10 +1856,38 @@
     function procesarImagenLocal(event) {
       const file = event.target.files[0];
       if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        event.target.value = '';
+        return alert('Seleccioná un archivo de imagen válido.');
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        event.target.value = '';
+        return alert('La imagen original no puede superar 15 MB.');
+      }
       const reader = new FileReader();
       reader.onload = function(e) {
-        document.getElementById('inp-imagen').value = e.target.result;
-        actualizarPreview();
+        const img = new Image();
+        img.onload = function() {
+          // Recorte central 11:16 y compresión para evitar portadas Base64 gigantes.
+          const destinoW = 550, destinoH = 800, ratio = destinoW / destinoH;
+          let sx = 0, sy = 0, sw = img.width, sh = img.height;
+          if (img.width / img.height > ratio) {
+            sw = img.height * ratio;
+            sx = (img.width - sw) / 2;
+          } else {
+            sh = img.width / ratio;
+            sy = (img.height - sh) / 2;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = destinoW; canvas.height = destinoH;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, destinoW, destinoH);
+          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, destinoW, destinoH);
+          document.getElementById('inp-imagen').value = canvas.toDataURL('image/jpeg', 0.78);
+          actualizarPreview();
+        };
+        img.onerror = () => alert('No se pudo procesar esta imagen.');
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
@@ -985,7 +1895,9 @@
     // --- VACIAR BASE DE DATOS EN LA NUBE ---
     async function vaciarBaseDeDatosNube() {
       if (!db) return alert("Conecta Firebase primero.");
-      if (!confirm("⚠️ ¿Estás SEGURO de que deseas eliminar TODOS los libros de la nube? Esta acción borrará todo el inventario.")) return;
+      if (!confirm("⚠️ Esta acción eliminará TODOS los libros de la nube. El backup no se restaura automáticamente. ¿Deseás continuar?")) return;
+      const confirmacion = prompt('Para confirmar, escribí exactamente: VACIAR');
+      if (confirmacion !== 'VACIAR') return alert('Operación cancelada. No se eliminó ningún libro.');
 
       const spinner = document.getElementById('sync-spinner');
       spinner.classList.remove('hidden');
@@ -997,6 +1909,7 @@
           batch.delete(doc.ref);
         });
         await batch.commit();
+        await registrarAuditoria('eliminar','base_completa','',`Vaciado total: ${snapshot.size} libros`,{cantidad:snapshot.size});
         alert("¡Base de datos en la nube vaciada con éxito!");
       } catch (err) {
         alert("Error al vaciar la base de datos: " + err.message);
@@ -1011,7 +1924,9 @@
       
       const librosRespaldo = (typeof semillalibrosKuri !== 'undefined' && semillalibrosKuri.length > 0) ? semillalibrosKuri : [];
 
-      if (!confirm(`¿Deseas inyectar la semilla limpia (${librosRespaldo.length} libros únicos) a Firestore?`)) return;
+      if (!confirm(`Se compararán e incorporarán hasta ${librosRespaldo.length} libros de la semilla. ¿Deseás continuar?`)) return;
+      const confirmacion = prompt('Para confirmar, escribí exactamente: SEMILLA');
+      if (confirmacion !== 'SEMILLA') return alert('Operación cancelada. No se cargó la semilla.');
 
       const spinner = document.getElementById('sync-spinner');
       spinner.classList.remove('hidden');
@@ -1039,6 +1954,7 @@
 
         if (agregados > 0) {
           await batch.commit();
+          await registrarAuditoria('crear','semilla','',`Carga de semilla: ${agregados} libros`,{cantidad:agregados});
           alert(`¡Se agregaron ${agregados} libros únicos a la nube con éxito!`);
         } else {
           alert("Todos los libros de la semilla ya existían en la base de datos.");
@@ -1119,6 +2035,106 @@
       try{ const [lb,sm,au]=await Promise.all([db.collection('libros').get(),db.collection('simuladores').get(),db.collection('auditoria').get()]); const conv=s=>s.docs.map(d=>({id:d.id,...d.data(),fecha:d.data().fecha?.toDate?d.data().fecha.toDate().toISOString():d.data().fecha||null})); const data={formato:'UNIDA-BACKUP-1',generado:new Date().toISOString(),generadoPor:usuarioActual().email,conteos:{libros:lb.size,simuladores:sm.size,auditoria:au.size},libros:conv(lb),simuladores:conv(sm),auditoria:conv(au)}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Backup_UNIDA_${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);await registrarAuditoria('crear','backup','',`Backup ${data.generado}`,data.conteos); }catch(e){alert('No se pudo generar el backup: '+e.message);}finally{if(btn){btn.disabled=false;btn.innerHTML=old;}}
     }
 
+
+    // --- CATÁLOGOS IMPRESOS: colección aislada de los libros digitales ---
+    const CARRERAS_IMPRESAS_ADMIN = {
+      'Facultad de Salud':['Bioquímica','Enfermería','Kinesiología y Fisioterapia','Medicina','Nutrición'],
+      'Facultad de Gestión':['Administración de Empresas','Comercio Internacional','Contaduría Pública','Ingeniería Comercial','Marketing','Psicología Organizacional','Relaciones Internacionales y Negocios Globales'],
+      'Facultad de Ingeniería':['Ingeniería Electrónica','Ingeniería Industrial','Ingeniería en Informática','Ingeniería en Sistemas'],
+      'Facultad de C. Jurídicas y Sociales':['Ciencias Políticas','Derecho'],
+      'FEADYS':['Adm. de Empresas/Pública','Adm. Gestión Emprendedora','Banca y Finanzas','Ciencias de la Educación','Comunicación y Publicidad','Economía','Economía y Finanzas','Economía y Negocios Internacionales','Gestión de Talento Humano','Ingeniería en Logística Global','Inteligencia Artificial y Robótica','Marketing Digital','Relaciones Internacionales','Sistemas']
+    };
+    function abrirTabCatalogosImpresos(btn) {
+      navegarPestana('tab-catalogos-impresos',btn);
+      const fac=document.getElementById('imp-facultad');
+      if(fac && !fac.options.length){
+        Object.keys(CARRERAS_IMPRESAS_ADMIN).forEach(f=>fac.add(new Option(f,f)));
+        actualizarCarrerasImpresasAdmin();
+      }
+      if (!unsubscribeCatalogosImpresos && db) {
+        unsubscribeCatalogosImpresos=db.collection('catalogos_impresos').onSnapshot(snap=>{
+          catalogosImpresosAdmin=snap.docs.map(doc=>({_id:doc.id,...doc.data()}));
+          renderCatalogosImpresosAdmin();
+          document.getElementById('imp-estado').textContent='Catálogos sincronizados: '+catalogosImpresosAdmin.length;
+        },err=>{
+          document.getElementById('imp-estado').textContent='Error al consultar la colección. Verificá las reglas de Firestore: '+err.message;
+        });
+      }
+    }
+    function actualizarCarrerasImpresasAdmin(seleccion) {
+      const fac=document.getElementById('imp-facultad')?.value;
+      const sel=document.getElementById('imp-carrera');if(!sel)return;
+      sel.replaceChildren();
+      (CARRERAS_IMPRESAS_ADMIN[fac]||[]).forEach(c=>sel.add(new Option(c,c)));
+      if(seleccion)sel.value=seleccion;
+    }
+    function esUrlDriveImpreso(url) {
+      try {const u=new URL(url);return u.protocol==='https:' && ['drive.google.com','docs.google.com'].includes(u.hostname);}catch(_){return false;}
+    }
+    function limpiarCatalogoImpresoAdmin() {
+      const f=document.getElementById('form-catalogo-impreso');if(!f)return;
+      f.reset();document.getElementById('imp-id').value='';
+      document.getElementById('imp-facultad').selectedIndex=0;actualizarCarrerasImpresasAdmin();
+      document.getElementById('imp-guardar').textContent='Guardar catálogo';
+    }
+    async function guardarCatalogoImpreso(e) {
+      e.preventDefault();
+      if (!db || !firebase.auth().currentUser || !ADMIN_UIDS.has(firebase.auth().currentUser.uid)) return alert('Se requiere sesión de administrador autorizado.');
+      const id=document.getElementById('imp-id').value;
+      const dato={
+        facultad:document.getElementById('imp-facultad').value,
+        carrera:document.getElementById('imp-carrera').value,
+        titulo:document.getElementById('imp-titulo').value.trim(),
+        link:document.getElementById('imp-link').value.trim(),
+        activo:document.getElementById('imp-activo').checked,
+        actualizado:firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if(!CARRERAS_IMPRESAS_ADMIN[dato.facultad]?.includes(dato.carrera))return alert('Facultad y carrera no coinciden.');
+      if(!dato.titulo || !esUrlDriveImpreso(dato.link))return alert('Ingresá un nombre y un enlace válido de Google Drive.');
+      const boton=document.getElementById('imp-guardar');boton.disabled=true;
+      const estado=document.getElementById('imp-estado');estado.textContent='Guardando…';
+      try {
+        let ref;
+        if(id){ref=db.collection('catalogos_impresos').doc(id);await ref.update(dato);}
+        else{ref=await db.collection('catalogos_impresos').add(dato);}
+        await registrarAuditoria(id?'editar':'crear','catalogo_impreso',ref.id,dato.titulo,{facultad:dato.facultad,carrera:dato.carrera});
+        limpiarCatalogoImpresoAdmin();estado.textContent='Catálogo guardado correctamente.';
+      }catch(err){console.error(err);estado.textContent='No se pudo guardar: '+err.message;}
+      finally{boton.disabled=false;}
+    }
+    function editarCatalogoImpreso(id) {
+      const c=catalogosImpresosAdmin.find(x=>x._id===id);if(!c)return;
+      document.getElementById('imp-id').value=c._id;
+      document.getElementById('imp-facultad').value=c.facultad;
+      actualizarCarrerasImpresasAdmin(c.carrera);
+      document.getElementById('imp-titulo').value=c.titulo||'';
+      document.getElementById('imp-link').value=c.link||'';
+      document.getElementById('imp-activo').checked=c.activo!==false;
+      document.getElementById('imp-guardar').textContent='Guardar cambios';
+      document.getElementById('form-catalogo-impreso').scrollIntoView({behavior:'smooth'});
+    }
+    async function eliminarCatalogoImpreso(id) {
+      const c=catalogosImpresosAdmin.find(x=>x._id===id);if(!c||!confirm('¿Eliminar el catálogo "'+(c.titulo||'')+'" del listado? El archivo en Drive NO se borrará.'))return;
+      try{await db.collection('catalogos_impresos').doc(id).delete();await registrarAuditoria('eliminar','catalogo_impreso',id,c.titulo,{facultad:c.facultad,carrera:c.carrera});}
+      catch(err){alert('No se pudo eliminar: '+err.message);}
+    }
+    function renderCatalogosImpresosAdmin() {
+      const lista=document.getElementById('imp-listado');if(!lista)return;
+      lista.replaceChildren();
+      if(!catalogosImpresosAdmin.length){lista.textContent='Todavía no hay catálogos impresos registrados.';return;}
+      catalogosImpresosAdmin.slice().sort((a,b)=>(a.facultad+a.carrera+a.titulo).localeCompare(b.facultad+b.carrera+b.titulo,'es')).forEach(c=>{
+        const fila=document.createElement('div');fila.className='p-3 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-wrap items-center justify-between gap-3';
+        const info=document.createElement('div');info.className='min-w-0 flex-1';
+        const title=document.createElement('strong');title.textContent=c.titulo||'Sin título';info.append(title);
+        const meta=document.createElement('p');meta.className='text-slate-500 mt-1';meta.textContent=(c.facultad||'')+' · '+(c.carrera||'')+(c.activo===false?' · Oculto':' · Visible');info.append(meta);
+        const acciones=document.createElement('div');acciones.className='flex gap-2 flex-wrap';
+        const a=document.createElement('a');a.textContent='Abrir';a.href=esUrlDriveImpreso(c.link)?c.link:'#';a.target='_blank';a.rel='noopener noreferrer';a.className='p-2 bg-blue-50 text-blue-700 rounded-lg';acciones.append(a);
+        const edit=document.createElement('button');edit.textContent='Editar';edit.className='p-2 bg-slate-200 dark:bg-slate-700 rounded-lg';edit.onclick=()=>editarCatalogoImpreso(c._id);acciones.append(edit);
+        const del=document.createElement('button');del.textContent='Eliminar';del.className='p-2 bg-rose-50 text-rose-700 rounded-lg';del.onclick=()=>eliminarCatalogoImpreso(c._id);acciones.append(del);
+        fila.append(info,acciones);lista.append(fila);
+      });
+    }
+
     async function guardarLibro(e) {
       e.preventDefault();
       const docId = document.getElementById('edit-doc-id').value;
@@ -1153,7 +2169,7 @@
     function editarLibro(i) {
       const l = libros[i];
       document.getElementById('edit-doc-id').value = l._id || "";
-      document.getElementById('inp-carrera').value = l.carrera;
+      document.getElementById('inp-carrera').value = carreraCanonica(l.carrera);
       
       if (l.titulo.includes('<span class="libro-edicion">')) {
         const parts = l.titulo.split('<span class="libro-edicion">');
@@ -1513,15 +2529,29 @@
         return true;
       });
 
-      const librosLimpios = librosUnicos.map(({ _id, ...resto }) => resto);
+      let portadasBase64Omitidas = 0;
+      const fallbackPortada = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=300&q=80";
+      const librosLimpios = librosUnicos.map(({ _id, ...resto }) => {
+        const limpio = { ...resto };
+        if (String(limpio.imagen || '').startsWith('data:image/')) {
+          portadasBase64Omitidas++;
+          limpio.imagen = PORTADAS_PRESET[limpio.carrera] || fallbackPortada;
+        }
+        return limpio;
+      });
       const simsLimpios = simuladores.map(({ _id, ...resto }) => resto);
-      const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent(`const catalogoLibros = ${JSON.stringify(librosLimpios, null, 4)};\n\nconst simuladoresGlobales = ${JSON.stringify(simsLimpios, null, 4)};\n`);
+      const contenido = `const catalogoLibros = ${JSON.stringify(librosLimpios, null, 4)};\n\nconst simuladoresGlobales = ${JSON.stringify(simsLimpios, null, 4)};\n`;
+      const blob = new Blob([contenido], { type: 'text/javascript;charset=utf-8' });
       const a = document.createElement('a');
-      a.href = dataStr;
+      a.href = URL.createObjectURL(blob);
       a.download = "catalogo.js";
       document.body.appendChild(a);
       a.click();
       a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      if (portadasBase64Omitidas) {
+        alert(`Catálogo liviano generado. Se sustituyeron ${portadasBase64Omitidas} portadas Base64 por portadas temáticas únicamente en el respaldo. Las portadas reales permanecen en Firebase.`);
+      }
     }
 
     function actualizarTodoUI() {
@@ -1603,24 +2633,166 @@
       }
     }
 
-    // Restaurar sesión únicamente si Firebase confirma una identidad autorizada.
+    // ÚNICA ruta de apertura del panel: Firebase Auth confirma la sesión y recién luego conectamos datos.
     try {
       const auth = asegurarFirebase();
+
+      // Seguridad: evitar que Firebase mantenga una sesión persistente LOCAL
+      // entre cierres completos del navegador.
+      auth.setPersistence(
+        firebase.auth.Auth.Persistence.SESSION
+      ).catch(error => {
+        console.warn('[UNIDA] No se pudo configurar persistencia SESSION:', error);
+      });
+
+      const inicioRestauracion = performance.now();
       auth.onAuthStateChanged(async (user) => {
-        if (!user) { mostrarLogin(); return; }
+        console.log(`[UNIDA] Estado Auth resuelto en ${Math.round(performance.now() - inicioRestauracion)} ms`);
+
+        if (!user) {
+          limpiarListenersFirebase();
+          mostrarLogin();
+          return;
+        }
         if (!ADMIN_UIDS.has(user.uid)) {
+          limpiarListenersFirebase();
           await auth.signOut();
           mostrarLogin('Esta cuenta no está autorizada para administrar la biblioteca.');
           return;
         }
+
+        // Avisamos por canal externo cada vez que esta pestaña obtiene acceso autorizado.
+        // No bloqueamos la apertura del panel si el servicio de alertas falla.
+        const tipoAcceso = accesoPorLoginExplicito ? 'inicio_sesion' : 'sesion_restaurada';
+        notificarAccesoAdmin(user, tipoAcceso);
+        accesoPorLoginExplicito = false;
+
+        // El panel aparece inmediatamente al confirmar identidad; Firestore carga después.
         document.getElementById('auth-lock').classList.add('hidden');
         document.getElementById('dashboard-app').classList.remove('hidden');
-        inicializarFirebase();
         asignarPortadaTematica(true);
+        inicializarFirebase();
       });
     } catch (e) {
+      console.error('[UNIDA] Error inicializando Firebase/Auth:', e);
       mostrarLogin('No se pudo inicializar Firebase. Revisa la configuración del proyecto.');
     }
   </script>
+
+<script>
+// Módulo aislado: sólo escribe al pulsar confirmación y tras autorización vigente.
+let bioArchivoFilas = null, bioPlan = null, bioEnProceso = false;
+function bioEstado(msg, error=false) {
+  const el=document.getElementById('bio-estado'); if(!el)return;
+  el.textContent=msg; el.className='text-xs '+(error?'text-rose-600':'text-slate-600 dark:text-slate-300');
+}
+function bioCSV(texto) {
+  const filas=[]; let fila=[],campo='',enComillas=false;
+  texto=texto.replace(/^\uFEFF/,'');
+  for(let i=0;i<texto.length;i++) {
+    const c=texto[i];
+    if(c==='"') { if(enComillas&&texto[i+1]==='"'){campo+='"';i++;} else enComillas=!enComillas; }
+    else if(c===','&&!enComillas){fila.push(campo);campo='';}
+    else if((c==='\n'||c==='\r')&&!enComillas){ if(c==='\r'&&texto[i+1]==='\n')i++;fila.push(campo);if(fila.some(x=>x.trim()))filas.push(fila);fila=[];campo='';}
+    else campo+=c;
+  }
+  if(enComillas)throw Error('El CSV contiene comillas sin cerrar.');
+  if(campo||fila.length){fila.push(campo);filas.push(fila);}
+  const nombres=filas.shift().map(x=>x.trim());
+  const columnas=['carrera','materia','titulo','nombre_archivo','origen_id','url_publica'];
+  for(const c of columnas)if(!nombres.includes(c))throw Error('Falta columna: '+c);
+  return filas.map((valores,i)=>{if(valores.length!==nombres.length)throw Error('Número de columnas incorrecto en registro '+(i+2));return Object.fromEntries(nombres.map((k,j)=>[k,(valores[j]||'').trim()]));});
+}
+function bioClave(v) {return String(v||'').replace(/<[^>]*>/g,' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
+function bioValidarFilas(filas) {
+  if(!filas.length)throw Error('CSV vacío.');
+  const ids=new Set();
+  filas.forEach((r,i)=>{
+    if(r.carrera!=='Bioquímica'||!r.titulo||!r.origen_id||!r.materia)throw Error('Registro '+(i+2)+': faltan datos o la carrera no es Bioquímica.');
+    if(ids.has(r.origen_id))throw Error('ID de OneDrive repetido en CSV: '+r.origen_id);
+    ids.add(r.origen_id);
+    try {const u=new URL(r.url_publica);if(u.protocol!=='https:'||!u.hostname.endsWith('.sharepoint.com'))throw Error();}
+    catch {throw Error('URL inválida en registro '+(i+2));}
+  });
+}
+async function bioLeerCSV(input) {
+  bioPlan=null;bioArchivoFilas=null;
+  document.getElementById('bio-confirmacion').classList.add('hidden');
+  document.getElementById('bio-preview').classList.add('hidden');
+  const f=input.files?.[0];if(!f)return;
+  try {const filas=bioCSV(await f.text());bioValidarFilas(filas);bioArchivoFilas=filas;bioEstado('CSV validado: '+filas.length+' filas. Pulsá «Analizar duplicados».');}
+  catch(e){bioEstado('Error: '+e.message,true);}
+}
+async function bioPrepararPlan() {
+  if(!bioArchivoFilas)throw Error('Primero seleccioná un CSV válido.');
+  if(typeof db==='undefined'||!db)throw Error('Firestore no está conectado.');
+  if(!firebase.auth().currentUser||typeof ADMIN_UIDS==='undefined'||!ADMIN_UIDS.has(firebase.auth().currentUser.uid))throw Error('Iniciá sesión con una cuenta administradora autorizada.');
+  const snap=await db.collection('libros').get();
+  const existenteIds=new Set(), existenteUrls=new Set(), existenteTitulos=new Set(), docs=new Set();
+  snap.forEach(d=>{const a=d.data();docs.add(d.id);if(a.origenId)existenteIds.add(a.origenId);if(a.link)existenteUrls.add(a.link.trim());if(a.carrera==='Bioquímica')existenteTitulos.add(bioClave(a.titulo));});
+  const nuevos=[],omitidos=[];const idsNuevos=new Set(),urlsNuevas=new Set(),titulosNuevos=new Set();
+  for(const r of bioArchivoFilas){
+    const titulo=bioClave(r.titulo),id=r.origen_id,url=r.url_publica;
+    const docId='bioquimica_'+id;
+    if(existenteIds.has(id)||existenteUrls.has(url)||existenteTitulos.has(titulo)||docs.has(docId)||idsNuevos.has(id)||urlsNuevas.has(url)||titulosNuevos.has(titulo)) omitidos.push(r);
+    else {nuevos.push(r);idsNuevos.add(id);urlsNuevas.add(url);titulosNuevos.add(titulo);}
+  }
+  return {nuevos,omitidos,total:bioArchivoFilas.length,baseActual:snap.size};
+}
+async function bioPrevisualizar() {
+  if(bioEnProceso)return;
+  document.getElementById('bio-confirmacion').classList.add('hidden');
+  bioPlan=null;
+  try{
+    bioEstado('Consultando Firestore y buscando duplicados...');
+    const plan=await bioPrepararPlan();bioPlan=plan;
+    bioEstado(`CSV: ${plan.total} | Nuevos para importar: ${plan.nuevos.length} | Ya existentes o posibles duplicados: ${plan.omitidos.length} | Documentos actuales: ${plan.baseActual}.`);
+    const box=document.getElementById('bio-preview');box.classList.remove('hidden');
+    const tabla=document.createElement('table');tabla.className='w-full text-xs';
+    const cab=document.createElement('tr');for(const h of ['Título','Materia','Autor','Acción']){const th=document.createElement('th');th.textContent=h;th.className='text-left p-2 border-b';cab.append(th);}tabla.append(cab);
+    for(const [i,r] of [...plan.nuevos.slice(0,12),...plan.omitidos.slice(0,5)].entries()){
+      const tr=document.createElement('tr');const valores=[r.titulo,r.materia,'S/A',i<Math.min(12,plan.nuevos.length)?'Nuevo':'Omitido'];
+      for(const v of valores){const td=document.createElement('td');td.textContent=v;td.className='p-2 border-b';tr.append(td);}tabla.append(tr);
+    }
+    box.replaceChildren(tabla);
+    if(plan.nuevos.length)document.getElementById('bio-confirmacion').classList.remove('hidden');
+  }catch(e){bioEstado('No se pudo analizar: '+e.message,true);}
+}
+async function bioImportar(){
+  if(bioEnProceso)return;
+  if(!bioPlan||!bioPlan.nuevos.length){bioEstado('Analizá el archivo primero.',true);return;}
+  if(!document.getElementById('bio-backup-ok').checked||document.getElementById('bio-frase').value.trim()!=='IMPORTAR'){
+    bioEstado('Antes de importar, descargá el backup, marcá la casilla y escribí IMPORTAR.',true);return;
+  }
+  if(!confirm('¿Confirmás importar los libros NUEVOS de Bioquímica a Firestore? No se modificarán los existentes.'))return;
+  bioEnProceso=true;const boton=document.getElementById('bio-importar');boton.disabled=true;
+  let escritos=0;
+  try{
+    // Segunda comprobación de Firestore justo antes de escribir.
+    const actual=await bioPrepararPlan();
+    if(actual.nuevos.length!==bioPlan.nuevos.length)throw Error('La base cambió desde la vista previa. Volvé a analizar antes de importar.');
+    const col=db.collection('libros');
+    const portada=PORTADAS_PRESET['Bioquímica'];
+    if(!portada)throw Error('No se encontró la portada predeterminada de Bioquímica.');
+    for(let inicio=0;inicio<actual.nuevos.length;inicio+=80){
+      const grupo=actual.nuevos.slice(inicio,inicio+80);const batch=db.batch();
+      grupo.forEach(r=>{
+        const doc=col.doc('bioquimica_'+r.origen_id);
+        batch.set(doc,{
+          carrera:'Bioquímica',titulo:r.titulo,autor:'S/A',imagen:portada,
+          link:r.url_publica,materia:r.materia,origenId:r.origen_id,
+          nombreArchivo:r.nombre_archivo,estadoPortada:'pendiente',
+          origenImportacion:'Bioquimica OneDrive',fechaImportacion:firebase.firestore.FieldValue.serverTimestamp()
+        });
+      });
+      await batch.commit();escritos+=grupo.length;bioEstado('Guardados '+escritos+' de '+actual.nuevos.length+' registros nuevos...');
+    }
+    bioEstado('Importación completada: '+escritos+' libros nuevos. Omitidos: '+actual.omitidos.length+'. Revisa Auditoría del Catálogo > Portada genérica.');
+    document.getElementById('bio-confirmacion').classList.add('hidden');bioPlan=null;
+    if(typeof registrarAuditoria==='function')await registrarAuditoria('importar','libro','','Importación Bioquímica',{creados:escritos,omitidos:actual.omitidos.length});
+  }catch(e){bioEstado('Importación detenida después de '+escritos+' registros: '+e.message+' — Volvé a analizar para reintentar sólo pendientes.',true);}
+  finally {bioEnProceso=false;boton.disabled=false;}
+}
+</script>
 </body>
 </html>
